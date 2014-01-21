@@ -31,11 +31,11 @@
       section.nData     = 2;
       section.data(2)  = dumData; %prealloc
       
-	  ;% loikxjbxjgn.v0_Value
+	  ;% loikxjbxjgn.v_Value
 	  section.data(1).logicalSrcIdx = 0;
 	  section.data(1).dtTransOffset = 0;
 	
-	  ;% loikxjbxjgn.omaga0_Value
+	  ;% loikxjbxjgn.omega_Value
 	  section.data(2).logicalSrcIdx = 1;
 	  section.data(2).dtTransOffset = 1;
 	
@@ -165,8 +165,8 @@
   ;%
 
 
-  targMap.checksum0 = 875822604;
-  targMap.checksum1 = 2596496778;
-  targMap.checksum2 = 94010647;
-  targMap.checksum3 = 190819913;
+  targMap.checksum0 = 3818244157;
+  targMap.checksum1 = 3211926710;
+  targMap.checksum2 = 1219256465;
+  targMap.checksum3 = 2726207580;
 

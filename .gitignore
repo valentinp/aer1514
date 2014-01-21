@@ -1,0 +1,8 @@
+# Directories #
+###############
+robulink_rtt/
+slprj/
+
+# File extensions #
+###################
+*.mexw32

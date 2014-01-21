@@ -1,4 +1,4 @@
 function brake
-    set('robulink/v', 'Value', '0');
-    set('robulink/omega', 'Value', '0');
+    set_param('robulink/v', 'Value', '0');
+    set_param('robulink/omega', 'Value', '0');
 end
