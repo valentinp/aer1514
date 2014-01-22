@@ -22,6 +22,8 @@ function occupancyGrid(fileName)
     % Acquire RGB and Depth image
     mxNiUpdateContext(context, option);
     [rgb, depth] = mxNiImage(context);
+    real_XYZ = mxNiConvertProjectiveToRealWorld(context, depth); 
+    
     % Update figure 
     set(h1,'CData',flipdim(depth,2)); 
     set(h2,'CData',flipdim(rgb,2)); 
