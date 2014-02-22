@@ -1,5 +1,5 @@
 function goto(goalX, goalY, varargin)
-    axisToSensor = 0.14; % meters
+    axisToSensor = 0.08; % meters
     
     maxSpeed = 0.5;    % default
     if nargin > 2
@@ -7,8 +7,8 @@ function goto(goalX, goalY, varargin)
     end
     
     goalNorm = sqrt(goalX^2 + goalY^2);
-    goalX = goalX - axisToSensor*goalX/goalNorm;
-    goalY = goalY - axisToSensor*goalY/goalNorm;
+    goalX = goalX - axisToSensor * goalX / goalNorm;
+    goalY = goalY - axisToSensor * goalY / goalNorm;
 
     set_param('robulink/endX','Value',num2str(goalX));
     set_param('robulink/endY','Value',num2str(goalY));
