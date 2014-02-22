@@ -6,21 +6,39 @@ height = 480;
 % Depth image
 figure
 subplot(1,2,1)
-title('Depth Image')
 depthIm = imagesc(zeros(height,width,'uint16'));
+title('Depth Image')
 axis image;
 
 % RGB image
 subplot(1,2,2)
-title('RGB Image')
 rgbIm = imshow(zeros(height,width,3,'uint8'));
+title('RGB Image')
 axis image;
 
-% Create a little button to break the loop
-H = uicontrol('Style', 'PushButton', ...
-                    'String', 'Break', ...
+global samplesTable;
+global samplesList;
+samplesList = [];
+% Samples list
+samplesTable = uitable('Position',[100 50 360 75]);
+
+
+
+% Create some GUI buttons
+btnClose = uicontrol('Style', 'PushButton', ...
+                    'String', 'Close', ...
+                    'Position', [350 5 120 20], ...
                     'Callback', 'delete(gcbf)');
-while (ishandle(depthIm))
+btnPoints = uicontrol('Style', 'PushButton', ...
+                    'String', 'Add Sample(s)', ...
+                    'Position', [200 5 120 20], ...
+                    'Callback', 'addSample(depth);');
+btnClrPoints = uicontrol('Style', 'PushButton', ...
+    'String', 'Clear Samples', ...
+    'Position', [50 5 120 20], ...
+    'Callback', 'samplesList = []; set(samplesTable, ''Data'', samplesList);');
+
+ while (ishandle(depthIm))
     [rgb, depth] = getKinectData(context, option);
     set(rgbIm,'CData',rgb)
     set(depthIm,'CData',depth)
