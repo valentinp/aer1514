@@ -47,20 +47,20 @@
     
     groundPoints = T_gk * kinectPoints;
     
-%     % Make grid for local plane fitting
-%     groundGridXRange = min(groundPoints(1,:)) : gridSize : max(groundPoints(1,:));
-%     groundGridYRange = min(groundPoints(2,:)) : gridSize : max(groundPoints(2,:));    
-%     [groundGridX, groundGridY] = meshgrid(groundGridXRange, groundGridYRange);
-%     
-%     % Each finite plane is represented by 
-%     % [x0; y0; z0; 
-%     fittedGroundPlanes = zeros(6,numel(groundGridX));
-%     % Fit planes to grid squares
-%     for i = 1:size(groundGridXRange,2)
-%         for j = 1:size(groundGridYRange,2)
-%             
-%         end
-%     end
+    % Make grid for local plane fitting
+    groundGridXRange = min(groundPoints(1,:)) : gridSize : max(groundPoints(1,:));
+    groundGridYRange = min(groundPoints(2,:)) : gridSize : max(groundPoints(2,:));    
+    [groundGridX, groundGridY] = meshgrid(groundGridXRange, groundGridYRange);
+    
+    % Each finite plane is represented by 
+    % [x0; y0; z0; 
+    fittedGroundPlanes = zeros(6,numel(groundGridX));
+    % Fit planes to grid squares
+    for i = 1:size(groundGridXRange,2)
+        for j = 1:size(groundGridYRange,2)
+            
+        end
+    end
     
     % Clean up
     mxNiDeleteContext(context);
