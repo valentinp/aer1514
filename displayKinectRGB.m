@@ -7,6 +7,6 @@ function displayKinectRGB(rgb, figHandle)
     % h = imagesc(zeros(height,width,3,'uint8'));
     
     % Update figure 
-    set(figHandle,'CData',flipdim(rgb,2)); 
+    set(figHandle,'CData',rgb); 
     drawnow;
 end

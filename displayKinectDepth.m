@@ -9,6 +9,6 @@ function displayKinectDepth(depth, figHandle)
 %     h = imagesc(zeros(height,width,'uint16'));
     
     % Update figure 
-    set(figHandle,'CData',flipdim(depth,2)); 
+    set(figHandle,'CData',depth); 
     drawnow;
 end
