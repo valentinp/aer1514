@@ -4,13 +4,16 @@ clear all; close all;
     addpath('./utils');
     
     % Constants
-    gridSize = 5;   % pixels
-    height = 480;   % pixels
-    width = 640;    % pixels
+    height = 480;               % pixels
+    width = 640;                % pixels
+    gridSize = 40;              % millimeters
+    floorPlaneTol = 100;         % millimeters
+    minPointsToFitPlane = 10;
+    maxSlope = 15;              % degrees
     
-    % Set up X,Y meshgrid for interpolation
-    x = 0:width-1;  
-    y = 0:height-1; 
+    % Set up X,Y meshgrid for image
+    x = 1:width;  
+    y = 1:height; 
     [X,Y] = meshgrid(x,y);
     
     [context, option] = createKinectContext(true);
@@ -24,11 +27,13 @@ clear all; close all;
     gotGoodGroundPoints = false;    
     while ~gotGoodGroundPoints
         disp('Select bottom-left and top-right points of a region on the ground');
-        [xGround,yGround] = ginput(2);       
-
+        [xGround,yGround] = ginput(2);    
+        
+        xGround = round(xGround);
+        yGround = round(yGround);
+        
         % Basic error checking in case depth image is screwy
-        depthCheck = interp2(X,Y,double(depth),xGround,yGround);  
-        gotGoodGroundPoints = sum(depthCheck <= 0) == 0;
+        gotGoodGroundPoints = depth(yGround(1),xGround(1)) > 0 && depth(yGround(2),xGround(2)) > 0;
     end
     
     % Grab all points in the rectangle and fit a plane to them
@@ -39,82 +44,96 @@ clear all; close all;
     
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePointsX(:), groundPlanePointsY(:), groundPlanePointsZ(:));
     
-    % Some points in the plane
-    xGround = [1;                   0;                  0];
-    yGround = [0;                   1;                  0];
-    zGround = [groundA+groundB;     groundA+groundC;    groundA];
-    
+    % Some points in the plane (columns of this matrix)
+    groundPoints = [1,                  0,                  0;
+                    0,                  1,                  0;
+                    groundA+groundB,    groundA+groundC,    groundA];
+                
     % Compute basis vectors for ground plane
-    vec1 = [xGround(2) - xGround(1) ; yGround(2) - yGround(1); zGround(2) - zGround(1)];
-    vec2 = [xGround(3) - xGround(1) ; yGround(3) - yGround(1); zGround(3) - zGround(1)];    
+    vec1 = groundPoints(:,2) - groundPoints(:,1);
+    vec2 = groundPoints(:,3) - groundPoints(:,1);
     % Orthogonalize (Gram-Schmidt)
-    vec2 = vec2 - (dot(vec1, vec2)/dot(vec1, vec1)) * vec1;    
+    vec2 = vec2 - (dot(vec1, vec2)/dot(vec1, vec1)) * vec1;
     % Normalize
     vec1 = vec1 / norm(vec1);
     vec2 = vec2 / norm(vec2);    
     % Ground plane to Kinect rotation
     R_kg = [vec1, vec2, cross(vec1,vec2)];
-    t_gk_k = [xGround(1); yGround(1); zGround(1)];
-    T_gk = [R_kg', -R_kg' * t_gk_k;
-              0,0,0,1];
+    t_gk_k = groundPoints(:,1);
+    T_gk = [R_kg'       ,   -R_kg' * t_gk_k;
+            zeros(1,3)  ,   1               ];
     T_kg = inv(T_gk);
     
     % Change basis of Kinect point cloud
-    kinectPoints(3,:) = double(depth(depth > 0));
-    kinectPoints(2,:) = Y(depth > 0);
-    kinectPoints(1,:) = X(depth > 0); 
-    kinectPoints = cart2homo(kinectPoints);
+    % Also only take points with valid depth data (i.e., depth > 0)
+    kinectPoints_k(3,:) = double(depth(depth > 0));
+    kinectPoints_k(2,:) = Y(depth > 0);
+    kinectPoints_k(1,:) = X(depth > 0); 
+    kinectPoints_k = cart2homo(kinectPoints_k);
     
-    kinectPoints = T_gk * kinectPoints;
+    kinectPoints_g = T_gk * kinectPoints_k;
+    kinectPoints_g = homo2cart(kinectPoints_g);
     
-    floorPoints = kinectPoints(:,abs(kinectPoints(3,:)) < 5);
+    floorPoints_g = kinectPoints_g(:,abs(kinectPoints_g(3,:)) < floorPlaneTol);    
+    floorPoints_k = homo2cart( T_kg * cart2homo(floorPoints_g) );
     
-    floorPointsGround = homo2cart(floorPoints);
+%     h = figure;
+%     h = imagesc(zeros(height,width,3,'uint8'));
+%     displayKinectRGB(rgb,h); hold on;
+%     scatter(floorPoints_k(1,:),floorPoints_k(2,:),'.');
     
-    floorPoints = T_kg * floorPoints;
-    floorPoints = homo2cart(floorPoints);
+%     figure(100); clf;
+%     scatter3(floorPoints_g(1,1:50:end),floorPoints_g(2,1:50:end),floorPoints_g(3,1:50:end),'.');
+%     xlabel('x');ylabel('y');zlabel('z');
+
+    % Set up grid for local plane fitting
+    gridEdgesX = min(floorPoints_g(1,:)) : gridSize : max(floorPoints_g(1,:));
+    gridEdgesY = min(floorPoints_g(2,:)) : gridSize : max(floorPoints_g(2,:));
+    [gridCornersX, gridCornersY] = meshgrid(gridEdgesX, gridEdgesY);
+    
+    % Represent each plane with parameters a,b,c
+    % s.t. a + bx + cy = z
+    gridPlanesA = zeros(size(gridCornersX)-1);
+    gridPlanesB = zeros(size(gridCornersX)-1);
+    gridPlanesC = zeros(size(gridCornersX)-1);
     
     h = figure;
     h = imagesc(zeros(height,width,3,'uint8'));
-    displayKinectRGB(rgb,h); hold on;
-    scatter(floorPoints(1,:),floorPoints(2,:),'.');
+    displayKinectRGB(rgb,h); hold on;   
     
-    figure(100); clf;
-    scatter3(floorPointsGround(1,1:50:end),floorPointsGround(2,1:50:end),floorPointsGround(3,1:50:end),'.');
-    xlabel('x');ylabel('y');zlabel('z');
-%     minX = min(floorPoints(1,:)); minY = min(floorPoints(2,:));
-%     maxX = max(floorPoints(1,:)); maxY = max(floorPoints(2,:));
-%     
-%     planePoints = [ minX, maxX, minX, maxX;
-%                     minY, minY, maxY, maxY;
-%                     0   , 0   , 0   ,   0;
-%                     1   , 1   , 1   ,   1];
-%     planePoints = T_gk_k * planePoints;
-%     fill(planePoints(1,:), planePoints(2,:),'c');
-    
-    
-%     xPlane = 0:0.1:10;
-%     yPlane = 0:0.1:10;
-%     [XPlane,YPlane] = meshgrid(xPlane, yPlane);
-%     ZPlane = groundA + groundB*XPlane + groundC*YPlane;
-%     
-%     figure(100); mesh(XPlane,YPlane,ZPlane);
-%     xlabel('x');ylabel('y');zlabel('z');
-    
-%     % Make grid for local plane fitting
-%     groundGridXRange = min(groundPoints(1,:)) : gridSize : max(groundPoints(1,:));
-%     groundGridYRange = min(groundPoints(2,:)) : gridSize : max(groundPoints(2,:));    
-%     [groundGridX, groundGridY] = meshgrid(groundGridXRange, groundGridYRange);
-%     
-%     % Each finite plane is represented by 
-%     % [x0; y0; z0; 
-%     fittedGroundPlanes = zeros(6,numel(groundGridX));
-%     % Fit planes to grid squares
-%     for i = 1:size(groundGridXRange,2)
-%         for j = 1:size(groundGridYRange,2)
-%             
-%         end
-%     end
+    for i = 1:numel(gridEdgesY)-1
+        for j = 1:numel(gridEdgesX)-1
+            % Grab all points within the current grid cell
+            planeMask = floorPoints_g(1,:) >= gridCornersX(i,j) & floorPoints_g(1,:) <= gridCornersX(i+1,j+1) ...
+                        & floorPoints_g(2,:) >= gridCornersY(i,j) & floorPoints_g(2,:) <= gridCornersY(i+1,j+1);                    
+            
+            % sum(planeMask) is the number of floor points within the
+            % current cell
+            if sum(planeMask) >= minPointsToFitPlane
+                planePoints = floorPoints_g(:,planeMask);
+                
+                % Get fitted plane parameters
+                [gridPlanesA(i,j), gridPlanesB(i,j), gridPlanesC(i,j)] = fitPlaneToPoints(planePoints(1,:)', planePoints(2,:)', planePoints(3,:)');
+
+                % Display fitted planes in the Kinect RGB image
+                planeMaxSlope = acosd(1/(gridPlanesB(i,j)^2 + gridPlanesC(i,j)^2 + 1));
+                if planeMaxSlope < maxSlope
+                    planeColour = 'g';
+                else
+                    planeColour = 'r';
+                end
+
+                planeCorners_g(1,:) = [gridCornersX(i,j), gridCornersX(i,j), gridCornersX(i+1,j+1), gridCornersX(i+1,j+1)];
+                planeCorners_g(2,:) = [gridCornersY(i,j), gridCornersY(i+1,j+1), gridCornersY(i+1,j+1), gridCornersY(i,j)];
+                planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
+
+                planeCorners_k = homo2cart(T_kg * cart2homo(planeCorners_g));
+
+                patch(planeCorners_k(1,:), planeCorners_k(2,:), planeColour, 'FaceAlpha',0.5);
+                drawnow;
+            end
+        end
+    end
     
     % Clean up
     mxNiDeleteContext(context);
