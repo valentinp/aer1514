@@ -6,9 +6,9 @@ clear all; close all;
     % Constants
     height = 480;               % pixels
     width = 640;                % pixels
-    gridSize = 40;              % millimeters
-    floorPlaneTol = 100;         % millimeters
-    minPointsToFitPlane = 10;
+    gridSize = 30;              % millimeters
+    floorPlaneTol = 50;         % millimeters
+    minPointsToFitPlane = 20;
     maxSlope = 15;              % degrees
     
     % Set up X,Y meshgrid for image
@@ -50,8 +50,8 @@ clear all; close all;
                     groundA+groundB,    groundA+groundC,    groundA];
                 
     % Compute basis vectors for ground plane
-    vec1 = groundPoints(:,2) - groundPoints(:,1);
-    vec2 = groundPoints(:,3) - groundPoints(:,1);
+    vec1 = groundPoints(:,1) - groundPoints(:,3);
+    vec2 = groundPoints(:,2) - groundPoints(:,3);
     % Orthogonalize (Gram-Schmidt)
     vec2 = vec2 - (dot(vec1, vec2)/dot(vec1, vec1)) * vec1;
     % Normalize
@@ -59,7 +59,7 @@ clear all; close all;
     vec2 = vec2 / norm(vec2);    
     % Ground plane to Kinect rotation
     R_kg = [vec1, vec2, cross(vec1,vec2)];
-    t_gk_k = groundPoints(:,1);
+    t_gk_k = groundPoints(:,3);
     T_gk = [R_kg'       ,   -R_kg' * t_gk_k;
             zeros(1,3)  ,   1               ];
     T_kg = inv(T_gk);
@@ -101,14 +101,15 @@ clear all; close all;
     h = imagesc(zeros(height,width,3,'uint8'));
     displayKinectRGB(rgb,h); hold on;   
     
+    tic;
     for i = 1:numel(gridEdgesY)-1
         for j = 1:numel(gridEdgesX)-1
             % Grab all points within the current grid cell
             planeMask = floorPoints_g(1,:) >= gridCornersX(i,j) & floorPoints_g(1,:) <= gridCornersX(i+1,j+1) ...
                         & floorPoints_g(2,:) >= gridCornersY(i,j) & floorPoints_g(2,:) <= gridCornersY(i+1,j+1);                    
             
-            % sum(planeMask) is the number of floor points within the
-            % current cell
+            % sum(planeMask)
+            % is the number of "floor" points within the current cell
             if sum(planeMask) >= minPointsToFitPlane
                 planePoints = floorPoints_g(:,planeMask);
                 
@@ -123,18 +124,23 @@ clear all; close all;
                     planeColour = 'r';
                 end
 
-                planeCorners_g(1,:) = [gridCornersX(i,j), gridCornersX(i,j), gridCornersX(i+1,j+1), gridCornersX(i+1,j+1)];
-                planeCorners_g(2,:) = [gridCornersY(i,j), gridCornersY(i+1,j+1), gridCornersY(i+1,j+1), gridCornersY(i,j)];
-                planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
+                % Keep the visualization clean -- don't plot the
+                % practically vertical
+                if planeMaxSlope < 80
+                    planeCorners_g(1,:) = [gridCornersX(i,j), gridCornersX(i,j), gridCornersX(i+1,j+1), gridCornersX(i+1,j+1)];
+                    planeCorners_g(2,:) = [gridCornersY(i,j), gridCornersY(i+1,j+1), gridCornersY(i+1,j+1), gridCornersY(i,j)];
+                    planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
 
-                planeCorners_k = homo2cart(T_kg * cart2homo(planeCorners_g));
+                    planeCorners_k = homo2cart(T_kg * cart2homo(planeCorners_g));
 
-                patch(planeCorners_k(1,:), planeCorners_k(2,:), planeColour, 'FaceAlpha',0.5);
-                drawnow;
+                    patch(planeCorners_k(1,:), planeCorners_k(2,:), planeColour, 'FaceAlpha',0.3);
+                    % drawnow;  % Caution: drawing at every iteration slows
+                                % down this loop by a factor of 10!
+                end
             end
         end
     end
-    
+    toc;
     % Clean up
     mxNiDeleteContext(context);
 % end
