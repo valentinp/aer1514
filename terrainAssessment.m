@@ -6,19 +6,25 @@ clear all; close all;
     % Constants
     height = 480;               % pixels
     width = 640;                % pixels
-    gridSize = 30;              % millimeters
-    floorPlaneTol = 50;         % millimeters
-    minPointsToFitPlane = 20;
+    gridSize = 150;             % millimeters
+    floorPlaneTol = 500;        % millimeters
+    minPointsToFitPlane = 20;   % # points
     maxSlope = 15;              % degrees
+    maxSlopeToDisplay = 60;     % degrees
     
-    % Set up X,Y meshgrid for image
-    x = 1:width;  
-    y = 1:height; 
-    [X,Y] = meshgrid(x,y);
+    % Set up U,V meshgrid for image
+    u = 1:width;  
+    v = 1:height; 
+    [U,V] = meshgrid(u,v);
+    U = U(:);
+    V = V(:);
     
     [context, option] = createKinectContext(true);
     [rgb,depth] = getKinectData(context, option);
-     
+    kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth);  % height x width x 3
+    kinectPoints_k = reshape(kinectPoints_k, [(width*height) 3]);       % (height x width) x 3
+    kinectPoints_k = kinectPoints_k';                                   % 3 x (height x width)
+    
     h = figure;
     h = imagesc(zeros(height,width,'uint16'));
     displayKinectDepth(depth,h);
@@ -27,22 +33,20 @@ clear all; close all;
     gotGoodGroundPoints = false;    
     while ~gotGoodGroundPoints
         disp('Select bottom-left and top-right points of a region on the ground');
-        [xGround,yGround] = ginput(2);    
+        [uGround,vGround] = ginput(2);    
         
-        xGround = round(xGround);
-        yGround = round(yGround);
+        uGround = round(uGround);
+        vGround = round(vGround);
         
         % Basic error checking in case depth image is screwy
-        gotGoodGroundPoints = depth(yGround(1),xGround(1)) > 0 && depth(yGround(2),xGround(2)) > 0;
+        gotGoodGroundPoints = depth(vGround(1),uGround(1)) > 0 && depth(vGround(2),uGround(2)) > 0;
     end
     
     % Grab all points in the rectangle and fit a plane to them
-    planeFitMask = X >= min(xGround) & X <= max(xGround) & Y >= min(yGround) & Y <= max(yGround);
-    groundPlanePointsX = X(planeFitMask);
-    groundPlanePointsY = Y(planeFitMask);
-    groundPlanePointsZ = double(depth(planeFitMask));
+    planeFitMask = U >= min(uGround) & U <= max(uGround) & V >= min(vGround) & V <= max(vGround);
+    groundPlanePoints = kinectPoints_k(:,planeFitMask);
     
-    [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePointsX(:), groundPlanePointsY(:), groundPlanePointsZ(:));
+    [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:));
     
     % Some points in the plane (columns of this matrix)
     groundPoints = [1,                  0,                  0;
@@ -66,11 +70,10 @@ clear all; close all;
     
     % Change basis of Kinect point cloud
     % Also only take points with valid depth data (i.e., depth > 0)
-    kinectPoints_k(3,:) = double(depth(depth > 0));
-    kinectPoints_k(2,:) = Y(depth > 0);
-    kinectPoints_k(1,:) = X(depth > 0); 
-    kinectPoints_k = cart2homo(kinectPoints_k);
-    
+%     kinectPoints_k(3,:) = double(depth(depth > 0));
+%     kinectPoints_k(2,:) = Y(depth > 0);
+%     kinectPoints_k(1,:) = X(depth > 0); 
+    kinectPoints_k = cart2homo(kinectPoints_k);    
     kinectPoints_g = T_gk * kinectPoints_k;
     kinectPoints_g = homo2cart(kinectPoints_g);
     
@@ -126,14 +129,17 @@ clear all; close all;
 
                 % Keep the visualization clean -- don't plot the
                 % practically vertical
-                if planeMaxSlope < 80
+                if planeMaxSlope < maxSlopeToDisplay
                     planeCorners_g(1,:) = [gridCornersX(i,j), gridCornersX(i,j), gridCornersX(i+1,j+1), gridCornersX(i+1,j+1)];
                     planeCorners_g(2,:) = [gridCornersY(i,j), gridCornersY(i+1,j+1), gridCornersY(i+1,j+1), gridCornersY(i,j)];
                     planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
 
                     planeCorners_k = homo2cart(T_kg * cart2homo(planeCorners_g));
+                    planeCorners_k = reshape(planeCorners_k', [1 4 3]);
+                    planeCorners_k_projective = mxNiConvertRealWorldToProjective(context, planeCorners_k);
+                    planeCorners_k_projective = reshape(planeCorners_k_projective, [4 3]);
 
-                    patch(planeCorners_k(1,:), planeCorners_k(2,:), planeColour, 'FaceAlpha',0.3);
+                    patch(planeCorners_k_projective(:,1), planeCorners_k_projective(:,2), planeColour, 'FaceAlpha',0.2);
                     % drawnow;  % Caution: drawing at every iteration slows
                                 % down this loop by a factor of 10!
                 end
