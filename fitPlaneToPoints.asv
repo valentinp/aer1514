@@ -44,17 +44,14 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
         end
     end
     
-    if ~ exist('bestParams','var');
+    if exist('bestParams','var');
+        a = bestParams(1);
+        b = bestParams(2);
+        c = bestParams(3);
+    else
         % fall back to least squares fit
-        A(:,3) = y;
-        A(:,2) = x;
-        A(:,1) = ones(size(x));
-        bestParams = A \ z(sampleInd);        
+        A = 
     end
-    
-    a = bestParams(1);
-    b = bestParams(2);
-    c = bestParams(3);
     
     warning('on','MATLAB:singularMatrix');
     warning('on','MATLAB:nearlySingularMatrix');

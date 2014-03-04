@@ -118,8 +118,8 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     displayKinectRGB(rgb,h); hold on;   
 
     tic;
-    for i = 1:gridSize(1)-1
-        for j = 1:gridSize(2)-1
+    for i = 1:numel(gridEdgesY)-1
+        for j = 1:numel(gridEdgesX)-1
             % Grab all points within the current grid cell
             planeMask = floorPoints_g(1,:) >= gridEdgesX(j) & floorPoints_g(1,:) <= gridEdgesX(j+1) ...
                         & floorPoints_g(2,:) >= gridEdgesY(i) & floorPoints_g(2,:) <= gridEdgesY(i+1);                    
@@ -144,8 +144,6 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     terrain.T_kg = T_kg;
     terrain.gridEdgesX = gridEdgesX;
     terrain.gridEdgesY = gridEdgesY;
-    terrain.cellMiddlesX = terrain.gridEdgesX(1:end-1) + 0.5*(terrain.gridEdgesX(2:end) - terrain.gridEdgesX(1:end-1));
-    terrain.cellMiddlesY = terrain.gridEdgesY(1:end-1) + 0.5*(terrain.gridEdgesY(2:end) - terrain.gridEdgesY(1:end-1));
     terrain.gridSize = gridSize;
     terrain.gridSpacing = gridSpacing;
     terrain.gridPlanesA = gridPlanesA;
