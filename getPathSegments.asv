@@ -13,9 +13,16 @@ addpath('utils'); % for dist function
     eucDist = Inf(terrain.gridSize);
     totalCost = Inf(terrain.gridSize);
     
-    % Find out which cell we're currently in, and which cell we're trying 
-    [iStart, jStart] = getCellIndexFromCoords(xStart,yStart,terrain);
-    [iGoal, jGoal] = getCellIndexFromCoords(xGoal,yGoal,terrain);
+    % Find out which cell we're currently in, and which cell we're trying
+    % to get to
+    cellMiddlesX = terrain.gridEdgesX(1:end-1) + 0.5*(terrain.gridEdgesX(2:end) - terrain.gridEdgesX(1:end-1));
+    cellMiddlesY = terrain.gridEdgesY(1:end-1) + 0.5*(terrain.gridEdgesY(2:end) - terrain.gridEdgesY(1:end-1));
+    [temp, iStart] = min(abs(cellMiddlesY - yStart));
+    [temp, jStart] = min(abs(cellMiddlesX - xStart));
+    [temp, iGoal] = min(abs(cellMiddlesY - yGoal));
+    [temp, jGoal] = min(abs(cellMiddlesX - xGoal));
+    
+    [iStart, jStart] = getCellIdxFromCoords
        
     % A* search  
     costToCome(iStart, jStart) = 0;
@@ -109,7 +116,7 @@ addpath('utils'); % for dist function
         waypoints(1,:) = [xStart,yStart];
         for n = 1:numWaypoints - 1
             m = numWaypoints - n + 1;
-            waypoints(n+1,:) = [terrain.cellMiddlesX(waypoints_ij(m,2)), terrain.cellMiddlesY(waypoints_ij(m,1))];
+            waypoints(n+1,:) = [cellMiddlesX(waypoints_ij(m,2)), cellMiddlesY(waypoints_ij(m,1))];
         end
         
         waypoints(n+2,:) = [xGoal, yGoal];

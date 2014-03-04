@@ -1,12 +1,15 @@
-function followPath(waypoints)  
-    % This transform won't be correct in general. Need T_rg
-    waypoints = [0 -1; 1 0] * waypoints';
+function followPath(waypoints)
+    waypoints = simplifyPath(waypoints);
+    
+    % This transform won't be correct in general. Need something better.
+    waypoints = [0 1; 1 0] * waypoints';
     waypoints = waypoints';
 
     resetCoordFrame(0,0,0);
     
     atGoal = false;
     for n = 2:size(waypoints,1)
+        tic
         while ~atGoal
             rto = get_param('robulink/Path Following','RunTimeObject');
             atGoal = rto.OutputPort(5).Data;
