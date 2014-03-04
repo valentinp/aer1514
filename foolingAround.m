@@ -4,10 +4,11 @@ addpath('./utils');
 height = 480;               % pixels
 width = 640;                % pixels
 %Extract rgb and depth image
+close all;
 [context, option] = createKinectContext(true);
 
 %Set up GUI
-h = figure;
+figure;
 h = imagesc(zeros(height,width,3,'uint8'));
 hold on;
 
@@ -32,7 +33,7 @@ blue_region = rgb(:,:,3)./(rgb(:,:,2) + 0.1) > 1.5 & rgb(:,:,3)./(rgb(:,:,1)+0.1
 
 % Use RANSAC to find the best centroid for the red and blue spheres
 K = 200;
-thresh = 20;       % inlier error threshold (radius meas. in pixels)
+thresh = 15;       % inlier error threshold (radius meas. in pixels)
 maxInliersB = 0;
 maxInliersR = 0;
 
@@ -76,15 +77,15 @@ end
 scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
 scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
 
-redVec = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1));
-blueVec = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1));
-lateralVec = blueVec - redVec;
-disp(lateralVec)
+redVec = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
+blueVec = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
+
+lateralVec = cart2homo(0.5*(blueVec(:) - redVec(:)) + redVec(:));
 %Transform this vector into the ground plane
-lateralVec_g = T_gk*lateralVec;
-roverLoc = lateralVec_g(1:2);
-%disp(roverLoc)
-    pause(0.03);
+lateralVec_g = homo2cart(T_gk*lateralVec);
+roverLoc = lateralVec_g;
+disp(roverLoc)
+pause(0.01);
 end
 
 
