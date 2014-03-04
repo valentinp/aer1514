@@ -13,10 +13,9 @@ addpath('utils'); % for dist function
     eucDist = Inf(terrain.gridSize);
     totalCost = Inf(terrain.gridSize);
     
-    % Find out which cell we're currently in, and which cell we're trying
-    % to get to  
-    [iStart, jStart] = getCellIndexFromCoords(xStart,yStart);
-    [iGoal, jGoal] = getCellIndexFromCoords(xGoao,yGoal);
+    % Find out which cell we're currently in, and which cell we're trying 
+    [iStart, jStart] = getCellIndexFromCoords(xStart,yStart,terrain);
+    [iGoal, jGoal] = getCellIndexFromCoords(xGoal,yGoal,terrain);
        
     % A* search  
     costToCome(iStart, jStart) = 0;
