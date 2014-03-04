@@ -17,10 +17,10 @@ addpath('utils'); % for dist function
     % to get to
     cellMiddlesX = terrain.gridEdgesX(1:end-1) + 0.5*(terrain.gridEdgesX(2:end) - terrain.gridEdgesX(1:end-1));
     cellMiddlesY = terrain.gridEdgesY(1:end-1) + 0.5*(terrain.gridEdgesY(2:end) - terrain.gridEdgesY(1:end-1));
-    [temp, iStart] = min(abs(cellMiddlesY - yStart));
-    [temp, jStart] = min(abs(cellMiddlesX - xStart));
-    [temp, iGoal] = min(abs(cellMiddlesY - yGoal));
-    [temp, jGoal] = min(abs(cellMiddlesX - xGoal));
+    [~, iStart] = min(abs(cellMiddlesY - yStart));
+    [~, jStart] = min(abs(cellMiddlesX - xStart));
+    [~, iGoal] = min(abs(cellMiddlesY - yGoal));
+    [~, jGoal] = min(abs(cellMiddlesX - xGoal));
        
     % A* search  
     costToCome(iStart, jStart) = 0;
