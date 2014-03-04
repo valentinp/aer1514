@@ -1,13 +1,10 @@
 function waypoints = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
 % xStart, yStart, xGoal, yGoal, and waypoints in ground frame
 addpath('utils'); % for dist function
-
-    maxSlope = 15; % degrees
-    maxIterations = 20; % path planning fails if no path found in this many iterations
-       
+      
     % Initialize cell states and costs for search
-    cellStates = zeros(terrain.gridSize); % 0 = unvisited, 1 = dead, 2 = alive, 3 = ignore
-    cellStates(terrain.planeMaxSlope > maxSlope) = 3; % ignore unsafe cells
+    cellStates = zeros(terrain.gridSize); % 0 = unvisited, 1 = dead, 2 = alive, 3 = ignore    
+    cellStates(~terrain.safeCells) = 3;   % Ignore unsafe cells
     
     costToCome = Inf(terrain.gridSize);
     eucDist = Inf(terrain.gridSize);

@@ -4,7 +4,6 @@ function overlayTerrainGrid(h, terrain, context)
 
     height = 480;
     width = 640;
-    maxSlope = 15;              % degrees
     maxSlopeToDisplay = 60;     % degrees
     
     % Unpack some stuff for convenience
@@ -16,11 +15,12 @@ function overlayTerrainGrid(h, terrain, context)
     gridPlanesC = terrain.gridPlanesC;
     T_kg = terrain.T_kg;
     gridSize = terrain.gridSize;
+    safeCells = terrain.safeCells;
     
     for i = 1:gridSize(1)-1
         for j = 1:gridSize(2)-1
             % Display fitted planes in the Kinect RGB image
-            if planeMaxSlope(i,j) < maxSlope
+            if safeCells(i,j)
                 planeColour = 'g';
             else
                 planeColour = 'r';

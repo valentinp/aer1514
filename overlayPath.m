@@ -21,11 +21,11 @@ function overlayPath(h,waypoints,terrain,context)
         chevronPoints_g(2,:) = waypoints(n,2) + chevronTemplate_rot(2,:);
         chevronPoints_g(1,:) = waypoints(n,1) + chevronTemplate_rot(1,:);
         
-        chevronPoints_k = homo2cart(terrain.T_kg*cart2homo(chevronPoints_g))
-        chevronPoints_k = reshape(chevronPoints_k', [1 4 3])
-        chevronPoints_k_projective = mxNiConvertRealWorldToProjective(context, chevronPoints_k*1000) % needs to be in mm
-        chevronPoints_k_projective = reshape(chevronPoints_k_projective, [4 3])
+        chevronPoints_k = homo2cart(terrain.T_kg*cart2homo(chevronPoints_g));
+        chevronPoints_k = reshape(chevronPoints_k', [1 4 3]);
+        chevronPoints_k_projective = mxNiConvertRealWorldToProjective(context, chevronPoints_k*1000); % needs to be in mm
+        chevronPoints_k_projective = reshape(chevronPoints_k_projective, [4 3]);
         
-        h = patch(chevronPoints_k_projective(:,1), chevronPoints_k_projective(:,2), 'b', 'FaceAlpha', 0.4);
+        h = patch(chevronPoints_k_projective(:,1), chevronPoints_k_projective(:,2), 'b', 'FaceAlpha', 0.8);
     end
 end

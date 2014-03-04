@@ -1,4 +1,4 @@
-function terrain = terrainAssessment(rgb, depth, context, mode)
+function terrain = terrainAssessment(context, option, mode)
 % mode = 0 --> manual ground region selection for plane fit
 % mode = 1 --> automatic ground plane fit
 
@@ -9,8 +9,8 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     % Constants
     height = 480;               % pixels
     width = 640;                % pixels
-    gridSpacing = 0.10;         % meters
-    floorPlaneTol = 0.40;       % meters
+    gridSpacing = 0.07;         % meters
+    floorPlaneTol = 0.50;       % meters
     minPointsToFitPlane = 20;   % # points
     
     % Set up U,V meshgrid for image
@@ -21,7 +21,7 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     V = V(:);
     
 %     [context, option] = createKinectContext(true);
-%     [rgb,depth] = getKinectData(context, option);
+    [rgb,depth] = getKinectData(context, option);
     kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
     kinectPoints_k = reshape(kinectPoints_k, [(width*height) 3]);              % (height x width) x 3
     kinectPoints_k = kinectPoints_k';                                          % 3 x (height x width)
@@ -147,7 +147,57 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     terrain.gridPlanesB = gridPlanesB;
     terrain.gridPlanesC = gridPlanesC;
     terrain.planeMaxSlope = planeMaxSlope;
+    terrain.safeCells = findSafeCells(terrain);
 
     % Clean up
 %     mxNiDeleteContext(context);
+end
+
+function safeCells = findSafeCells(terrain)
+    maxSlope = 30;      % degrees
+    
+    neighbourDirs = [1 1 0 -1 -1 -1 0 1;
+                     0 1 1 1 0 -1 -1 -1];    
+    
+    safeCells = true(terrain.gridSize);
+    
+    for i = 1:terrain.gridSize(1)
+        for j = 1:terrain.gridSize(2)
+            maxSlopeToNeighbour = 0;
+            cellCentre = [terrain.cellMiddlesX(j),terrain.cellMiddlesY(i),0];
+            cellCentre(3) = terrain.gridPlanesA(i,j) + terrain.gridPlanesB(i,j)*cellCentre(1) + terrain.gridPlanesC(i,j)*cellCentre(2); 
+            for n = 1:8
+                iAdj = i + neighbourDirs(1,n);
+                jAdj = j + neighbourDirs(2,n);
+
+                if(iAdj >= 1 && iAdj <= terrain.gridSize(1)...
+                        && jAdj >= 1 && jAdj <= terrain.gridSize(2))
+                    
+                    cellCentreAdj = [terrain.cellMiddlesX(jAdj),terrain.cellMiddlesY(iAdj),0];
+                    cellCentreAdj(3) = terrain.gridPlanesA(iAdj,jAdj) + terrain.gridPlanesB(iAdj,jAdj)*cellCentreAdj(1) + terrain.gridPlanesC(iAdj,jAdj)*cellCentreAdj(2);
+                    
+                    neighbourVec = cellCentreAdj - cellCentre;
+                    neighbourVecCyl = [norm(neighbourVec(1:2)), neighbourVec(3)]; % [r,z]
+                    slopeToNeighbour = abs(acosd(dot([1,0],neighbourVecCyl)/norm(neighbourVecCyl)));
+                    maxSlopeToNeighbour = max(maxSlopeToNeighbour, slopeToNeighbour);
+                end
+            end
+            
+            looksSafe = terrain.planeMaxSlope(i,j) <= maxSlope && maxSlopeToNeighbour <= maxSlope;
+
+            if ~looksSafe
+                for n = 1:8
+                    iAdj = i + neighbourDirs(1,n);
+                    jAdj = j + neighbourDirs(2,n);
+
+                    if(iAdj >= 1 && iAdj <= terrain.gridSize(1)...
+                            && jAdj >= 1 && jAdj <= terrain.gridSize(2))
+                        safeCells(iAdj,jAdj) = false;
+                    end
+                end
+                safeCells(i,j) = false;
+            end            
+            
+        end
+    end
 end

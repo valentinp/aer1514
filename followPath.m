@@ -1,6 +1,6 @@
 function followPath(waypoints)  
     % This transform won't be correct in general. Need T_rg
-    waypoints = [0 -1; 1 0] * waypoints';
+    waypoints = [0 1; 1 0] * waypoints';
     waypoints = waypoints';
 
     resetCoordFrame(0,0,0);

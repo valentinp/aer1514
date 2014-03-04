@@ -8,7 +8,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     else
         % default values
         successProb = 0.9999;
-        inlierProb = 0.5;
+        inlierProb = 0.4;
     end
 
     warning('off','MATLAB:singularMatrix');

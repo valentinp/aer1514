@@ -1,4 +1,4 @@
-function [] = localizeRover(T_gk)
+function [] = localizeRover(context, option, T_gk)
 addpath('./kinect/Mex');
 addpath('./utils');
 % Constants
@@ -6,7 +6,7 @@ height = 480;               % pixels
 width = 640;                % pixels
 %Extract rgb and depth image
 close all;
-[context, option] = createKinectContext(true);
+% [context, option] = createKinectContext(true);
 
 %Set up GUI
 figure;
@@ -91,6 +91,6 @@ end
 
 
     % Clean up
-    mxNiDeleteContext(context);
+%     mxNiDeleteContext(context);
 end
 
