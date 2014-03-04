@@ -15,7 +15,7 @@ function overlayPath(h,waypoints,terrain,context)
             end
         end
         
-        chevronTemplate_rot = [cosd(t), sind(t); -sind(t), cosd(t)] * chevronTemplate;
+        chevronTemplate_rot = [cosd(t), -sind(t); sind(t), cosd(t)] * chevronTemplate;
         
         chevronPoints_g = zeros(3,4);
         chevronPoints_g(2,:) = waypoints(n,2) + chevronTemplate_rot(2,:);

@@ -117,7 +117,9 @@ addpath('utils'); % for dist function
         for n = 1:numWaypoints
             cellStates(waypoints_ij(n,1),waypoints_ij(n,2)) = -1;
         end
-        figure; imagesc(cellStates); axis xy;
+        cellStates(iStart,jStart) = -4;
+        cellStates(iGoal,jGoal) = 4;
+        figure; imagesc(cellStates); axis xy; colorbar;
     else
         disp('Pathfinding FAILURE');
         waypoints = [];

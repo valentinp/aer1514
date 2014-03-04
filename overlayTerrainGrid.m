@@ -1,11 +1,24 @@
-function overlayTerrainGrid(h, terrain)
-    figure(h);
-    
+function overlayTerrainGrid(h, terrain, context)
+    addpath('./kinect/Mex');
+    addpath('./utils');
+
     height = 480;
     width = 640;
+    maxSlope = 15;              % degrees
+    maxSlopeToDisplay = 60;     % degrees
     
-    for i = 1:terrain.gridSize(1)-1
-        for j = 1:terrain.gridSize(2)-1
+    % Unpack some stuff for convenience
+    planeMaxSlope = terrain.planeMaxSlope;
+    gridEdgesX = terrain.gridEdgesX;
+    gridEdgesY = terrain.gridEdgesY;
+    gridPlanesA = terrain.gridPlanesA;
+    gridPlanesB = terrain.gridPlanesB;
+    gridPlanesC = terrain.gridPlanesC;
+    T_kg = terrain.T_kg;
+    gridSize = terrain.gridSize;
+    
+    for i = 1:gridSize(1)-1
+        for j = 1:gridSize(2)-1
             % Display fitted planes in the Kinect RGB image
             if planeMaxSlope(i,j) < maxSlope
                 planeColour = 'g';
@@ -29,7 +42,7 @@ function overlayTerrainGrid(h, terrain)
                 % it wraps around to 2^16 - coord
                 % Just don't plot these ones
                 if sum(~(planeCorners_k_projective(:,1) < width & planeCorners_k_projective(:,2) < height)) == 0
-                    patch(planeCorners_k_projective(:,1), planeCorners_k_projective(:,2), planeColour, 'FaceAlpha',0.2);
+                    h = patch(planeCorners_k_projective(:,1), planeCorners_k_projective(:,2), planeColour, 'FaceAlpha',0.2);
                     %drawnow;  % Caution: drawing at every iteration slows
                                % down this loop by a factor of 10!
                 end

@@ -12,8 +12,6 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     gridSpacing = 0.10;         % meters
     floorPlaneTol = 0.40;       % meters
     minPointsToFitPlane = 20;   % # points
-    maxSlope = 15;              % degrees
-    maxSlopeToDisplay = 60;     % degrees
     
     % Set up U,V meshgrid for image
     u = 1:width;  
@@ -50,6 +48,7 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
         % Grab all points in the rectangle
         planeFitMask = U >= min(uGround) & U <= max(uGround) & V >= min(vGround) & V <= max(vGround);
         groundPlanePoints = kinectPoints_k(:,planeFitMask);
+        close(h);
         
     else
         % Automatic plane fit using RANSAC
@@ -111,11 +110,7 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     gridPlanesC = zeros(gridSize);
 
     % Also keep track of max slope for path planning
-    planeMaxSlope = zeros(gridSize);
-
-    h = figure;
-    h = imagesc(zeros(height,width,3,'uint8'));
-    displayKinectRGB(rgb,h); hold on;   
+    planeMaxSlope = zeros(gridSize); 
 
     tic;
     for i = 1:gridSize(1)-1
@@ -154,5 +149,5 @@ function terrain = terrainAssessment(rgb, depth, context, mode)
     terrain.planeMaxSlope = planeMaxSlope;
 
     % Clean up
-    mxNiDeleteContext(context);
+%     mxNiDeleteContext(context);
 end
