@@ -102,14 +102,14 @@ addpath('utils'); % for dist function
         end
         
         % waypoints_ij are in reverse order, so flip them around when
-        % converting to xy
-        waypoints(1,:) = [xStart,yStart];
+        % converting to xy (also make them column vectors)
+        waypoints(:,1) = [xStart,yStart];
         for n = 1:numWaypoints - 1
             m = numWaypoints - n + 1;
-            waypoints(n+1,:) = [terrain.cellMiddlesX(waypoints_ij(m,2)), terrain.cellMiddlesY(waypoints_ij(m,1))];
+            waypoints(:,n+1) = [terrain.cellMiddlesX(waypoints_ij(m,2)); terrain.cellMiddlesY(waypoints_ij(m,1))];
         end
         
-        waypoints(n+2,:) = [xGoal, yGoal];
+        waypoints(:, n+2) = [xGoal; yGoal];
         
         for n = 1:numWaypoints
             cellStates(waypoints_ij(n,1),waypoints_ij(n,2)) = -1;

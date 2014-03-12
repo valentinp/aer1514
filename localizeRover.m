@@ -9,19 +9,19 @@ width = 640;                % pixels
 % [context, option] = createKinectContext(true);
 
 %Set up GUI
-figure(1);
-h = imagesc(zeros(height,width,3,'uint8'));
-hold on;
+% figure(1);
+% h = imagesc(zeros(height,width,3,'uint8'));
+% hold on;
 
-%Intialize
-scatterPointsR = [];
-scatterPointsB = [];
+% %Intialize
+% scatterPointsR = [];
+% scatterPointsB = [];
 
 
 % while (ishandle(h))
       [rgb,depth] = getKinectData(context, option);
         %Plot raw RGB image
-        displayKinectRGB(rgb,h); 
+%         displayKinectRGB(rgb,h); 
 
 kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
 %Extract red and blue regions
@@ -70,13 +70,13 @@ bestRedCentroid = [0,0]';
     
 %scatter(red_c, red_r, 'r*');
 %scatter(blue_c, blue_r, 'b*');
-if ishandle(scatterPointsR) 
-delete(scatterPointsR);
-delete(scatterPointsB);
-end
+% if ishandle(scatterPointsR) 
+% delete(scatterPointsR);
+% delete(scatterPointsB);
+% end
 
-scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
-scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
+% scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
+% scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
 
 redVec_k = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
 blueVec_k = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);

@@ -16,7 +16,7 @@ T_rg = localizeRover(context, option, terrain.T_gk);
  
 roverLoc = homo2cart(T_rg \ [0;0;0;1]);
 xStart = roverLoc(1); yStart = roverLoc(2);
-xGoal = xStart-0.2; yGoal = yStart + 1.5;
+xGoal = xStart; yGoal = yStart + 1;
 
 waypoints = getPathSegments(xStart,yStart,xGoal,yGoal,terrain);
 
