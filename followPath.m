@@ -65,7 +65,7 @@ function atGoal = followPath(context, option, waypoints_g, T_gk)
                 error(['Invalid lambda: ',num2str(lambda)]);
             end
 
-            if ~isnan(w2Idx)
+            if w2Idx <= size(waypoints_r,2)
                 w2_r = waypoints_r(:,w2Idx);
 
                 nextSeg = w2_r - w1_r;
@@ -90,37 +90,59 @@ function [w0Idx, w1Idx, w2Idx] = getClosestWaypointIndices(waypoints)
     
     [~,closestIdx] = min(dists)
     nextIdx = closestIdx+1
-    prevIdx = closestIdx-1
     
-    if(closestIdx == 1)
+    R_rs = zeros(3,3);
+    R_rs(:,1) = normalize(waypoints(:,nextIdx) - waypoints(:,closestIdx));
+    R_rs(:,2) = rotzd(90)*R_rs(:,1);
+    R_rs(:,3) = cross(R_rs(:,1),R_rs(:,2));
+    R_sr = R_rs';
+    
+    t_sr_r = [waypoints(:,closestIdx)];
+    
+    T_sr = [R_sr, -R_sr*t_sr_r;
+                0,0,0,1];
+    
+    currPos_s = homo2cart(T_sr * [0;0;0;1])
+    
+    if currPos_s(1) > 0
         w0Idx = closestIdx;
         w1Idx = closestIdx + 1;
         w2Idx = closestIdx + 2;
-    elseif(closestIdx == size(waypoints,2))
+    else
         w0Idx = closestIdx - 1;
         w1Idx = closestIdx;
-        w2Idx = NaN;
-    elseif(closestIdx == size(waypoints,2)-1)
-        if(dists(nextIdx) < dists(prevIdx))
-            w0Idx = closestIdx;
-            w1Idx = closestIdx + 1;
-            w2Idx = NaN;
-        else
-            w0Idx = closestIdx - 1;
-            w1Idx = closestIdx;
-            w2Idx = closestIdx + 1;
-        end
-    else
-        if(dists(nextIdx) < dists(prevIdx))
-            w0Idx = closestIdx;
-            w1Idx = closestIdx + 1;
-            w2Idx = closestIdx + 2;
-        else
-            w0Idx = closestIdx - 1;
-            w1Idx = closestIdx;
-            w2Idx = closestIdx + 1;
-        end
+        w2Idx = closestIdx + 1;
     end
+            
+%     if(closestIdx == 1)
+%         w0Idx = closestIdx;
+%         w1Idx = closestIdx + 1;
+%         w2Idx = closestIdx + 2;
+%     elseif(closestIdx == size(waypoints,2))
+%         w0Idx = closestIdx - 1;
+%         w1Idx = closestIdx;
+%         w2Idx = NaN;
+%     elseif(closestIdx == size(waypoints,2)-1)
+%         if(dists(nextIdx) < dists(prevIdx))
+%             w0Idx = closestIdx;
+%             w1Idx = closestIdx + 1;
+%             w2Idx = NaN;
+%         else
+%             w0Idx = closestIdx - 1;
+%             w1Idx = closestIdx;
+%             w2Idx = closestIdx + 1;
+%         end
+%     else
+%         if(dists(nextIdx) < dists(prevIdx))
+%             w0Idx = closestIdx;
+%             w1Idx = closestIdx + 1;
+%             w2Idx = closestIdx + 2;
+%         else
+%             w0Idx = closestIdx - 1;
+%             w1Idx = closestIdx;
+%             w2Idx = closestIdx + 1;
+%         end
+%     end
 end
 
 function pathLength = getPathLength(waypoints)
