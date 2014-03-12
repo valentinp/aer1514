@@ -9,7 +9,7 @@ function terrain = terrainAssessment(context, option, mode)
     % Constants
     height = 480;               % pixels
     width = 640;                % pixels
-    gridSpacing = 0.07;         % meters
+    gridSpacing = 0.10;         % meters
     floorPlaneTol = 0.50;       % meters
     minPointsToFitPlane = 20;   % # points
     
@@ -63,21 +63,21 @@ function terrain = terrainAssessment(context, option, mode)
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.2);
 
     % Some points in the plane (columns of this matrix)
-    groundPoints = [1,                  0,                  0;
+    groundPoints_k = [1,                  0,                  0;
                     0,                  1,                  0;
                     groundA+groundB,    groundA+groundC,    groundA];
 
     % Compute basis vectors for ground plane
-    vec1 = groundPoints(:,1) - groundPoints(:,3);
-    vec2 = groundPoints(:,2) - groundPoints(:,3);
+    vec1_k = groundPoints_k(:,1) - groundPoints_k(:,3);
+    vec2_k = groundPoints_k(:,2) - groundPoints_k(:,3);
     % Orthogonalize (Gram-Schmidt)
-    vec2 = vec2 - (dot(vec1, vec2)/dot(vec1, vec1)) * vec1;
+    vec2_k = vec2_k - (dot(vec1_k, vec2_k)/dot(vec1_k, vec1_k)) * vec1_k;
     % Normalize
-    vec1 = vec1 / norm(vec1);
-    vec2 = vec2 / norm(vec2);    
+    vec1_k = vec1_k / norm(vec1_k);
+    vec2_k = vec2_k / norm(vec2_k);    
     % Ground plane to Kinect rotation
-    R_kg = [vec1, vec2, cross(vec1,vec2)];
-    t_gk_k = groundPoints(:,3);
+    R_kg = [vec1_k, vec2_k, cross(vec1_k,vec2_k)];
+    t_gk_k = groundPoints_k(:,3);
     T_gk = [R_kg'       ,   -R_kg' * t_gk_k;
             zeros(1,3)  ,   1               ];
     T_kg = inv(T_gk);
@@ -155,10 +155,13 @@ end
 
 function safeCells = findSafeCells(terrain)
     maxSlope = 30;      % degrees
+    markNeighboursOfUnsafeCellsAsUnsafe = false;
     
+    % Each column is the direction of a neighbouring cell
     neighbourDirs = [1 1 0 -1 -1 -1 0 1;
                      0 1 1 1 0 -1 -1 -1];    
     
+    % Initialize
     safeCells = true(terrain.gridSize);
     
     for i = 1:terrain.gridSize(1)
@@ -186,13 +189,15 @@ function safeCells = findSafeCells(terrain)
             looksSafe = terrain.planeMaxSlope(i,j) <= maxSlope && maxSlopeToNeighbour <= maxSlope;
 
             if ~looksSafe
-                for n = 1:8
-                    iAdj = i + neighbourDirs(1,n);
-                    jAdj = j + neighbourDirs(2,n);
+                if markNeighboursOfUnsafeCellsAsUnsafe
+                    for n = 1:8
+                        iAdj = i + neighbourDirs(1,n);
+                        jAdj = j + neighbourDirs(2,n);
 
-                    if(iAdj >= 1 && iAdj <= terrain.gridSize(1)...
-                            && jAdj >= 1 && jAdj <= terrain.gridSize(2))
-                        safeCells(iAdj,jAdj) = false;
+                        if(iAdj >= 1 && iAdj <= terrain.gridSize(1)...
+                                && jAdj >= 1 && jAdj <= terrain.gridSize(2))
+                            safeCells(iAdj,jAdj) = false;
+                        end
                     end
                 end
                 safeCells(i,j) = false;

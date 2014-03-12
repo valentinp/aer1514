@@ -1,5 +1,17 @@
 function C = mmult3(A,B)
-% Performs batch multiplication of stacked matrices      
+% PURPOSE:      Performs matrix multiplication over a 
+%               M x N x P and N x L x P stack of matrices
+%                   L := # columns of matrices B
+%                   M := # rows of matrices A
+%                   N := # columns of matrices A and # rows of matrices B
+%                   P := # matrices
+%
+% INPUT:        A - M x N x P stack of matrices
+%               B - N x L x P stack of matrices
+%
+% OUTPUT:       C - M x L x P stack of matrices
+%
+% LAST EDIT:    Lee Clement, 2014-03-10     
 
     if size(A,2) ~= size(B,1)
         error('Inner matrix dimensions must agree.'); 

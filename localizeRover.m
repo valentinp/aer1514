@@ -1,15 +1,15 @@
-function [] = localizeRover(context, option, T_gk)
+function T_rg = localizeRover(context, option, T_gk)
 addpath('./kinect/Mex');
 addpath('./utils');
 % Constants
 height = 480;               % pixels
 width = 640;                % pixels
 %Extract rgb and depth image
-close all;
+% close all;
 % [context, option] = createKinectContext(true);
 
 %Set up GUI
-figure;
+figure(1);
 h = imagesc(zeros(height,width,3,'uint8'));
 hold on;
 
@@ -18,7 +18,7 @@ scatterPointsR = [];
 scatterPointsB = [];
 
 
-while (ishandle(h))
+% while (ishandle(h))
       [rgb,depth] = getKinectData(context, option);
         %Plot raw RGB image
         displayKinectRGB(rgb,h); 
@@ -78,18 +78,34 @@ end
 scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
 scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
 
-redVec = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
-blueVec = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
+redVec_k = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
+blueVec_k = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
 
-lateralVec = cart2homo(0.5*(blueVec(:) - redVec(:)) + redVec(:));
-%Transform this vector into the ground plane
-lateralVec_g = homo2cart(T_gk*lateralVec);
-roverLoc = lateralVec_g;
-disp(roverLoc)
-pause(0.01);
-end
+redVec_k = redVec_k(:);
+blueVec_k = blueVec_k(:);
 
+redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
+blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
 
+lateralVec_g = blueVec_g - redVec_g;
+roverPos_g = 0.5*lateralVec_g + redVec_g; % point between the two balls
+
+lateralVec_g(3) = 0;
+roverPos_g(3) = 0;
+
+rotLateralVec_g = rotzd(90)*lateralVec_g;
+R_rg = [ normalize(rotLateralVec_g), normalize(lateralVec_g), [0;0;1] ]; % x is forward in rover frame
+
+T_rg = [R_rg -R_rg*roverPos_g;
+        0,0,0,1];
+
+% roverPos_k(1,2,:) = homo2cart(T_gk \ cart2homo(roverPos_g));
+% roverPos_k(1,1,:) = [0,0,0];
+% roverPos_k_projective = mxNiConvertRealWorldToProjective(context, roverPos_k*1000);
+% plot(roverPos_k_projective(1,:,1), roverPos_k_projective(1,:,2), 'r');
+
+% angle = acosd(dot(lateralVec_g,[1;0;0])/norm(lateralVec_g))
+    
     % Clean up
 %     mxNiDeleteContext(context);
 end
