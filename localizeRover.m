@@ -93,9 +93,15 @@ roverPos_g = 0.5*lateralVec_g + redVec_g; % point between the two balls
 lateralVec_g(3) = 0;
 roverPos_g(3) = 0;
 
-rotLateralVec_g = rotzd(90)*lateralVec_g;
-R_rg = [ normalize(rotLateralVec_g), normalize(lateralVec_g), [0;0;1] ]; % x is forward in rover frame
+%Ensure that the distance between blue balls makes sense
+if norm(lateralVec_g) > 0.5
+    T_rg = NaN;
+    return;
+end
 
+rotLateralVec_g = rotzd(90)*lateralVec_g;
+R_gr = [ normalize(rotLateralVec_g), normalize(-1*lateralVec_g), [0;0;1] ]; % x is forward in rover frame
+R_rg = R_gr';
 T_rg = [R_rg -R_rg*roverPos_g;
         0,0,0,1];
 

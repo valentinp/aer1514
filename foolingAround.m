@@ -82,12 +82,10 @@ blueVec = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
 
 lateralVec = cart2homo(0.5*(blueVec(:) - redVec(:)) + redVec(:));
 %Transform this vector into the ground plane
-lateralVec_g = homo2cart(T_gk*lateralVec);
-roverLoc = lateralVec_g;
-disp(roverLoc)
+% lateralVec_g = homo2cart(T_gk*lateralVec);
+% roverLoc = lateralVec_g;
+% disp(roverLoc)
 pause(0.01);
 end
-
-
-    % Clean up
     mxNiDeleteContext(context);
+
