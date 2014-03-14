@@ -1,4 +1,4 @@
-function terrain = terrainAssessment(context, option, mode)
+function terrain = terrainAssessment(context, rgb, depth, mode)
 % mode = 0 --> manual ground region selection for plane fit
 % mode = 1 --> automatic ground plane fit
 
@@ -21,7 +21,7 @@ function terrain = terrainAssessment(context, option, mode)
     V = V(:);
     
 %     [context, option] = createKinectContext(true);
-    [rgb,depth] = getKinectData(context, option);
+%     [rgb,depth] = getKinectData(context, option);
     kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
     kinectPoints_k = reshape(kinectPoints_k, [(width*height) 3]);              % (height x width) x 3
     kinectPoints_k = kinectPoints_k';                                          % 3 x (height x width)
@@ -154,7 +154,7 @@ function terrain = terrainAssessment(context, option, mode)
 end
 
 function safeCells = findSafeCells(terrain)
-    maxSlope = 30;      % degrees
+    maxSlope = 20;      % degrees
     markNeighboursOfUnsafeCellsAsUnsafe = false;
     
     % Each column is the direction of a neighbouring cell

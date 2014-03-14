@@ -1,9 +1,12 @@
-function T_rg = localizeRover(context, option, T_gk)
+function T_rg = localizeRover(context, rgb, depth, T_gk)
 addpath('./kinect/Mex');
 addpath('./utils');
 % Constants
-height = 480;               % pixels
-width = 640;                % pixels
+ballDiameter = 0.05; % meters
+depthOffset = 2*ballDiameter; % Seems to work better with 2*ballDiamater than 1*
+
+% height = 480;               % pixels
+% width = 640;                % pixels
 %Extract rgb and depth image
 % close all;
 % [context, option] = createKinectContext(true);
@@ -19,7 +22,7 @@ width = 640;                % pixels
 
 
 % while (ishandle(h))
-      [rgb,depth] = getKinectData(context, option);
+%       [rgb,depth] = getKinectData(context, option);
         %Plot raw RGB image
 %         displayKinectRGB(rgb,h); 
 
@@ -83,6 +86,9 @@ blueVec_k = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
 
 redVec_k = redVec_k(:);
 blueVec_k = blueVec_k(:);
+
+redVec_k(3) = redVec_k(3) + depthOffset;
+blueVec_k(3) = blueVec_k(3) + depthOffset;
 
 redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
 blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
