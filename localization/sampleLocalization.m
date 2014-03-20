@@ -1,8 +1,8 @@
 [context, option] = createKinectContext(true);
 %Note: the w/h values must match the XML parameters read in the createKinectContext
 %function above
-width = 640; 
-height = 480;
+global width;
+global height;
 % Depth image
 figure
 subplot(1,2,1)

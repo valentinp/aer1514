@@ -1,6 +1,5 @@
 function waypoints = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
 % xStart, yStart, xGoal, yGoal, and waypoints in ground frame
-addpath('utils'); % for dist function
       
     % Initialize cell states and costs for search
     cellStates = zeros(terrain.gridSize); % 0 = unvisited, 1 = dead, 2 = alive, 3 = ignore    

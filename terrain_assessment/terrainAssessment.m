@@ -2,13 +2,9 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
 % mode = 0 --> manual ground region selection for plane fit
 % mode = 1 --> automatic ground plane fit
 
-% clear all; close all;
-    addpath('./kinect/Mex');
-    addpath('./utils');
-    
     % Constants
-    height = 480;               % pixels
-    width = 640;                % pixels
+    global height;              % pixels
+    global width;               % pixels
     gridSpacing = 0.10;         % meters
     floorPlaneTol = 0.50;       % meters
     minPointsToFitPlane = 20;   % # points

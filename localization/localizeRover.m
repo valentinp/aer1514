@@ -1,6 +1,5 @@
 function T_rg = localizeRover(context, rgb, depth, T_gk)
-addpath('./kinect/Mex');
-addpath('./utils');
+
 % Constants
 ballDiameter = 0.05; % meters
 depthOffset = 2*ballDiameter; % Seems to work better with 2*ballDiamater than 1*

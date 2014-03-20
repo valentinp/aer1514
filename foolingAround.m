@@ -1,8 +1,10 @@
 addpath('./kinect/Mex');
 addpath('./utils');
 % Constants
-height = 480;               % pixels
-width = 640;                % pixels
+% height = 480;               % pixels
+% width = 640;                % pixels
+global height;
+global width;
 %Extract rgb and depth image
 close all;
 [context, option] = createKinectContext(true);

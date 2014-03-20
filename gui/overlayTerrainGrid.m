@@ -1,9 +1,6 @@
 function overlayTerrainGrid(h, terrain, context)
-    addpath('./kinect/Mex');
-    addpath('./utils');
-
-    height = 480;
-    width = 640;
+    global height;
+    global width;
     maxSlopeToDisplay = 60;     % degrees
     
     % Unpack some stuff for convenience

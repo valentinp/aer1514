@@ -1,7 +1,4 @@
 function overlayPath(h,waypoints,terrain,context)
-    height = 480;
-    width = 640;
-     
     chevronTemplate = [ -1 0 1 0;
                         -1 1 -1 0 ] * 0.5 * terrain.gridSpacing;
     
