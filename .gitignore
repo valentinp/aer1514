@@ -3,6 +3,6 @@
 simulink/robulink_rtt/
 simulink/slprj/
 
-# File extensions #
+#      Files      #
 ###################
-*.mexw32
+simulink/robulink_sfun*

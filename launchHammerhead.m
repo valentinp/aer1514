@@ -23,7 +23,7 @@ terrainAssessmentMode = 1;
 % Teleop mode settings
 global enableTeleopMode;
 enableTeleopMode = true;
-toggleTeleopMode; %sets it on the robot
+% toggleTeleopMode; %sets it on the robot
 
 %% GUI stuff
 [context, option] = createKinectContext();
@@ -73,7 +73,7 @@ btnNavGoal = uicontrol('Style', 'PushButton', ...
                     'Position', [200 30 120 20], ...
                     'Callback', 'addSample(depth);');
 
- rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
+rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
 while (ishandle(depthIm))
     [rgb, depth] = getKinectData(context, option);
     set(rgbIm,'CData',rgb)
