@@ -2,7 +2,15 @@ if exist('context')
     mxNiDeleteContext(context);
 end
 clear; close all;
-
+addpath('gui');
+addpath('kinect');
+addpath('kinect/Mex');
+addpath('kinect/Config');
+addpath('localization');
+addpath('path_following');
+addpath('rover_functions');
+addpath('terrain_assessment');
+addpath('utils');
 % Kinect image size
 global width;   global height;
 width = 640;    height = 480;
@@ -11,8 +19,12 @@ width = 640;    height = 480;
 [rgb,depth] = getKinectData(context,option);
 terrain = terrainAssessment(context,rgb,depth,1);
 
-% disp('position rover now and then press a key');
-% pause();
+h = figure; h = imagesc(zeros(480,640,3,'uint8')); displayKinectRGB(rgb,h); hold on;
+overlayTerrainGrid(h, terrain, context);
+
+ disp('position rover now and then press a key');
+
+ pause();
 
 % % Test rover localization
 % h = figure(102); h = imagesc(zeros(480,640,3,'uint8')); 
@@ -28,6 +40,10 @@ terrain = terrainAssessment(context,rgb,depth,1);
 
 % [rgb,depth] = getKinectData(context,option);
 T_rg = localizeRover(context,rgb,depth, terrain.T_gk);
+
+if isnan(T_rg)
+    error('Cannot find the rover!');
+end
 
 terrain = markTerrainAroundRoverSafe(terrain,T_rg);
 
