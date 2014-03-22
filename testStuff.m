@@ -3,6 +3,10 @@ if exist('context')
 end
 clear; close all;
 
+% Kinect image size
+global width;   global height;
+width = 640;    height = 480;
+
 [context,option] = createKinectContext();
 [rgb,depth] = getKinectData(context,option);
 terrain = terrainAssessment(context,rgb,depth,1);
@@ -27,8 +31,8 @@ T_rg = localizeRover(context,rgb,depth, terrain.T_gk);
 
 terrain = markTerrainAroundRoverSafe(terrain,T_rg);
 
-h = figure(100); h = imagesc(zeros(480,640,3,'uint8')); displayKinectRGB(rgb,h); hold on;
-overlayTerrainGrid(h, terrain, context)
+h = figure; h = imagesc(zeros(480,640,3,'uint8')); displayKinectRGB(rgb,h); hold on;
+overlayTerrainGrid(h, terrain, context);
 
 roverLoc = homo2cart(T_rg \ [0;0;0;1]);
 xStart = roverLoc(1); yStart = roverLoc(2);

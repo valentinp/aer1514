@@ -4,19 +4,19 @@ function brakeOnKeyRelease(src, event)
         switch(event.Key)
             case 'leftarrow'
                 brake;
-    %             disp('left arrow released')
+%                 disp('left arrow released')
 
             case 'rightarrow'
                 brake;
-    %             disp('right arrow released')
+%                 disp('right arrow released')
 
             case 'uparrow'
                 brake;
-    %             disp('up arrow released')
+%                 disp('up arrow released')
 
             case 'downarrow'
                 brake;
-    %             disp('down arrow released')
+%                 disp('down arrow released')
         end
     end
 end
