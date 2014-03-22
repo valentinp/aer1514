@@ -3,7 +3,7 @@ if exist('context')
 end
 clear; close all;
 
-[context,option] = createKinectContext(true);
+[context,option] = createKinectContext();
 [rgb,depth] = getKinectData(context,option);
 terrain = terrainAssessment(context,rgb,depth,1);
 

@@ -7,7 +7,7 @@ global height;
 global width;
 %Extract rgb and depth image
 close all;
-[context, option] = createKinectContext(true);
+[context, option] = createKinectContext();
 
 %Set up GUI
 figure;

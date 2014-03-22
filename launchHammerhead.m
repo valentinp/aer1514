@@ -21,4 +21,8 @@ width = 640;    height = 480;
 % Manual(0) or Auto(1) groud-plane fitting for terrain assessment
 terrainAssessmentMode = 1;
 
+% Teleop mode settings
+global enableTeleopMode;
+enableTeleopMode = true;
+
 %% GUI stuff
