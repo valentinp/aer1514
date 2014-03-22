@@ -5,6 +5,7 @@
 addpath('gui');
 addpath('kinect');
 addpath('kinect/Mex');
+addpath('kinect/Config');
 addpath('localization');
 addpath('path_following');
 addpath('rover_functions');
