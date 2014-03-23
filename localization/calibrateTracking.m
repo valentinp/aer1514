@@ -3,18 +3,13 @@ function calibStruct = calibrateTracking(context)
 global height;
 global width;
 
-%Extract rgb and depth image
-close all;
-
 %Set up GUI
-figNumber = 12;
-
-figure(figNumber);
-axesHandle = imagesc(zeros(height,width,3,'uint8'));
-hold on;
+f = figure();
+axesHandle = get(f,'CurrentAxes');
+imgHandle = imshow(zeros(height,width,3,'uint8'), 'Parent', axesHandle);
 
 [rgb,~] = getKinectData(context);
-displayKinectRGB(rgb,axesHandle); 
+displayKinectRGB(rgb,imgHandle); 
  
 disp('Select top left and bottom right corners of the blue ball');  
 [x_blue,y_blue] = ginput(2);
@@ -49,7 +44,7 @@ disp('Select top left and bottom right corners of the red ball');
  red_rg = red_r./red_g;
  red_gb = red_g./red_b;
  
- blue_sigma = 0.8;
+ blue_sigma = 0.7;
  red_sigma = 1;
  
  blue_r_rng = [mean(blue_r)-blue_sigma*std(blue_r), mean(blue_r)+blue_sigma*std(blue_r)];
@@ -88,6 +83,6 @@ calibStruct.red_gb_rng = red_gb_rng;
  
 disp('Is this good localization?');
 
-displayLocalization(figNumber,rgb,calibStruct);
+displayLocalization(axesHandle,rgb,calibStruct);
   
 end

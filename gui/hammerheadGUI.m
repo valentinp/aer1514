@@ -277,6 +277,11 @@ function btn_trainBallDetector_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_trainBallDetector (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global trackingStruct;
+global context;
+global isTrackingCalibrated;
+trackingStruct = calibrateTracking(context);
+isTrackingCalibrated = true;
 
 
 % --- Executes during object creation, after setting all properties.

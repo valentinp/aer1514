@@ -28,6 +28,9 @@ global rgb; global depth;
 
 % Rover localization
 global T_rg;
+global trackingStruct;
+global isTrackingCalibrated;
+
 
 % Path planning and following
 global waypoints_g;
@@ -50,9 +53,14 @@ set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
     set(gui_data.kinectRGB_CData,'CData',rgb);
+    
+    if isTrackingCalibrated
+        displayLocalization(handles.kinectRGB_CData, rgb, trackingStruct);
+    end
+    
     set(gui_data.kinectDepth_CData,'CData',depth);
     
-    if exist('terrain.T_gk', 'var')
+    if exist('terrain.T_gk', 'var') && isTrackingCalibrated
         T_rg = localizeRover(context, rgb, depth, terrain.T_gk);
     end
     pause(0.02);
