@@ -7,7 +7,9 @@ global width;
 close all;
 
 %Set up GUI
-figure;
+figNumber = 12;
+
+figure(figNumber);
 axesHandle = imagesc(zeros(height,width,3,'uint8'));
 hold on;
 
@@ -47,7 +49,7 @@ disp('Select top left and bottom right corners of the red ball');
  red_rg = red_r./red_g;
  red_gb = red_g./red_b;
  
- blue_sigma = 0.7;
+ blue_sigma = 0.8;
  red_sigma = 1;
  
  blue_r_rng = [mean(blue_r)-blue_sigma*std(blue_r), mean(blue_r)+blue_sigma*std(blue_r)];
@@ -84,71 +86,8 @@ calibStruct.red_rg_rng = red_rg_rng;
 calibStruct.red_gb_rng = red_gb_rng;
 
  
- %disp('Is this good localization?');
- %displayLocalization(axesHandle,rgb,calibStruct);
- 
- %================================
- 
- red_region = rgb(:,:,1) > red_r_rng(1) & rgb(:,:,1) < red_r_rng(2) & rgb(:,:,2) > red_g_rng(1) & rgb(:,:,2) < red_g_rng(2) & rgb(:,:,3) > red_b_rng(1) & rgb(:,:,3) < red_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > red_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < red_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > red_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < red_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > red_gb_rng(1) & double(rgb(:,:,2)./rgb(:,:,3)) < red_gb_rng(2);
+disp('Is this good localization?');
 
-blue_region = rgb(:,:,1) > blue_r_rng(1) & rgb(:,:,1) < blue_r_rng(2) & rgb(:,:,2) > blue_g_rng(1) & rgb(:,:,2) < blue_g_rng(2) & rgb(:,:,3) > blue_b_rng(1) & rgb(:,:,3) < blue_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > blue_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < blue_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > blue_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < blue_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > blue_gb_rng(1) & double(rgb(:,:,2))./double(rgb(:,:,3)) < blue_gb_rng(2);
-
-
-if sum(red_region) < 5
-    disp('WARNING: No red pixels found'); 
-    return;
-end
-if sum(blue_region) < 5
-    disp('WARNING: No blue pixels found'); 
-    return;
-end
-
-
-[red_r,red_c] = find(red_region);
-[blue_r,blue_c] = find(blue_region);
-
-
-% Use RANSAC to find the best centroid for the red and blue spheres
-K = 100;
-thresh = 10;       % inlier error threshold (radius meas. in pixels)
-maxInliersB = 0;
-maxInliersR = 0;
-
-bestBlueCentroid = [0,0]';
-bestRedCentroid = [0,0]';
-
-    for k = 1:K
-        sampleIndB = randi(size(blue_r,1));
-        sampleIndR = randi(size(red_r,1));
-       
-
-        % Set centroid
-        testBlueCentroid = [blue_c(sampleIndB); blue_r(sampleIndB)];
-        testRedCentroid = [red_c(sampleIndR); red_r(sampleIndR)];
-
-        errB = (blue_c - testBlueCentroid(1)).^2 + (blue_r - testBlueCentroid(2)).^2;
-        errR = (red_c - testRedCentroid(1)).^2 + (red_r - testRedCentroid(2)).^2;
-        
-        numInliersB = sum(errB < thresh^2);
-        numInliersR = sum(errR < thresh^2);
-
-        % Keep track of the best solution
-        if numInliersB > maxInliersB
-            maxInliersB = numInliersB;
-            bestBlueCentroid = testBlueCentroid;
-        end
-        if numInliersR > maxInliersR
-            maxInliersR = numInliersR;
-            bestRedCentroid = testRedCentroid;
-        end
-    end
-scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
-scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
- 
+displayLocalization(figNumber,rgb,calibStruct);
+  
 end
