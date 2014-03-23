@@ -62,7 +62,7 @@ while ishandle(h)
 
     
     if exist('terrain.T_gk', 'var') && isTrackingCalibrated
-        T_rg = localizeRover(context, rgb, depth, terrain.T_gk);
+        T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
     end
     pause(0.02);
 end

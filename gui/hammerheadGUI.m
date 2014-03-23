@@ -190,8 +190,9 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg;
+global T_rg; global trackingStruct;
 terrain = terrainAssessment(context,rgb,depth,1);
+T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
 terrain = markTerrainAroundRoverSafe(terrain,T_rg);
 
 % --- Executes on button press in btn_overlayTerrain.

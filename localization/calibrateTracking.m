@@ -43,7 +43,7 @@ disp('Select top left and bottom right corners of the red ball');
  red_rg = red_r./red_g;
  red_gb = red_g./red_b;
  
- blue_sigma = 0.7;
+ blue_sigma = 1;
  red_sigma = 1;
  
  blue_r_rng = [mean(blue_r)-blue_sigma*std(blue_r), mean(blue_r)+blue_sigma*std(blue_r)];
