@@ -178,7 +178,7 @@ global waypoints_g;
 patches = findall(allchild(handles.kinectRGB),'Type','patch');
 
 if isempty(patches)
-    overlayPath(handles.kinectOverlays, waypoints_g, terrain, context);
+    overlayPath(handles.kinectRGB, waypoints_g, terrain, context);
 else
     delete(patches);
 end

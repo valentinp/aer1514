@@ -39,7 +39,7 @@ function overlayTerrainGrid(h, terrain, context)
                 % it wraps around to 2^16 - coord
                 % Just don't plot these ones
                 if sum(~(planeCorners_k_projective(:,1) < width & planeCorners_k_projective(:,2) < height)) == 0
-                    patch(planeCorners_k_projective(:,1), planeCorners_k_projective(:,2), planeColour, 'FaceAlpha',0.2,'Parent',h);
+                    patch(planeCorners_k_projective(:,1), planeCorners_k_projective(:,2), planeColour, 'FaceAlpha',0.2,'Parent',h, 'Tag', 'terrain');
                     %drawnow;  % Caution: drawing at every iteration slows
                                % down this loop by a factor of 10!
                 end

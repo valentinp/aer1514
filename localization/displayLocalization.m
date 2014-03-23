@@ -81,9 +81,9 @@ bestRedCentroid = [0,0]';
 
 %a = axes('Parent', figHandle);
 hold(figHandle, 'on');
-delete(findobj(figHandle, 'type', 'patch'));
-scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*', 'Parent', figHandle);
-scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*','Parent', figHandle);
+delete(findobj(figHandle, 'type', 'line'));
+plot(bestRedCentroid(1), bestRedCentroid(2), 'y*', 'Parent', figHandle);
+plot(bestBlueCentroid(1), bestBlueCentroid(2), 'y*','Parent', figHandle);
 
 
 end
