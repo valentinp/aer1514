@@ -1,4 +1,4 @@
-function displayLocalization(figNumber, rgb, calibStruct )
+function displayLocalization(figHandle, rgb, calibStruct)
 %DISPLAYLOCALIZATION Displays localization according to the current
 %calibration
 
@@ -79,9 +79,8 @@ bestRedCentroid = [0,0]';
         end
     end
 
-figure(figNumber);
-scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
-scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
+scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*', 'Parent', figHandle);
+scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*', 'Parent', figHandle);
 
 
 end
