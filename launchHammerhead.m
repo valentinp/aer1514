@@ -82,7 +82,7 @@ while (ishandle(depthIm))
     %disp(overSample);
     pause(0.03);
 end
-mxNiDeleteContext(context);
+%mxNiDeleteContext(context);
 
 
 
