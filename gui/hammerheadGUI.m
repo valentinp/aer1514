@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 22-Mar-2014 21:25:50
+% Last Modified by GUIDE v2.5 22-Mar-2014 22:26:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -172,9 +172,16 @@ function btn_overlayPath_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global rgb; global context;
-set(handles.kinectOverlays_CData,'CData',rgb);
-overlayPath(handles.kinectOverlays, terrain, context);
+global terrain; global context;
+global waypoints_g;
+
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+
+if isempty(patches)
+    overlayPath(handles.kinectOverlays, waypoints_g, terrain, context);
+else
+    delete(patches);
+end
 
 
 % --- Executes on button press in btn_terrainAssessment.
@@ -183,19 +190,23 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
+global T_rg;
 terrain = terrainAssessment(context,rgb,depth,1);
-
-terrainAssessment_T_rg = localizeRover(context,rgb,depth, terrain.T_gk);
-terrain = markTerrainAroundRoverSafe(terrain,terrainAssessment_T_rg);
+terrain = markTerrainAroundRoverSafe(terrain,T_rg);
 
 % --- Executes on button press in btn_overlayTerrain.
 function btn_overlayTerrain_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayTerrain (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global rgb; global context;
-set(handles.kinectOverlays_CData,'CData',rgb);
-overlayTerrainGrid(handles.kinectOverlays, terrain, context);
+global terrain; global context;
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+
+if isempty(patches)
+    overlayTerrainGrid(handles.kinectRGB, terrain, context);
+else
+    delete(patches);
+end
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_minFrontClearance (see GCBO)
@@ -322,3 +333,24 @@ function btn_followPath_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_followPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes when selected object is changed in btnGroup_teleop.
+function btnGroup_teleop_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in btnGroup_teleop 
+% eventdata  structure with the following fields (see UIBUTTONGROUP)
+%	EventName: string 'SelectionChanged' (read only)
+%	OldValue: handle of the previously selected object or empty if none was selected
+%	NewValue: handle of the currently selected object
+% handles    structure with handles and user data (see GUIDATA)
+global enableTeleopMode;
+selection = get(eventdata.NewValue, 'String');
+
+switch(selection)
+    case 'Manual'
+        enableTeleopMode = true;
+        set_param('robulink/teleop','Value','true');
+    case 'Automatic'
+        enableTeleopMode = false;
+        set_param('robulink/teleop','Value','false');
+end
