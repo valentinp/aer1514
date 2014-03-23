@@ -23,6 +23,6 @@ function overlayPath(h,waypoints,terrain,context)
         chevronPoints_k_projective = mxNiConvertRealWorldToProjective(context, chevronPoints_k*1000); % needs to be in mm
         chevronPoints_k_projective = reshape(chevronPoints_k_projective, [4 3]);
         
-        h = patch(chevronPoints_k_projective(:,1), chevronPoints_k_projective(:,2), 'b', 'FaceAlpha', 0.8);
+        patch(chevronPoints_k_projective(:,1), chevronPoints_k_projective(:,2), 'b', 'FaceAlpha', 0.8, 'Parent', h);
     end
 end

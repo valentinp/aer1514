@@ -54,9 +54,9 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global height; global width;
 
 % Initialize kinect images in gui
-handles.kinectRGB_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
-handles.kinectDepth_CData = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
-handles.kinectOverlays_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
+handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
+handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
+handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
 
 % Set up samples list
 handles.samplesList = [];
@@ -96,9 +96,8 @@ function btn_clearSamples_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_clearSamples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global samplesList; global samplesTable;
-samplesList = [];
-set(samplesTable, 'Data', samplesList);
+set(handles.samplesList, 'Data', []);
+set(handles.samplesTable, 'Data', handles.samplesList);
 
 
 
@@ -168,13 +167,9 @@ function btn_overlayPath_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in btn_selectGoal.
-function btn_selectGoal_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_selectGoal (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+global terrain; global rgb; global context;
+set(handles.kinectOverlays_CData,'CData',rgb);
+overlayPath(handles.kinectOverlays, terrain, context);
 
 
 % --- Executes on button press in btn_terrainAssessment.
@@ -194,10 +189,8 @@ function btn_overlayTerrain_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global rgb; global context;
-overlay = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
-set(overlay,'CData',rgb);
-
-
+set(handles.kinectOverlays_CData,'CData',rgb);
+overlayTerrainGrid(handles.kinectOverlays, terrain, context);
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_minFrontClearance (see GCBO)
