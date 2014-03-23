@@ -26,11 +26,10 @@ width = 640;    height = 480;
 
 global rgb; global depth;
 
-% Sample localization
-global samplesList; global samplesTable;
+% Rover localization
+global T_rg;
 
 % Path planning and following
-global xGoal_g; global yGoal_g;
 global waypoints_g;
 
 % Terrain
@@ -41,27 +40,22 @@ global enableTeleopMode;
 
 %% Launch GUI
 h = hammerheadGUI;
-gui_handles = guihandles(h);
+gui_data = guidata(h);
 
 % Teleop functions
 set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
-
-% Initialize kinect images in gui
-kinectRGB_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', gui_handles.kinectRGB);
-kinectDepth_CData = imagesc(zeros(height,width,'uint16'), 'Parent', gui_handles.kinectDepth);
-kinectOverlays_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', gui_handles.kinectOverlays);
-
-% Set up samples list
-samplesTable = gui_handles.table_samples;
-samplesList = [];
 
 % Main loop
 % rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
-    set(kinectRGB_CData,'CData',rgb);
-    set(kinectDepth_CData,'CData',depth);
-    pause(0.01);
+    set(gui_data.kinectRGB_CData,'CData',rgb);
+    set(gui_data.kinectDepth_CData,'CData',depth);
+    
+    if exist('terrain.T_gk', 'var')
+        T_rg = localizeRover(context, rgb, depth, terrain.T_gk);
+    end
+    pause(0.02);
 end
 
 %% Old GUI stuff

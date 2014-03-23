@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 22-Mar-2014 20:18:49
+% Last Modified by GUIDE v2.5 22-Mar-2014 21:25:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,6 +51,15 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
+global height; global width;
+
+% Initialize kinect images in gui
+handles.kinectRGB_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
+handles.kinectDepth_CData = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
+handles.kinectOverlays_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
+
+% Set up samples list
+handles.samplesList = [];
 
 % Choose default command line output for hammerheadGUI
 handles.output = hObject;
@@ -79,7 +88,7 @@ function btn_addSample_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global context; global depth;
-addSample(context, depth);
+addSample(context, depth, handles);
 
 
 % --- Executes on button press in btn_clearSamples.
@@ -173,7 +182,7 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_terrainAssessment (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain;
+global terrain; global context; global rgb; global depth;
 terrain = terrainAssessment(context,rgb,depth,1);
 
 terrainAssessment_T_rg = localizeRover(context,rgb,depth, terrain.T_gk);
@@ -184,6 +193,10 @@ function btn_overlayTerrain_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayTerrain (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global terrain; global rgb; global context;
+overlay = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
+set(overlay,'CData',rgb);
+
 
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
@@ -252,11 +265,12 @@ function btn_setGoal_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global context; global depth;
-global terrain;
+global terrain; global T_rg; global waypoints_g;
 [x,y] = ginput(1);
 goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
 goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
-goalX_g = goal_g(1); goalY_g = goal_g(2);
+roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
+waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
 
 % --- Executes on button press in btn_trainBallDetector.
 function btn_trainBallDetector_Callback(hObject, eventdata, handles)
@@ -298,3 +312,10 @@ if ~isContextDeleted
     mxNiDeleteContext(context);
     isContextDeleted = true;
 end
+
+
+% --- Executes on button press in btn_followPath.
+function btn_followPath_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_followPath (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

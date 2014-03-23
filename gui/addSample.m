@@ -1,7 +1,4 @@
-function addSample(context, depth)
-    global samplesList;
-    global samplesTable;
-    
+function addSample(context, depth, handles)    
     [x,y] = ginput;
     sampleCount = length(x);
     realWorldCoords = mxNiConvertProjectiveToRealWorld(context, depth);
@@ -14,7 +11,7 @@ function addSample(context, depth)
     newSamples = newSamples/1000;
     
     %Convert to m
-    samplesList(1:3,end+1:(end+sampleCount)) = newSamples;
-    set(samplesTable, 'Data', samplesList);
+    handles.samplesList(1:3,end+1:(end+sampleCount)) = newSamples;
+    set(handles.table_samples, 'Data', handles.samplesList);
 end
 
