@@ -16,6 +16,7 @@ addpath('terrain_assessment');
 addpath('utils');
 
 %% Global Variables
+% Kinect stuff
 global context; global option;
 global isContextDeleted;
 isContextDeleted = true;
@@ -24,6 +25,16 @@ global width;   global height;
 width = 640;    height = 480;
 
 global rgb; global depth;
+
+% Sample localization
+global samplesList; global samplesTable;
+
+% Path planning and following
+global xGoal_g; global yGoal_g;
+global waypoints_g;
+
+% Terrain
+global terrain;
 
 % Teleop mode settings
 global enableTeleopMode;
@@ -35,72 +46,23 @@ gui_handles = guihandles(h);
 % Teleop functions
 set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 
-% Initialize kinect images
-gui_handles.kinectRGB = imagesc(zeros(height,width,3,'uint8')); axis image;
-gui_handles.kinectDepth = imagesc(zeros(height,width,'uint16')); axis image;
-gui_handles.kinectOverlay = imagesc(zeros(height,width,3,'uint8')); axis image;
+% Initialize kinect images in gui
+kinectRGB_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', gui_handles.kinectRGB);
+kinectDepth_CData = imagesc(zeros(height,width,'uint16'), 'Parent', gui_handles.kinectDepth);
+kinectOverlays_CData = imshow(zeros(height,width,3,'uint8'), 'Parent', gui_handles.kinectOverlays);
 
-<<<<<<< HEAD
-% Stream kinect data to gui
+% Set up samples list
+samplesTable = gui_handles.table_samples;
+samplesList = [];
+
+% Main loop
+% rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
-    set(gui_handles.kinectRGB,'CData',rgb);
-    set(gui_handles.kinectDepth,'CData',depth);
-=======
-% GUI main figure with teleop functions
-figure('KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
-
-% Depth image
-subplot(1,2,1)
-depthIm = imagesc(zeros(height,width,'uint16'));
-title('Depth Image')
-axis image;
-
-% RGB image
-subplot(1,2,2)
-rgbIm = imshow(zeros(height,width,3,'uint8'));
-title('RGB Image')
-axis image;
-
-global samplesTable;
-global samplesList;
-samplesList = [];
-% Samples list
-samplesTable = uitable('Position',[100 50 360 75]);
-
-% Create some GUI buttons
-btnClose = uicontrol('Style', 'PushButton', ...
-                    'String', 'Close', ...
-                    'Position', [350 5 120 20], ...
-                    'Callback', 'delete(gcbf)');
-btnPoints = uicontrol('Style', 'PushButton', ...
-                    'String', 'Add Sample(s)', ...
-                    'Position', [200 5 120 20], ...
-                    'Callback', 'addSample(context, depth);');
-btnClrPoints = uicontrol('Style', 'PushButton', ...
-    'String', 'Clear Samples', ...
-    'Position', [50 5 120 20], ...
-    'Callback', 'samplesList = []; set(samplesTable, ''Data'', samplesList);');
-btnTerrainAssessment = uicontrol('Style', 'PushButton', ...
-                    'String', 'Assess Terrain', ...
-                    'Position', [50 30 120 20], ...
-                    'Callback', 'terrainAssessment_callback');                
-btnNavGoal = uicontrol('Style', 'PushButton', ...
-                    'String', 'Select Nav Goal', ...
-                    'Position', [200 30 120 20], ...
-                    'Callback', 'addSample(context,depth);');
-
-%rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
-while (ishandle(depthIm))
-    [rgb, depth] = getKinectData(context, option);
-    set(rgbIm,'CData',rgb)
-    set(depthIm,'CData',depth)
-    %overSample = rto.OutputPort(1).Data;
-    %disp(overSample);
-    pause(0.03);
->>>>>>> 06cf19c372e05fb7c29aa5422eaf1053120deac9
+    set(kinectRGB_CData,'CData',rgb);
+    set(kinectDepth_CData,'CData',depth);
+    pause(0.01);
 end
-
 
 %% Old GUI stuff
 % [context, option] = createKinectContext();

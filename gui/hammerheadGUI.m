@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 22-Mar-2014 19:07:19
+% Last Modified by GUIDE v2.5 22-Mar-2014 20:18:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,8 +78,8 @@ function btn_addSample_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_addSample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global depth;
-addSample(depth);
+global context; global depth;
+addSample(context, depth);
 
 
 % --- Executes on button press in btn_clearSamples.
@@ -87,6 +87,9 @@ function btn_clearSamples_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_clearSamples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global samplesList; global samplesTable;
+samplesList = [];
+set(samplesTable, 'Data', samplesList);
 
 
 
@@ -97,6 +100,13 @@ function edit_leftWheelGain_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_leftWheelGain as text
 %        str2double(get(hObject,'String')) returns contents of edit_leftWheelGain as a double
+oldkl = get_param('robulink/kl','Value');
+newkl = get(hObject,'String');
+if sum(~isstrprop(newkl,'digit')) == 0 % i.e. if actually a number
+    set_param('robulink/kl','Value',newkl);
+else
+    set(hObject,'String',num2str(oldkl));
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -111,6 +121,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject,'String',get_param('robulink/kl','Value'));
 
 
 function edit_rightWheelGain_Callback(hObject, eventdata, handles)
@@ -120,6 +131,13 @@ function edit_rightWheelGain_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_rightWheelGain as text
 %        str2double(get(hObject,'String')) returns contents of edit_rightWheelGain as a double
+oldkr = get_param('robulink/kr','Value');
+newkr = get(hObject,'String');
+if sum(~isstrprop(newkr,'digit')) == 0 % i.e. if actually a number
+    set_param('robulink/kr','Value',newkr);
+else
+    set(hObject,'String',num2str(oldkr));
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -134,6 +152,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject,'String',get_param('robulink/kr','Value'));
 
 % --- Executes on button press in btn_overlayPath.
 function btn_overlayPath_Callback(hObject, eventdata, handles)
@@ -154,14 +173,17 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_terrainAssessment (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global terrain;
+terrain = terrainAssessment(context,rgb,depth,1);
 
+terrainAssessment_T_rg = localizeRover(context,rgb,depth, terrain.T_gk);
+terrain = markTerrainAroundRoverSafe(terrain,terrainAssessment_T_rg);
 
 % --- Executes on button press in btn_overlayTerrain.
 function btn_overlayTerrain_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayTerrain (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
@@ -171,6 +193,13 @@ function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_minFrontClearance as text
 %        str2double(get(hObject,'String')) returns contents of edit_minFrontClearance as a double
+oldminFrontClearance = get_param('robulink/minFrontClearance','Value');
+newminFrontClearance = get(hObject,'String');
+if sum(~isstrprop(newminFrontClearance,'digit')) == 0 % i.e. if actually a number
+    set_param('robulink/minFrontClearance','Value',newminFrontClearance);
+else
+    set(hObject,'String',num2str(oldminFrontClearance));
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -185,6 +214,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject,'String',get_param('robulink/minFrontClearance','Value'));
 
 
 function edit_safetyOmega_Callback(hObject, eventdata, handles)
@@ -194,7 +224,13 @@ function edit_safetyOmega_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_safetyOmega as text
 %        str2double(get(hObject,'String')) returns contents of edit_safetyOmega as a double
-
+oldsafetyOmega = get_param('robulink/safetyOmega','Value');
+newsafetyOmega = get(hObject,'String');
+if sum(~isstrprop(newsafetyOmega,'digit')) == 0 % i.e. if actually a number
+    set_param('robulink/safetyOmega','Value',newsafetyOmega);
+else
+    set(hObject,'String',num2str(oldsafetyOmega));
+end
 
 % --- Executes during object creation, after setting all properties.
 function edit_safetyOmega_CreateFcn(hObject, eventdata, handles)
@@ -208,13 +244,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject,'String',get_param('robulink/safetyOmega','Value'));
 
 % --- Executes on button press in btn_setGoal.
 function btn_setGoal_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_setGoal (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+global context; global depth;
+global terrain;
+[x,y] = ginput(1);
+goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
+goalX_g = goal_g(1); goalY_g = goal_g(2);
 
 % --- Executes on button press in btn_trainBallDetector.
 function btn_trainBallDetector_Callback(hObject, eventdata, handles)
@@ -228,7 +270,8 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-global context; global option; global isContextDeleted;
+global context; global option;
+global isContextDeleted;
 
 if isContextDeleted
     [context,option] = createKinectContext();
