@@ -55,7 +55,7 @@ while ishandle(h)
     set(gui_data.kinectRGB_image,'CData',rgb);
     
     if isTrackingCalibrated
-        displayLocalization(handles.kinectRGB_CData, rgb, trackingStruct);
+        displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
     end
     
     set(gui_data.kinectDepth_image,'CData',depth);

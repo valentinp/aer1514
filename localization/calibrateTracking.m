@@ -5,8 +5,7 @@ global width;
 
 %Set up GUI
 f = figure();
-axesHandle = get(f,'CurrentAxes');
-imgHandle = imshow(zeros(height,width,3,'uint8'), 'Parent', axesHandle);
+imgHandle = imshow(zeros(height,width,3,'uint8'));
 
 [rgb,~] = getKinectData(context);
 displayKinectRGB(rgb,imgHandle); 
@@ -81,8 +80,9 @@ calibStruct.red_rg_rng = red_rg_rng;
 calibStruct.red_gb_rng = red_gb_rng;
 
  
-disp('Is this good localization?');
+%disp('Is this good localization?');
+%displayLocalization(axesHandle,rgb,calibStruct);
 
-displayLocalization(axesHandle,rgb,calibStruct);
+close(f);
   
 end

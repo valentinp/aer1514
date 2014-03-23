@@ -51,7 +51,7 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
-global height; global width;
+global height; global width; global isTrackingCalibrated;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
@@ -64,8 +64,13 @@ handles.samplesList = [];
 % Choose default command line output for hammerheadGUI
 handles.output = hObject;
 
+%Set tracking variable
+isTrackingCalibrated = false;
+
 % Update handles structure
 guidata(hObject, handles);
+
+
 
 % UIWAIT makes hammerheadGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
