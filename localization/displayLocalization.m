@@ -1,4 +1,4 @@
-function displayLocalization(figHandle, rgb, calibStruct )
+function displayLocalization(figNumber, rgb, calibStruct )
 %DISPLAYLOCALIZATION Displays localization according to the current
 %calibration
 
@@ -45,8 +45,8 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 100;
-thresh = 10;       % inlier error threshold (radius meas. in pixels)
+K = 200;
+thresh = 20;       % inlier error threshold (radius meas. in pixels)
 maxInliersB = 0;
 maxInliersR = 0;
 
@@ -78,10 +78,10 @@ bestRedCentroid = [0,0]';
             bestRedCentroid = testRedCentroid;
         end
     end
-disp(bestRedCentroid)
-disp(bestBlueCentroid)
-scatter(figHandle,bestRedCentroid(1), bestRedCentroid(2), 'y*');
-scatter(figHandle,bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
+
+figure(figNumber);
+scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
+scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
 
 
 end
