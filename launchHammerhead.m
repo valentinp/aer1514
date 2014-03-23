@@ -52,13 +52,13 @@ set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 % rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
-    set(gui_data.kinectRGB_CData,'CData',rgb);
+    set(gui_data.kinectRGB_image,'CData',rgb);
     
     if isTrackingCalibrated
         displayLocalization(handles.kinectRGB_CData, rgb, trackingStruct);
     end
     
-    set(gui_data.kinectDepth_CData,'CData',depth);
+    set(gui_data.kinectDepth_image,'CData',depth);
 
     
     if exist('terrain.T_gk', 'var') && isTrackingCalibrated
