@@ -167,11 +167,16 @@ function btn_overlayPath_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global rgb; global context;
+global terrain; global context;
 global waypoints_g;
 
-set(handles.kinectOverlays_image,'CData',rgb);
-overlayPath(handles.kinectOverlays, waypoints_g, terrain, context);
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+
+if isempty(patches)
+    overlayPath(handles.kinectOverlays, waypoints_g, terrain, context);
+else
+    delete(patches);
+end
 
 
 % --- Executes on button press in btn_terrainAssessment.
@@ -189,9 +194,14 @@ function btn_overlayTerrain_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_overlayTerrain (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global rgb; global context;
-set(handles.kinectOverlays_image,'CData',rgb);
-overlayTerrainGrid(handles.kinectRGB, terrain, context);
+global terrain; global context;
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+
+if isempty(patches)
+    overlayTerrainGrid(handles.kinectRGB, terrain, context);
+else
+    delete(patches);
+end
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_minFrontClearance (see GCBO)
