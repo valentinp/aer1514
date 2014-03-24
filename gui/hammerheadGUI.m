@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 24-Mar-2014 11:39:32
+% Last Modified by GUIDE v2.5 24-Mar-2014 12:11:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,8 +51,7 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
-global height; global width;
-global isTrackingCalibrated;
+global height; global width; global isTrackingCalibrated;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
@@ -191,7 +190,7 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated; global trackingStruct;
+global T_rg; global isTrackingCalibrated;
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
@@ -289,9 +288,8 @@ global terrain; global T_rg; global waypoints_g;
 
 if ~isnan(T_rg)
     [x,y] = ginput(1);
-    realPoints = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
-    goal_k = realPoints(round(y),round(x),1:2);
-    goal_g = homo2cart(terrain.T_gk * cart2homo([goal_k(:); 0]));
+    goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+    goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
     roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
     waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
 else
@@ -383,5 +381,40 @@ function btn_selectFrame_Callback(hObject, eventdata, handles)
 % --- Executes on button press in btn_exportMap.
 function btn_exportMap_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_exportMap (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton16.
+function pushbutton16_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton17.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btn_EmergStop.
+function btn_EmergStop_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_EmergStop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
