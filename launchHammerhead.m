@@ -50,13 +50,20 @@ set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 
 % Initialize some stuff
 T_rg = NaN;
-rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
+rto_detectSample = get_param('robulink/Detect Sample Filter','RunTimeObject');
 
 % Main loop
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
     set(gui_data.kinectRGB_image,'CData',rgb);
     set(gui_data.kinectDepth_image,'CData',depth);
+    
+    %Detect the samples
+    if rto_detectSample.OutputPort(0).Data
+         set(gui_data.overSample_image, 'CData', ones(10,10));
+    else
+         set(gui_data.overSample_image, 'CData', zeros(10,10));
+    end
     
     if isTrackingCalibrated
         displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);

@@ -57,6 +57,7 @@ global height; global width; global isTrackingCalibrated;
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
 handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
 handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
+handles.overSample_image = imshow(zeros(10,10,3,'uint8'), 'Parent', handles.overSample);
 
 % Set up samples list
 handles.samplesList = [];
