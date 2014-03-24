@@ -51,7 +51,8 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
-global height; global width; global isTrackingCalibrated;
+global height; global width;
+global isTrackingCalibrated;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
@@ -190,7 +191,7 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated;
+global T_rg; global isTrackingCalibrated; global trackingStruct;
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
@@ -288,8 +289,9 @@ global terrain; global T_rg; global waypoints_g;
 
 if ~isnan(T_rg)
     [x,y] = ginput(1);
-    goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
-    goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
+    realPoints = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+    goal_k = realPoints(round(y),round(x),1:2);
+    goal_g = homo2cart(terrain.T_gk * cart2homo([goal_k(:); 0]));
     roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
     waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
 else
