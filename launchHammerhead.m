@@ -63,6 +63,13 @@ distTraveled = 0;   % meters
 % Teleop mode setting
 enableTeleopMode = true;
 
+% Sample found colours
+noSampleColour(1,1,:) = [0,0,0];
+foundSampleColour(1,1,:) = [0,1,0];
+
+noSampleCData = repmat(noSampleColour, [10,10,1]);
+foundSampleCData = repmat(foundSampleColour, [10,10,1]);
+
 %% Launch GUI
 h = hammerheadGUI;
 gui_data = guidata(h);
@@ -79,11 +86,12 @@ while ishandle(h)
     
     % Detect the samples
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
-         set(gui_data.overSample_image, 'CData', 255*ones(10,10));
+         set(gui_data.overSample_image, 'CData', foundSampleCData);
     else
-         set(gui_data.overSample_image, 'CData', zeros(10,10));
+         set(gui_data.overSample_image, 'CData', noSampleCData);
     end
     
+    % Localization etc.
     if isTrackingCalibrated
         displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
         
@@ -94,6 +102,7 @@ while ishandle(h)
             % Path following
             if enableTeleopMode && ~atGoal
                 disp('Warning: In teleop mode. Path following disabled.');
+                atGoal = true;
             else
                 if ~atGoal
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
@@ -105,7 +114,7 @@ while ishandle(h)
         end        
     end
     
-    pause(0.02);
+    pause(0.01);
 end
 
 

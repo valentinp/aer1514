@@ -122,6 +122,7 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
     cellStates(iStart,jStart) = -4;
     cellStates(iGoal,jGoal) = 4;
     imagesc(cellStates, 'Parent', h);
+    set(h, 'XTick',[],'YTick',[],'XDir','Normal','YDir','Normal');
 end
 
 function pathLength = getPathLength(waypoints)
