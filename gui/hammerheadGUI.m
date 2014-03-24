@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 22-Mar-2014 22:26:45
+% Last Modified by GUIDE v2.5 24-Mar-2014 11:39:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -369,3 +369,17 @@ switch(selection)
         enableTeleopMode = false;
         set_param('robulink/teleop','Value','false');
 end
+
+
+% --- Executes on button press in btn_selectFrame.
+function btn_selectFrame_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_selectFrame (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btn_exportMap.
+function btn_exportMap_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_exportMap (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
