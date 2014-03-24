@@ -60,6 +60,8 @@ handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', hand
 handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
 handles.overSample_image = imshow(zeros(10,10,3,'uint8'), 'Parent', handles.overSample);
 
+set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates these again
+
 % Initialize teleop radio button
 set(handles.radio_teleop,'Value',enableTeleopMode);
 if enableTeleopMode
@@ -358,6 +360,8 @@ function btn_followPath_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_followPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global atGoal;
+atGoal = false;
 
 
 % --- Executes when selected object is changed in btnGroup_teleop.
@@ -395,36 +399,9 @@ function btn_exportMap_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton14.
-function pushbutton14_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton14 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton15.
-function pushbutton15_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton15 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton16.
-function pushbutton16_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton16 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton17.
-function pushbutton17_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton17 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
 % --- Executes on button press in btn_EmergStop.
 function btn_EmergStop_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_EmergStop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+brake();

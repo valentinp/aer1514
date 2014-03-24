@@ -1,4 +1,4 @@
-function waypoints = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
+function [waypoints, pathLength] = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
 % xStart, yStart, xGoal, yGoal, and waypoints in ground frame
       
     % Initialize cell states and costs for search
@@ -109,6 +109,7 @@ function waypoints = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
         end
         
         waypoints(:, n+2) = [xGoal; yGoal];
+        pathLength = getPathLength(waypoints);
         
         for n = 1:numWaypoints
             cellStates(waypoints_ij(n,1),waypoints_ij(n,2)) = -1;
@@ -116,8 +117,15 @@ function waypoints = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
     else
         disp('Pathfinding FAILURE');
         waypoints = [];
+        pathLength = 0;
     end
     cellStates(iStart,jStart) = -4;
     cellStates(iGoal,jGoal) = 4;
     figure; imagesc(cellStates); axis xy; colorbar;
+end
+
+function pathLength = getPathLength(waypoints)
+    pathVecs = waypoints(:,2:end) - waypoints(:,1:end-1);
+    pathDists = sqrt(sum(pathVecs.^2,1));
+    pathLength = sum(pathDists);
 end
