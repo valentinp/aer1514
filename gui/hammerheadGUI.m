@@ -190,10 +190,19 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global trackingStruct;
+global T_rg; global isTrackingCalibrated;
+
 terrain = terrainAssessment(context,rgb,depth,1);
-T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
-terrain = markTerrainAroundRoverSafe(terrain,T_rg);
+
+if isTrackingCalibrated
+    T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
+end
+
+if ~isnan(T_rg)
+    terrain = markTerrainAroundRoverSafe(terrain,T_rg);
+else
+    disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
+end
 
 % --- Executes on button press in btn_overlayTerrain.
 function btn_overlayTerrain_Callback(hObject, eventdata, handles)
@@ -276,11 +285,16 @@ function btn_setGoal_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global context; global depth;
 global terrain; global T_rg; global waypoints_g;
-[x,y] = ginput(1);
-goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
-goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
-roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
-waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
+
+if ~isnan(T_rg)
+    [x,y] = ginput(1);
+    goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+    goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
+    roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
+    waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
+else
+    disp('Warning: Rover has not been localized. Can''t set nav goal.');
+end
 
 % --- Executes on button press in btn_trainBallDetector.
 function btn_trainBallDetector_Callback(hObject, eventdata, handles)

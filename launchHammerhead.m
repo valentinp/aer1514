@@ -48,22 +48,24 @@ gui_data = guidata(h);
 % Teleop functions
 set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 
+% Initialize some stuff
+T_rg = NaN;
+rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
+
 % Main loop
-% rto = get_param('robulink/Detect Sample Filter','RunTimeObject');
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
     set(gui_data.kinectRGB_image,'CData',rgb);
+    set(gui_data.kinectDepth_image,'CData',depth);
     
     if isTrackingCalibrated
         displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
+        
+        if exist('terrain.T_gk', 'var')
+            T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
+        end
     end
     
-    set(gui_data.kinectDepth_image,'CData',depth);
-
-    
-    if exist('terrain.T_gk', 'var') && isTrackingCalibrated
-        T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
-    end
     pause(0.02);
 end
 
