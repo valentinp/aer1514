@@ -296,14 +296,15 @@ function btn_setGoal_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global context; global depth;
-global terrain; global T_rg; global waypoints_g;
+global terrain; global T_rg;
+global waypoints_g; global pathLength;
 
 if ~isnan(T_rg)
     [x,y] = ginput(1);
     goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
     goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
     roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
-    waypoints_g = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
+    [waypoints_g, pathLength] = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
 else
     disp('Warning: Rover has not been localized. Can''t set nav goal.');
 end
