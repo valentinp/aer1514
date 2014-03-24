@@ -17,122 +17,75 @@ global width;
 close all;
 
 %Set up GUI
-figure;
+fig = figure(1);
 h = imagesc(zeros(height,width,3,'uint8'));
-hold on;
-
 %Intialize
 scatterPointsR = [];
 scatterPointsB = [];
 
-[context, option] = createKinectContext();
+if ~exist('rgb', 'var')
+    load('kinectRGB.mat');
+end
 
- [rgb,depth] = getKinectData(context);
+%[context,option] = createKinectContext();
+
+ %[rgb,depth] = getKinectData(context);
  displayKinectRGB(rgb,h); 
- disp('Select top left and bottom right corners of the blue ball');  
- [x_blue,y_blue] = ginput(2);
-  disp('Select top left and bottom right corners of the red ball');  
- [x_red,y_red] = ginput(2);
+%  disp('Select top left and bottom right corners of the blue ball');  
+%  [x_blue,y_blue] = ginput(2);
+%   disp('Select top left and bottom right corners of the red ball');  
+%  [x_red,y_red] = ginput(2);
+
+ hsv = rgb2hsv(rgb);
 
  
- blue_pixels = rgb(round(y_blue(1)):round(y_blue(2)), round(x_blue(1)):round(x_blue(2)), :);
- red_pixels = rgb(round(y_red(1)):round(y_red(2)), round(x_red(1)):round(x_red(2)),:);
+ blue_pixels = hsv(round(y_blue(1)):round(y_blue(2)), round(x_blue(1)):round(x_blue(2)), :);
+ red_pixels = hsv(round(y_red(1)):round(y_red(2)), round(x_red(1)):round(x_red(2)),:);
  
- blue_r = double(blue_pixels(:,:,1));
- blue_g = double(blue_pixels(:,:,2));
- blue_b = double(blue_pixels(:,:,3));
+ blue_h = double(blue_pixels(:,:,1));
+ red_h = double(red_pixels(:,:,1));
+ blue_h = blue_h(:);
+ red_h = red_h(:);
  
- red_r = double(red_pixels(:,:,1));
- red_g = double(red_pixels(:,:,2));
- red_b = double(red_pixels(:,:,3));
- 
- blue_r = blue_r(:);
- blue_g = blue_g(:);
- blue_b = blue_b(:);
- 
- red_r = red_r(:);
- red_g = red_g(:);
- red_b = red_b(:);
- 
- blue_br = blue_b./blue_r;
- blue_rg = blue_r./blue_g;
- blue_gb = blue_g./blue_b;
+ red_s = double(red_pixels(:,:,2));
+ blue_s = double(blue_pixels(:,:,2));
+ blue_s = blue_s(:);
+ red_s = red_s(:);
 
- red_br = red_b./red_r;
- red_rg = red_r./red_g;
- red_gb = red_g./red_b;
- 
- blue_sigma = 0.7;
- red_sigma = 1;
- 
- blue_r_rng = [mean(blue_r)-blue_sigma*std(blue_r), mean(blue_r)+blue_sigma*std(blue_r)]
- blue_g_rng = [mean(blue_g)-blue_sigma*std(blue_g), mean(blue_g)+blue_sigma*std(blue_g)]
- blue_b_rng = [mean(blue_b)-blue_sigma*std(blue_b), mean(blue_b)+blue_sigma*std(blue_b)]
-
- blue_br_rng = [mean(blue_br)-blue_sigma*std(blue_br), mean(blue_br)+blue_sigma*std(blue_br)]
- blue_rg_rng = [mean(blue_rg)-blue_sigma*std(blue_rg), mean(blue_rg)+blue_sigma*std(blue_rg)]
- blue_gb_rng = [mean(blue_gb)-blue_sigma*std(blue_gb), mean(blue_gb)+blue_sigma*std(blue_gb)]
- 
- red_r_rng = [mean(red_r)-red_sigma*std(red_r), mean(red_r)+red_sigma*std(red_r)]
- red_g_rng = [mean(red_g)-red_sigma*std(red_g), mean(red_g)+red_sigma*std(red_g)]
- red_b_rng = [mean(red_b)-red_sigma*std(red_b), mean(red_b)+red_sigma*std(red_b)]
-
- 
- red_br_rng = [mean(red_br)-red_sigma*std(red_br), mean(red_br)+red_sigma*std(red_br)]
- red_rg_rng = [mean(red_rg)-red_sigma*std(red_rg), mean(red_rg)+red_sigma*std(red_rg)]
- red_gb_rng = [mean(red_gb)-red_sigma*std(red_gb), mean(red_gb)+red_sigma*std(red_gb)]
- 
- 
- 
- 
- 
-%runWhile = true; 
- 
-while (ishandle(h))
-      [rgb,depth] = getKinectData(context, option);
-        %Plot raw RGB image
-        displayKinectRGB(rgb,h); 
-
-kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
-%Extract red and blue regions
+ red_v = double(red_pixels(:,:,3));
+ blue_v = double(blue_pixels(:,:,3));
+ blue_v = blue_v(:);
+ red_v = red_v(:);
 
 
+ 
+ 
+ sigma_const = 0.2;
+ 
+ red_h_rng = [median(red_h)-sigma_const*std(red_h), median(red_h)+sigma_const*std(red_h)];
+ blue_h_rng = [median(blue_h)-sigma_const*std(blue_h), median(blue_h)+sigma_const*std(blue_h)];
+ 
+ blue_v_min = median(blue_v) - std(blue_v);
+ red_v_min = median(red_v) - std(red_v);
+ 
+ blue_s_min = median(blue_s) - std(blue_s);
+ red_s_min = median(red_s) - std(red_s);
+ 
+ 
+ 
+ red_region = hsv(:,:,1) >= red_h_rng(1) & hsv(:,:,1) <= red_h_rng(2) & hsv(:,:,2) > red_s_min & hsv(:,:,3) > red_v_min;
+ blue_region = hsv(:,:,1) >= blue_h_rng(1) & hsv(:,:,1) <= blue_h_rng(2)& hsv(:,:,2) > blue_s_min & hsv(:,:,3) > blue_v_min;
+ 
+ 
+figure(10);
+[r,c] = size(red_region);                           %# Get the matrix size
+imagesc((1:c)+0.5,(1:r)+0.5,red_region);            %# Plot the image
+colormap(gray);                              %# Use a gray colormap
 
-red_region = rgb(:,:,1) > red_r_rng(1) & rgb(:,:,1) < red_r_rng(2) & rgb(:,:,2) > red_g_rng(1) & rgb(:,:,2) < red_g_rng(2) & rgb(:,:,3) > red_b_rng(1) & rgb(:,:,3) < red_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > red_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < red_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > red_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < red_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > red_gb_rng(1) & double(rgb(:,:,2)./rgb(:,:,3)) < red_gb_rng(2);
-
-blue_region = rgb(:,:,1) > blue_r_rng(1) & rgb(:,:,1) < blue_r_rng(2) & rgb(:,:,2) > blue_g_rng(1) & rgb(:,:,2) < blue_g_rng(2) & rgb(:,:,3) > blue_b_rng(1) & rgb(:,:,3) < blue_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > blue_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < blue_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > blue_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < blue_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > blue_gb_rng(1) & double(rgb(:,:,2))./double(rgb(:,:,3)) < blue_gb_rng(2);
-
-%red_region = rgb(:,:,1)./(rgb(:,:,2) + 0.1) > 3 & rgb(:,:,1)./(rgb(:,:,3)+0.1) > 3;
-%blue_region = rgb(:,:,3)./(rgb(:,:,2) + 0.1) > 1.5 & rgb(:,:,3)./(rgb(:,:,1)+0.1) > 3;
-
-
-% figure(10);
-% [r,c] = size(red_region);                           %# Get the matrix size
-% imagesc((1:c)+0.5,(1:r)+0.5,red_region);            %# Plot the image
-% colormap(gray);                              %# Use a gray colormap
-% 
-% figure(12);
-% [r,c] = size(blue_region);                           %# Get the matrix size
-% imagesc((1:c)+0.5,(1:r)+0.5,blue_region);            %# Plot the image
-% colormap(gray);
-% 
-% 
-% runWhile = false;
-
-if sum(red_region) < 5
-    disp('WARNING: No red pixels found'); 
-    continue;
-end
-if sum(blue_region) < 5
-    disp('WARNING: No blue pixels found'); 
-    continue;
-end
+figure(12);
+[r,c] = size(blue_region);                           %# Get the matrix size
+imagesc((1:c)+0.5,(1:r)+0.5,blue_region);            %# Plot the image
+colormap(gray);
 
 
 [red_r,red_c] = find(red_region);
@@ -182,18 +135,12 @@ delete(scatterPointsR);
 delete(scatterPointsB);
 end
 
-scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
-scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
+%hold(fig, 'on');
+axesHandles = get(fig, 'Children');
+hold(axesHandles, 'on');
+scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*', 'Parent', axesHandles);
+scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*', 'Parent', axesHandles);
 
-redVec = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
-blueVec = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
-
-lateralVec = cart2homo(0.5*(blueVec(:) - redVec(:)) + redVec(:));
-%Transform this vector into the ground plane
-% lateralVec_g = homo2cart(T_gk*lateralVec);
-% roverLoc = lateralVec_g;
-% disp(roverLoc)
-pause(0.01);
- end
-mxNiDeleteContext(context);
+ 
+%mxNiDeleteContext(context);
 

@@ -4,42 +4,33 @@ function T_rg = localizeRover(context, rgb, depth, calibStruct, T_gk)
 ballDiameter = 0.05; % meters
 depthOffset = 2*ballDiameter; % Seems to work better with 2*ballDiamater than 1*
 
-red_r_rng = calibStruct.red_r_rng;
-red_g_rng = calibStruct.red_g_rng;
-red_b_rng = calibStruct.red_b_rng;
+red_h_rng = calibStruct.red_h_rng;
+blue_h_rng = calibStruct.blue_h_rng;
 
-blue_r_rng = calibStruct.blue_r_rng;
-blue_g_rng = calibStruct.blue_g_rng;
-blue_b_rng = calibStruct.blue_b_rng;
+blue_v_min = calibStruct.blue_v_min;
+red_v_min = calibStruct.red_v_min;
 
-blue_br_rng = calibStruct.blue_br_rng;
-blue_rg_rng = calibStruct.blue_rg_rng;
-blue_gb_rng = calibStruct.blue_gb_rng;
+blue_s_min = calibStruct.blue_s_min;
+red_s_min = calibStruct.red_s_min;
 
-red_br_rng = calibStruct.red_br_rng;
-red_rg_rng = calibStruct.red_rg_rng;
-red_gb_rng = calibStruct.red_gb_rng;
+hsv = rgb2hsv(rgb);
 
+ red_region = hsv(:,:,1) >= red_h_rng(1) & hsv(:,:,1) <= red_h_rng(2) & hsv(:,:,2) > red_s_min & hsv(:,:,3) > red_v_min;
+ blue_region = hsv(:,:,1) >= blue_h_rng(1) & hsv(:,:,1) <= blue_h_rng(2)& hsv(:,:,2) > blue_s_min & hsv(:,:,3) > blue_v_min;
+
+ 
 
 kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
-%Extract red and blue regions
-red_region = rgb(:,:,1) > red_r_rng(1) & rgb(:,:,1) < red_r_rng(2) & rgb(:,:,2) > red_g_rng(1) & rgb(:,:,2) < red_g_rng(2) & rgb(:,:,3) > red_b_rng(1) & rgb(:,:,3) < red_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > red_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < red_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > red_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < red_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > red_gb_rng(1) & double(rgb(:,:,2)./rgb(:,:,3)) < red_gb_rng(2);
-
-blue_region = rgb(:,:,1) > blue_r_rng(1) & rgb(:,:,1) < blue_r_rng(2) & rgb(:,:,2) > blue_g_rng(1) & rgb(:,:,2) < blue_g_rng(2) & rgb(:,:,3) > blue_b_rng(1) & rgb(:,:,3) < blue_b_rng(2) & ... 
-double(rgb(:,:,3))./double(rgb(:,:,1)) > blue_br_rng(1) & double(rgb(:,:,3))./double(rgb(:,:,1)) < blue_br_rng(2) & ... 
-double(rgb(:,:,1))./double(rgb(:,:,2)) > blue_rg_rng(1) & double(rgb(:,:,1))./double(rgb(:,:,2)) < blue_rg_rng(2) & ... 
-double(rgb(:,:,2))./double(rgb(:,:,3)) > blue_gb_rng(1) & double(rgb(:,:,2))./double(rgb(:,:,3)) < blue_gb_rng(2);
 
 
 if sum(red_region) < 5
     disp('WARNING: No red pixels found'); 
+    T_rg = Nan;
     return;
 end
 if sum(blue_region) < 5
     disp('WARNING: No blue pixels found'); 
+    T_rg = Nan;
     return;
 end
 
@@ -48,8 +39,8 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 200;
-thresh = 15;       % inlier error threshold (radius meas. in pixels)
+K = 100;
+thresh = 10;       % inlier error threshold (radius meas. in pixels)
 maxInliersB = 0;
 maxInliersR = 0;
 
