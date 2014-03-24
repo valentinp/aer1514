@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 24-Mar-2014 12:39:55
+% Last Modified by GUIDE v2.5 24-Mar-2014 14:45:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,7 +57,7 @@ global enableTeleopMode;
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
 handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
-handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
+% handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'),'Parent', handles.kinectOverlays);
 handles.overSample_image = imshow(zeros(10,10,3,'uint8'), 'Parent', handles.overSample);
 
 set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates these again
@@ -202,7 +202,7 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated;
+global T_rg; global isTrackingCalibrated; global trackingStruct;
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
@@ -215,6 +215,7 @@ if ~isnan(T_rg)
 else
     disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
 end
+btn_overlayTerrain_Callback(hObject, eventdata, handles);
 
 % --- Executes on button press in btn_overlayTerrain.
 function btn_overlayTerrain_Callback(hObject, eventdata, handles)
@@ -301,10 +302,12 @@ global waypoints_g; global pathLength;
 
 if ~isnan(T_rg)
     [x,y] = ginput(1);
-    goal_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+    realWorldPoints = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
+    goal_k = realWorldPoints(round(y),round(x),:);
     goal_g = homo2cart(terrain.T_gk * cart2homo(goal_k(:)));
     roverpos_g = homo2cart(T_rg \ [0;0;0;1]);
-    [waypoints_g, pathLength] = getPathSegments(roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
+    [waypoints_g, pathLength] = getPathSegments(handles.kinectOverlays,roverpos_g(1), roverpos_g(2), goal_g(1), goal_g(2), terrain);
+    btn_overlayPath_Callback(hObject, eventdata, handles)
 else
     disp('Warning: Rover has not been localized. Can''t set nav goal.');
 end
@@ -385,7 +388,6 @@ switch(selection)
         set_param('robulink/teleop','Value','false');
 end
 
-
 % --- Executes on button press in btn_selectFrame.
 function btn_selectFrame_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_selectFrame (see GCBO)
@@ -405,4 +407,7 @@ function btn_EmergStop_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_EmergStop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global atGoal;
+atGoal = true;
 brake();
+disp('Warning: E-Stopped');

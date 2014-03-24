@@ -31,7 +31,6 @@ global isTrackingCalibrated;
 % Path planning and following
 global waypoints_g; global pathLength;
 global atGoal;
-global inPathFollowingMode;
 global v; global k1; global k2;
 global goalThresh; global maxPathLengthMultiple;
 
@@ -53,7 +52,7 @@ T_rg_prev = NaN;
 isTrackingCalibrated = false;
 
 % Path planning and following
-atGoal = false;
+atGoal = true;
 v = 0.4;
 k1 = 1.5;           % lateral
 k2 = 1.5;           % heading
@@ -63,6 +62,13 @@ distTraveled = 0;   % meters
 
 % Teleop mode setting
 enableTeleopMode = true;
+
+% Sample found colours
+noSampleColour(1,1,:) = [0,0,0];
+foundSampleColour(1,1,:) = [0,1,0];
+
+noSampleCData = repmat(noSampleColour, [10,10,1]);
+foundSampleCData = repmat(foundSampleColour, [10,10,1]);
 
 %% Launch GUI
 h = hammerheadGUI;
@@ -80,29 +86,35 @@ while ishandle(h)
     
     % Detect the samples
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
-         set(gui_data.overSample_image, 'CData', ones(10,10));
+         set(gui_data.overSample_image, 'CData', foundSampleCData);
     else
-         set(gui_data.overSample_image, 'CData', zeros(10,10));
+         set(gui_data.overSample_image, 'CData', noSampleCData);
     end
     
+    % Localization etc.
     if isTrackingCalibrated
         displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
         
-        if exist('terrain.T_gk', 'var')
+        if isfield(terrain,'T_gk');
             T_rg_prev = T_rg;
             T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
             
             % Path following
-            if ~atGoal
-                [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, distTraveled);
-                atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
+            if enableTeleopMode && ~atGoal
+                disp('Warning: In teleop mode. Path following disabled.');
+                atGoal = true;
             else
-                distTraveled = 0;
+                if ~atGoal
+                    [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
+                    atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
+                else
+                    distTraveled = 0;
+                end
             end
         end        
     end
     
-    pause(0.02);
+    pause(0.01);
 end
 
 

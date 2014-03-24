@@ -25,12 +25,12 @@ kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % hei
 
 if sum(red_region) < 5
     disp('WARNING: No red pixels found'); 
-    T_rg = Nan;
+    T_rg = NaN;
     return;
 end
 if sum(blue_region) < 5
     disp('WARNING: No blue pixels found'); 
-    T_rg = Nan;
+    T_rg = NaN;
     return;
 end
 

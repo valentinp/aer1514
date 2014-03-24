@@ -1,8 +1,10 @@
 # Directories #
 ###############
+robulink_rtt/
+slprj/
 simulink/robulink_rtt/
 simulink/slprj/
 
 #      Files      #
 ###################
-simulink/robulink_sfun*
+robulink_sfun*
