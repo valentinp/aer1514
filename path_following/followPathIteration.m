@@ -1,5 +1,7 @@
-function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, distTraveled)
-    
+function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled)
+    global v; global k1; global k2;
+    global goalThresh;
+
     % Check that we can localize
     if isnan(T_rg)
         disp('Could not localize rover! Driving blind and trying again...');
@@ -9,10 +11,10 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
 
         if ds < 0.1
-            currPos_g = homo2cart(T_rg\[0;0;0;1]);
-
             distTraveled = distTraveled + ds;
 
+            waypoints_g = [waypoints_g; zeros(1, size(waypoints_g,2))];
+            waypoints_g = cart2homo(waypoints_g);
             waypoints_r = homo2cart(T_rg * waypoints_g);    
 
             [w0Idx, w1Idx, w2Idx] = getClosestWaypointIndices(waypoints_r);

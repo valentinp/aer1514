@@ -1,4 +1,4 @@
-function [waypoints, pathLength] = getPathSegments(xStart, yStart, xGoal, yGoal, terrain)
+function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGoal, terrain)
 % xStart, yStart, xGoal, yGoal, and waypoints in ground frame
       
     % Initialize cell states and costs for search
@@ -121,7 +121,7 @@ function [waypoints, pathLength] = getPathSegments(xStart, yStart, xGoal, yGoal,
     end
     cellStates(iStart,jStart) = -4;
     cellStates(iGoal,jGoal) = 4;
-    figure; imagesc(cellStates); axis xy; colorbar;
+    imagesc(cellStates, 'Parent', h);
 end
 
 function pathLength = getPathLength(waypoints)

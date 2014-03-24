@@ -36,10 +36,12 @@ double(rgb(:,:,2))./double(rgb(:,:,3)) > blue_gb_rng(1) & double(rgb(:,:,2))./do
 
 if sum(red_region) < 5
     disp('WARNING: No red pixels found'); 
+    T_rg = NaN;
     return;
 end
 if sum(blue_region) < 5
     disp('WARNING: No blue pixels found'); 
+    T_rg = NaN;
     return;
 end
 
