@@ -39,7 +39,7 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 100;
+K = 10;
 thresh = 10;       % inlier error threshold (radius meas. in pixels)
 maxInliersB = 0;
 maxInliersR = 0;

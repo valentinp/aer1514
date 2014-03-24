@@ -24,12 +24,12 @@ global width; global height;
 global rgb; global depth;
 
 % Rover localization
-global T_rg;
+global T_rg; global T_rg_start;
 global trackingStruct;
 global isTrackingCalibrated;
 
 % Path planning and following
-global waypoints_g; global pathLength;
+global waypoints_g; global startpoint_g; global pathLength;
 global atGoal;
 global v; global k1; global k2;
 global goalThresh; global maxPathLengthMultiple;
@@ -47,7 +47,7 @@ width = 640;
 height = 480;
 
 % Rover Localization
-T_rg = NaN;
+T_rg = NaN; T_rg_initial = NaN;
 T_rg_prev = NaN;
 isTrackingCalibrated = false;
 
@@ -99,6 +99,15 @@ while ishandle(h)
             T_rg_prev = T_rg;
             T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
             
+            % Save the initial rover position
+            if isnan(T_rg_initial)
+                T_rg_initial = T_rg;
+            else
+                % This will happen on the next iteration after T_rg_initial
+                % stops being NaN
+                startpoint_g = homo2cart(T_rg_initial \ [0;0;0;1]);
+            end
+            
             % Path following
             if enableTeleopMode && ~atGoal
                 disp('Warning: In teleop mode. Path following disabled.');
@@ -108,6 +117,7 @@ while ishandle(h)
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
                     atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
                 else
+                    brake();
                     distTraveled = 0;
                 end
             end
