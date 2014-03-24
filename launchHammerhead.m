@@ -2,7 +2,8 @@
 % launching GUI, etc.
 
 %% Open the model
-open('./simulink/robulink.slx');
+% Don't do this. Running the model on the robot after opening the GUI screws up the GUI.
+% open('./simulink/robulink.slx');
 
 %% Paths
 addpath('gui');
@@ -35,11 +36,18 @@ global isTrackingCalibrated;
 % Path planning and following
 global waypoints_g;
 
+global atGoal;
+atGoal = false;
+
+global inPathFollowingMode;
+inPathFollowingMode = false;
+
 % Terrain
 global terrain;
 
 % Teleop mode settings
 global enableTeleopMode;
+enableTeleopMode = true;
 
 %% Launch GUI
 h = hammerheadGUI;
@@ -59,7 +67,7 @@ while ishandle(h)
     set(gui_data.kinectDepth_image,'CData',depth);
     
     %Detect the samples
-    if rto_detectSample.OutputPort(0).Data
+    if length(rto_detectSample) > 0 && rto_detectSample.OutputPort(1).Data
          set(gui_data.overSample_image, 'CData', ones(10,10));
     else
          set(gui_data.overSample_image, 'CData', zeros(10,10));

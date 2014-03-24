@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 24-Mar-2014 12:11:53
+% Last Modified by GUIDE v2.5 24-Mar-2014 12:39:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -52,12 +52,21 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
 global height; global width; global isTrackingCalibrated;
+global enableTeleopMode;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
 handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
 handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectOverlays);
 handles.overSample_image = imshow(zeros(10,10,3,'uint8'), 'Parent', handles.overSample);
+
+% Initialize teleop radio button
+set(handles.radio_teleop,'Value',enableTeleopMode);
+if enableTeleopMode
+    set_param('robulink/teleop','Value','true');
+else
+    set_param('robulink/teleop','Value','false');
+end
 
 % Set up samples list
 handles.samplesList = [];
