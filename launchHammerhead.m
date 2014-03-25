@@ -65,11 +65,11 @@ distTraveled = 0;   % meters
 enableTeleopMode = false;
 
 % Sample found colours
-noSampleColour(1,1,:) = [0,0,0];
-foundSampleColour(1,1,:) = [0,1,0];
+[X, map] = imread('NO.bmp');
+noSampleCData = ind2rgb(X,map);
 
-noSampleCData = repmat(noSampleColour, [10,10,1]);
-foundSampleCData = repmat(foundSampleColour, [10,10,1]);
+[X,map] = imread('YES.bmp');
+foundSampleCData = ind2rgb(X,map);
 
 %% Launch GUI
 h = hammerheadGUI;
