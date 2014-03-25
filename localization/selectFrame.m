@@ -24,9 +24,12 @@ mapFrame_k = mapFrame_k/1000;
 t_mk_k = mapFrame_k(:,1);
 
 vx = mapFrame_k(:,2) - mapFrame_k(:,1);
+vx = normalize(vx);
 vy = mapFrame_k(:,3) - mapFrame_k(:,1);
+vy = normalize(vy);
 vz = cross(vx,vy);
-R_mk = [vx';vy';vz'];    
+vz = normalize(vz);
+R_mk = [vx,vy,vz]';    
 
 T_mk = [R_mk -R_mk*t_mk_k; 0 0 0 1];
 
