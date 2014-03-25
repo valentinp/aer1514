@@ -35,7 +35,7 @@ disp('Select top left and bottom right corners of the red ball');
  blue_v = blue_v(:);
  red_v = red_v(:);
 
- sigma_const = 0.3;
+ sigma_const = 0.2;
  
  red_h_rng = [median(red_h)-sigma_const*std(red_h), median(red_h)+sigma_const*std(red_h)];
  blue_h_rng = [median(blue_h)-sigma_const*std(blue_h), median(blue_h)+sigma_const*std(blue_h)];
