@@ -52,13 +52,13 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
 global height; global width; global isTrackingCalibrated;
-global enableTeleopMode;
+global enableTeleopMode; global calibStruct;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
 handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', handles.kinectDepth);
 % handles.kinectOverlays_image = imshow(zeros(height,width,3,'uint8'),'Parent', handles.kinectOverlays);
-handles.overSample_image = imshow(zeros(10,10,3,'uint8'), 'Parent', handles.overSample);
+handles.overSample_image = imshow(zeros(100,100,3,'uint8'), 'Parent', handles.overSample);
 
 set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates these again
 
@@ -78,7 +78,13 @@ handles.samplesList = [];
 handles.output = hObject;
 
 %Set tracking variable
-isTrackingCalibrated = false;
+if exist('trackingCalibration.mat', 'file') == 2
+    S = load('trackingCalibration.mat');
+    calibStruct = S.calibStruct;
+    isTrackingCalibrated = true;
+else
+    isTrackingCalibrated = false;
+end
 
 % Update handles structure
 guidata(hObject, handles);

@@ -56,7 +56,7 @@ calibStruct.red_v_min = red_v_min;
 calibStruct.blue_s_min = blue_s_min;
 calibStruct.red_s_min = red_s_min;
 
- 
+save('trackingCalibration.mat', 'calibStruct'); 
 close(f);
   
 end

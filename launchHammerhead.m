@@ -80,6 +80,10 @@ set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 
 %% Main loop
 rto_detectSample = get_param('robulink/Detect Sample Filter','RunTimeObject');
+rto_batteryLevel = get_param('robulink/Battery','RunTimeObject');
+rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
+rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
+
 while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
     set(gui_data.kinectRGB_image,'CData',rgb);
@@ -90,6 +94,16 @@ while ishandle(h)
          set(gui_data.overSample_image, 'CData', foundSampleCData);
     else
          set(gui_data.overSample_image, 'CData', noSampleCData);
+    end
+    
+    %Health and safety
+    if ~isempty(rto_batteryLevel)
+        set(gui_data.txt_batteryLevel, 'String', [num2str(rto_batteryLevel.OutputPort(1).Data) ' mV']);
+    end
+    
+    if ~isempty(rto_odometry)
+        set(gui_data.txt_odometrySpeed, 'String', [num2str(norm([rto_odometry.OutputPort(1).Data, rto_odometry.OutputPort(2).Data]),2) ' m/s']);
+        set(gui_data.txt_odometryOmega, 'String', [num2str(rto_odometry.OutputPort(3).Data,2) ' deg/s']);
     end
     
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
