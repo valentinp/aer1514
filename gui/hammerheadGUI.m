@@ -106,6 +106,7 @@ global context; global depth; global sampleList_k;
 newSamples = fetchSamples(context, depth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
+drawnow;
 
 
 % --- Executes on button press in btn_clearSamples.
@@ -116,7 +117,7 @@ function btn_clearSamples_Callback(hObject, eventdata, handles)
 global sampleList_k;
 sampleList_k = [];
 set(handles.table_samples, 'Data', sampleList_k);
-
+drawnow;
 
 
 function edit_leftWheelGain_Callback(hObject, eventdata, handles)
@@ -133,7 +134,7 @@ if sum(~(isstrprop(newkl,'digit') | newkl == '.')) == 0 % i.e. if actually a num
 else
     set(hObject,'String',num2str(oldkl));
 end
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_leftWheelGain_CreateFcn(hObject, eventdata, handles)
@@ -148,7 +149,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String',get_param('robulink/kl','Value'));
-
+drawnow;
 
 function edit_rightWheelGain_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_rightWheelGain (see GCBO)
@@ -164,7 +165,7 @@ if sum(~(isstrprop(newkr,'digit') | newkr == '.')) == 0 % i.e. if actually a num
 else
     set(hObject,'String',num2str(oldkr));
 end
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_rightWheelGain_CreateFcn(hObject, eventdata, handles)
@@ -179,6 +180,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String',get_param('robulink/kr','Value'));
+drawnow;
 
 % --- Executes on button press in btn_overlayPath.
 function btn_overlayPath_Callback(hObject, eventdata, handles)
@@ -195,7 +197,7 @@ if isempty(patches)
 else
     delete(patches);
 end
-
+drawnow;
 
 % --- Executes on button press in btn_terrainAssessment.
 function btn_terrainAssessment_Callback(hObject, eventdata, handles)
@@ -217,6 +219,7 @@ else
     disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
 end
 btn_overlayTerrain_Callback(hObject, eventdata, handles);
+drawnow;
 
 % --- Executes on button press in btn_overlayTerrain.
 function btn_overlayTerrain_Callback(hObject, eventdata, handles)
@@ -231,6 +234,7 @@ if isempty(patches)
 else
     delete(patches);
 end
+drawnow;
 
 function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_minFrontClearance (see GCBO)
@@ -246,7 +250,7 @@ if sum(~(isstrprop(newminFrontClearance,'digit') | newminFrontClearance == '.'))
 else
     set(hObject,'String',num2str(oldminFrontClearance));
 end
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_minFrontClearance_CreateFcn(hObject, eventdata, handles)
@@ -277,6 +281,7 @@ if sum(~(isstrprop(newsafetyOmega,'digit') | newsafetyOmega == '.')) == 0 % i.e.
 else
     set(hObject,'String',num2str(oldsafetyOmega));
 end
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_safetyOmega_CreateFcn(hObject, eventdata, handles)
@@ -316,6 +321,7 @@ if ~isnan(T_rg)
 else
     disp('Warning: Rover has not been localized. Can''t set nav goal.');
 end
+drawnow;
 
 % --- Executes on button press in btn_trainBallDetector.
 function btn_trainBallDetector_Callback(hObject, eventdata, handles)
@@ -327,7 +333,7 @@ global context;
 global isTrackingCalibrated;
 calibStruct = calibrateTracking(context);
 isTrackingCalibrated = true;
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function figure1_CreateFcn(hObject, eventdata, handles)
@@ -371,7 +377,7 @@ function btn_followPath_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global atGoal;
 atGoal = false;
-
+drawnow;
 
 % --- Executes when selected object is changed in btnGroup_teleop.
 function btnGroup_teleop_SelectionChangeFcn(hObject, eventdata, handles)
@@ -392,6 +398,7 @@ switch(selection)
         enableTeleopMode = false;
         set_param('robulink/teleop','Value','false');
 end
+drawnow;
 
 % --- Executes on button press in btn_selectFrame.
 function btn_selectFrame_Callback(hObject, eventdata, handles)
@@ -400,7 +407,7 @@ function btn_selectFrame_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global T_mk; global context;
 T_mk = selectFrame(context);
-
+drawnow;
 
 
 % --- Executes on button press in btn_exportMap.
@@ -415,7 +422,7 @@ else
     T_mk = selectFrame(context);
     exportMap(sampleList_k, T_mk);
 end
-
+drawnow;
 
 
 % --- Executes on button press in btn_EmergStop.
@@ -427,7 +434,7 @@ global atGoal;
 atGoal = true;
 brake();
 disp('Warning: E-Stopped');
-
+drawnow;
 
 
 function edit_v_Callback(hObject, eventdata, handles)
@@ -445,7 +452,7 @@ if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a numbe
 end
 
 set(hObject,'String',num2str(v));
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_v_CreateFcn(hObject, eventdata, handles)
@@ -479,7 +486,7 @@ if sum(~(isstrprop(newk1,'digit') | newk1 == '.')) == 0 % i.e. if actually a num
 end
 
 set(hObject,'String',num2str(k1));
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_k1_CreateFcn(hObject, eventdata, handles)
@@ -513,7 +520,7 @@ if sum(~(isstrprop(newk2,'digit') | newk2 == '.')) == 0 % i.e. if actually a num
 end
 
 set(hObject,'String',num2str(k2));
-
+drawnow;
 
 % --- Executes during object creation, after setting all properties.
 function edit_k2_CreateFcn(hObject, eventdata, handles)
