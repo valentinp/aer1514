@@ -67,7 +67,6 @@ set(handles.radio_teleop,'Value',enableTeleopMode);
 set(handles.radio_auto,'Value',~enableTeleopMode);
 if enableTeleopMode
     set_param('robulink/teleop','Value','true');
-    set(gui_data.txt_messageBox,'String','Warning: In teleop mode. Tracking disabled.');
 else
     set_param('robulink/teleop','Value','false');
 end
@@ -112,8 +111,10 @@ function btn_addSample_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_addSample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global context; global depth;
-addSample(context, depth, handles);
+global context; global depth; global sampleList_k;
+newSamples = fetchSamples(context, depth);
+sampleList_k = [sampleList_k newSamples];
+set(handles.table_samples, 'Data', handles.samplesList);
 
 
 % --- Executes on button press in btn_clearSamples.
@@ -122,7 +123,7 @@ function btn_clearSamples_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.samplesList, 'Data', []);
-set(handles.samplesTable, 'Data', handles.samplesList);
+set(handles.table_samples, 'Data', handles.samplesList);
 
 
 
@@ -405,6 +406,9 @@ function btn_selectFrame_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_selectFrame (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global T_mk; global context;
+T_mk = selectFrame(context);
+
 
 
 % --- Executes on button press in btn_exportMap.
@@ -412,6 +416,14 @@ function btn_exportMap_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_exportMap (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global T_mk;global context;
+if ~isnan(T_mk) 
+    exportMap(handles.samplesList, T_mk);
+else
+    T_mk = selectFrame(context);
+    exportMap(handles.samplesList, T_mk);
+end
+
 
 
 % --- Executes on button press in btn_EmergStop.

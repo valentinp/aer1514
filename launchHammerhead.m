@@ -26,8 +26,10 @@ global rgb; global depth;
 
 % Rover localization
 global T_rg;
+global T_mk;
 global trackingStruct;
 global isTrackingCalibrated;
+global sampleList_k;
 
 % Path planning and following
 global waypoints_g; global pathLength;
@@ -51,6 +53,7 @@ height = 480;
 % Rover Localization
 T_rg = NaN;
 T_rg_prev = NaN;
+T_mk = NaN;
 isTrackingCalibrated = false;
 
 % Path planning and following

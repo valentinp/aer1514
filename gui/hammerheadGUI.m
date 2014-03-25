@@ -52,7 +52,7 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
 global height; global width; global isTrackingCalibrated;
-global enableTeleopMode; global calibStruct;
+global enableTeleopMode; global calibStruct; global sampleList_k;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
@@ -72,7 +72,7 @@ else
 end
 
 % Set up samples list
-handles.samplesList = [];
+sampleList_k = [];
 
 % Choose default command line output for hammerheadGUI
 handles.output = hObject;
@@ -111,8 +111,10 @@ function btn_addSample_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_addSample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global context; global depth;
-addSample(context, depth, handles);
+global context; global depth; global sampleList_k;
+newSamples = fetchSamples(context, depth);
+sampleList_k = [sampleList_k newSamples];
+set(handles.table_samples, 'Data', sampleList_k);
 
 
 % --- Executes on button press in btn_clearSamples.
@@ -120,8 +122,9 @@ function btn_clearSamples_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_clearSamples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(handles.samplesList, 'Data', []);
-set(handles.samplesTable, 'Data', handles.samplesList);
+global sampleList_k;
+sampleList_k = [];
+set(handles.table_samples, 'Data', sampleList_k);
 
 
 
@@ -404,6 +407,9 @@ function btn_selectFrame_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_selectFrame (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global T_mk; global context;
+T_mk = selectFrame(context);
+
 
 
 % --- Executes on button press in btn_exportMap.
@@ -411,6 +417,14 @@ function btn_exportMap_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_exportMap (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global T_mk;global context; global sampleList_k;
+if ~isnan(T_mk) 
+    exportMap(sampleList_k, T_mk);
+else
+    T_mk = selectFrame(context);
+    exportMap(sampleList_k, T_mk);
+end
+
 
 
 % --- Executes on button press in btn_EmergStop.
