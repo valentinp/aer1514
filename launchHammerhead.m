@@ -103,8 +103,8 @@ while ishandle(h)
     end
     
     if ~isempty(rto_odometry)
-        set(gui_data.txt_odometrySpeed, 'String', [num2str(norm([rto_odometry.OutputPort(1).Data, rto_odometry.OutputPort(2).Data]),2) ' m/s']);
-        set(gui_data.txt_odometryOmega, 'String', [num2str(rto_odometry.OutputPort(3).Data,2) ' deg/s']);
+        set(gui_data.txt_velocity, 'String', [num2str(norm([rto_odometry.OutputPort(1).Data, rto_odometry.OutputPort(2).Data]),2) ' m/s']);
+        set(gui_data.txt_omega, 'String', [num2str(rto_odometry.OutputPort(3).Data,2) ' deg/s']);
     end
     
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
