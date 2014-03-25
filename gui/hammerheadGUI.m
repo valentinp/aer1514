@@ -77,15 +77,6 @@ sampleList_k = [];
 % Choose default command line output for hammerheadGUI
 handles.output = hObject;
 
-%Set tracking variable
-if exist('trackingCalibration.mat', 'file') == 2
-    S = load('trackingCalibration.mat');
-    calibStruct = S.calibStruct;
-    isTrackingCalibrated = true;
-else
-    isTrackingCalibrated = false;
-end
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -212,12 +203,12 @@ function btn_terrainAssessment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated; global trackingStruct;
+global T_rg; global isTrackingCalibrated; global calibStruct;
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
 if isTrackingCalibrated
-    T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
+    T_rg = localizeRover(context, rgb, depth,calibStruct, terrain.T_gk);
 end
 
 if ~isnan(T_rg)
@@ -331,10 +322,10 @@ function btn_trainBallDetector_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_trainBallDetector (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global trackingStruct;
+global calibStruct;
 global context;
 global isTrackingCalibrated;
-trackingStruct = calibrateTracking(context);
+calibStruct = calibrateTracking(context);
 isTrackingCalibrated = true;
 
 

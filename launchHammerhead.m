@@ -27,7 +27,7 @@ global rgb; global depth;
 % Rover localization
 global T_rg;
 global T_mk;
-global trackingStruct;
+global calibStruct;
 global isTrackingCalibrated;
 global sampleList_k;
 
@@ -54,7 +54,14 @@ height = 480;
 T_rg = NaN;
 T_rg_prev = NaN;
 T_mk = NaN;
-isTrackingCalibrated = false;
+
+if exist('trackingCalibration.mat', 'file')% == 2
+    S = load('trackingCalibration.mat');
+    calibStruct = S.calibStruct;
+    isTrackingCalibrated = true;
+else
+    isTrackingCalibrated = false;
+end
 
 % Path planning and following
 atGoal = true;
@@ -116,11 +123,11 @@ while ishandle(h)
         
        % Localization etc.
         if isTrackingCalibrated
-            displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
+            displayLocalization(gui_data.kinectRGB, rgb, calibStruct);
 
             if isfield(terrain,'T_gk');
                 T_rg_prev = T_rg;
-                T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
+                T_rg = localizeRover(context, rgb, depth, calibStruct, terrain.T_gk);
 
                 % Path following
                 if ~atGoal
