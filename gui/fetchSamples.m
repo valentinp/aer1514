@@ -6,8 +6,8 @@ function newSamples = fetchSamples(context, depth)
     newSamples = zeros(3, sampleCount);
     
     for i = 1:sampleCount
-        temp = realWorldCoords(round(y(i)), round(x(i)), :);
-        newSamples(:,i) = temp(:); %reshape(realWorldCoords(round(y(i)), round(x(i)), :), [3,1]);  
+        newSamples(:,i) = reshape(realWorldCoords(round(y(i)), round(x(i)), :), [3,1]);  
+        newSamples(1,i) = -newSamples(1,i);
     end
     %Convert to m
     newSamples = newSamples/1000;

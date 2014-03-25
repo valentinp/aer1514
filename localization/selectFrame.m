@@ -17,6 +17,7 @@ disp('Select three points. (1) the origin (2) a point on the x-axis, (3) point o
 mapFrame_k = zeros(3, 3);
 for i = 1:3
     mapFrame_k(:,i) = reshape(realWorldCoords(round(y_frame(i)), round(x_frame(i)), :), [3,1]);  
+    mapFrame_k(1,i) = -mapFrame_k(1,i);
 end
 mapFrame_k = mapFrame_k/1000;
 
