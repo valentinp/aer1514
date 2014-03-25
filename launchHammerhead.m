@@ -119,7 +119,7 @@ while ishandle(h)
         atGoal = true;
     end
     
-    drawnow;
+    pause(0.001);
 end
 
 
