@@ -64,6 +64,7 @@ set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates th
 
 % Initialize teleop radio button
 set(handles.radio_teleop,'Value',enableTeleopMode);
+set(handles.radio_auto,'Value',~enableTeleopMode);
 if enableTeleopMode
     set_param('robulink/teleop','Value','true');
 else
@@ -301,6 +302,10 @@ global terrain; global T_rg;
 global waypoints_g; global pathLength;
 
 if ~isnan(T_rg)
+    % Can't see the cursor if patches are in the display
+    patches = findall(allchild(handles.kinectRGB),'Type','patch');
+    delete(patches);
+    
     [x,y] = ginput(1);
     realWorldPoints = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
     goal_k = realWorldPoints(round(y),round(x),:);

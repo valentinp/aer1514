@@ -109,8 +109,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     planeMaxSlope = zeros(gridSize); 
 
     totalIter = (gridSize(1)-1)*(gridSize(2)-1);
-    percentDoneDisplay = 0;
-    fprintf('Fitting planes: ');
+    fracDone = 0;
+    fprintf('Fitting planes...');
     tic;
     for i = 1:gridSize(1)-1
         for j = 1:gridSize(2)-1
@@ -130,14 +130,11 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
                 planeMaxSlope(i,j) = 90;
             end
             
-            percentDoneThisIter = round(100 * ( (i-1)*(gridSize(2)-1) + j ) / totalIter);
-            if mod(percentDoneThisIter, 10) == 0 && percentDoneThisIter > percentDoneDisplay
-                percentDoneDisplay = percentDoneThisIter;
-                fprintf('%d%% ', percentDoneDisplay);
-            end
+            fracDone = ( (i-1)*(gridSize(2)-1) + j ) / totalIter;
+            fprintf('.');
         end
     end
-    fprintf('\n');
+    toc;
 
     % Package the assessed terrain into a handy structure 
     terrain.T_gk = T_gk;
@@ -154,7 +151,6 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     terrain.planeMaxSlope = planeMaxSlope;
     terrain.safeCells = findSafeCells(terrain);
 
-    toc;
     % Clean up
 %     mxNiDeleteContext(context);
 end
@@ -168,10 +164,6 @@ function safeCells = findSafeCells(terrain)
                      0 1 1 1 0 -1 -1 -1];    
     
     % Initialize
-    totalIter = (terrain.gridSize(1))*(terrain.gridSize(2));
-    percentDoneDisplay = 0;
-    fprintf('Assessing terrain safety: ');
-    
     safeCells = true(terrain.gridSize);
     for i = 1:terrain.gridSize(1)
         for j = 1:terrain.gridSize(2)
@@ -210,15 +202,7 @@ function safeCells = findSafeCells(terrain)
                     end
                 end
                 safeCells(i,j) = false;
-            end
-            
-            percentDoneThisIter = round(100 * ( (i-1)*(terrain.gridSize(2)) + j ) / totalIter);
-            if mod(percentDoneThisIter, 10) == 0 && percentDoneThisIter > percentDoneDisplay
-                percentDoneDisplay = percentDoneThisIter;
-                fprintf('%d%% ', percentDoneDisplay);
-            end
+            end            
         end
     end
-    
-    fprintf('\n');
 end

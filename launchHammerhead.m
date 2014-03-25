@@ -1,5 +1,6 @@
 % Top level script for setting up paths, setting constants,
 % launching GUI, etc.
+clear; close all;
 
 %% Open the model
 % Don't do this. Running the model on the robot after opening the GUI screws up the GUI.
@@ -61,7 +62,7 @@ maxPathLengthMultiple = 1.1;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
-enableTeleopMode = true;
+enableTeleopMode = false;
 
 % Sample found colours
 noSampleColour(1,1,:) = [0,0,0];
@@ -91,33 +92,35 @@ while ishandle(h)
          set(gui_data.overSample_image, 'CData', noSampleCData);
     end
     
-    % Localization etc.
-    if isTrackingCalibrated
-        displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
+    % Note: teleop doesn't operate smoothly if all this stuff is going on,
+    % so just disable it if we're teleopping since we don't need it anyway
+    if ~enableTeleopMode
         
-        if isfield(terrain,'T_gk');
-            T_rg_prev = T_rg;
-            T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
-            
-            % Path following
-            if enableTeleopMode && ~atGoal
-                disp('Warning: In teleop mode. Path following disabled.');
-                atGoal = true;
-            else
+       % Localization etc.
+        if isTrackingCalibrated
+            displayLocalization(gui_data.kinectRGB, rgb, trackingStruct);
+
+            if isfield(terrain,'T_gk');
+                T_rg_prev = T_rg;
+                T_rg = localizeRover(context, rgb, depth,trackingStruct, terrain.T_gk);
+
+                % Path following
                 if ~atGoal
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
                     atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
                 else
+                    brake();
                     distTraveled = 0;
                 end
-            end
-        end        
+            end 
+        end
+    else
+        disp('Warning: In teleop mode. Tracking disabled.');
+        atGoal = true;
     end
     
-    pause(0.01);
+    drawnow;
 end
-
-
 
 
 
