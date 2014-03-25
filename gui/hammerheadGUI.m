@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 24-Mar-2014 14:45:46
+% Last Modified by GUIDE v2.5 25-Mar-2014 12:40:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -128,7 +128,7 @@ function edit_leftWheelGain_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_leftWheelGain as a double
 oldkl = get_param('robulink/kl','Value');
 newkl = get(hObject,'String');
-if sum(~isstrprop(newkl,'digit')) == 0 % i.e. if actually a number
+if sum(~(isstrprop(newkl,'digit') | newkl == '.')) == 0 % i.e. if actually a number
     set_param('robulink/kl','Value',newkl);
 else
     set(hObject,'String',num2str(oldkl));
@@ -159,7 +159,7 @@ function edit_rightWheelGain_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_rightWheelGain as a double
 oldkr = get_param('robulink/kr','Value');
 newkr = get(hObject,'String');
-if sum(~isstrprop(newkr,'digit')) == 0 % i.e. if actually a number
+if sum(~(isstrprop(newkr,'digit') | newkr == '.')) == 0 % i.e. if actually a number
     set_param('robulink/kr','Value',newkr);
 else
     set(hObject,'String',num2str(oldkr));
@@ -241,7 +241,7 @@ function edit_minFrontClearance_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_minFrontClearance as a double
 oldminFrontClearance = get_param('robulink/minFrontClearance','Value');
 newminFrontClearance = get(hObject,'String');
-if sum(~isstrprop(newminFrontClearance,'digit')) == 0 % i.e. if actually a number
+if sum(~(isstrprop(newminFrontClearance,'digit') | newminFrontClearance == '.')) == 0 % i.e. if actually a number
     set_param('robulink/minFrontClearance','Value',newminFrontClearance);
 else
     set(hObject,'String',num2str(oldminFrontClearance));
@@ -272,7 +272,7 @@ function edit_safetyOmega_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_safetyOmega as a double
 oldsafetyOmega = get_param('robulink/safetyOmega','Value');
 newsafetyOmega = get(hObject,'String');
-if sum(~isstrprop(newsafetyOmega,'digit')) == 0 % i.e. if actually a number
+if sum(~(isstrprop(newsafetyOmega,'digit') | newsafetyOmega == '.')) == 0 % i.e. if actually a number
     set_param('robulink/safetyOmega','Value',newsafetyOmega);
 else
     set(hObject,'String',num2str(oldsafetyOmega));
@@ -416,3 +416,106 @@ global atGoal;
 atGoal = true;
 brake();
 disp('Warning: E-Stopped');
+
+
+
+function edit_v_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_v (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_v as text
+%        str2double(get(hObject,'String')) returns contents of edit_v as a double
+global v;
+
+newv = get(hObject,'String');
+if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a number
+    v = str2double(newv);
+end
+
+set(hObject,'String',num2str(v));
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_v_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_v (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global v;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject, 'String', num2str(v));
+
+
+function edit_k1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_k1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_k1 as text
+%        str2double(get(hObject,'String')) returns contents of edit_k1 as a double
+global k1;
+
+newk1 = get(hObject,'String');
+if sum(~(isstrprop(newk1,'digit') | newk1 == '.')) == 0 % i.e. if actually a number
+    k1 = str2double(newk1);
+end
+
+set(hObject,'String',num2str(k1));
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_k1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_k1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global k1;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject,'String',num2str(k1));
+
+
+function edit_k2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_k2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_k2 as text
+%        str2double(get(hObject,'String')) returns contents of edit_k2 as a double
+global k2;
+
+newk2 = get(hObject,'String');
+if sum(~(isstrprop(newk2,'digit') | newk2 == '.')) == 0 % i.e. if actually a number
+    k2 = str2double(newk2);
+end
+
+set(hObject,'String',num2str(k2));
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_k2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_k2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global k2;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject,'String',num2str(k2));

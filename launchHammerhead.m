@@ -33,7 +33,8 @@ global isTrackingCalibrated;
 global waypoints_g; global pathLength;
 global atGoal;
 global v; global k1; global k2;
-global goalThresh; global maxPathLengthMultiple;
+global goalThresh;
+global maxPathLengthMultiple;
 
 % Terrain
 global terrain;
