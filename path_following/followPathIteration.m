@@ -20,9 +20,10 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
             [w0Idx, w1Idx, w2Idx] = getClosestWaypointIndices(waypoints_r);
 
             if (w0Idx == 0)
-                drive(v*0.5,0);
-                disp('WARNING: Start rover position is behind the current path');
-                
+%                 drive(v*0.5,0);
+                disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
+                atGoal = true;
+                return;
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
                 currPos_p = homo2cart(T_pr * [0;0;0;1]);

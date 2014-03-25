@@ -4,7 +4,7 @@ clear; close all;
 
 %% Open the model
 % Don't do this. Running the model on the robot after opening the GUI screws up the GUI.
-% open('./simulink/robulink.slx');
+% open('robulink.slx');
 
 %% Paths
 addpath('gui');
