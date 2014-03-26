@@ -5,6 +5,6 @@ function [rgb, depth] = getKinectData(context, varargin)
     else
         option.adjust_view_point = true;
     end
-    mxNiUpdateContext(context, option);
     [rgb, depth] = mxNiImage(context);
+     mxNiUpdateContext(context, option);
 end

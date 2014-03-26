@@ -3,7 +3,7 @@ function [context, option] = createKinectContext()
     context = mxNiCreateContext('./kinect/Config/SamplesConfig.xml');
     
     % Align Depth onto RGB
-    option.adjust_view_point = false;
+    option.adjust_view_point = true;
     
     mxNiUpdateContext(context, option);
 
