@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 26-Mar-2014 16:30:43
+% Last Modified by GUIDE v2.5 26-Mar-2014 18:54:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -575,3 +575,37 @@ delete(patches);
 btn_overlayTerrain_Callback(hObject, eventdata, handles);
 
 drawnow;
+
+
+
+function edit_lightDetectorThreshold_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_lightDetectorThreshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_lightDetectorThreshold as text
+%        str2double(get(hObject,'String')) returns contents of edit_lightDetectorThreshold as a double
+
+oldthresh = get_param('robulink/sampleThresh','Value');
+newthresh = get(hObject,'String');
+if sum(~(isstrprop(newthresh,'digit') | newthresh == '.')) == 0 % i.e. if actually a number
+    set_param('robulink/sampleThresh','Value',newthresh);
+else
+    set(hObject,'String',num2str(oldthresh));
+end
+drawnow;
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_lightDetectorThreshold_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_lightDetectorThreshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject,'String',get_param('robulink/sampleThresh','Value'));
