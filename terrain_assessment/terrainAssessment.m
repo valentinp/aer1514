@@ -19,7 +19,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
     kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
-    kinectPoints_k = reshape(kinectPoints_k, [(width*height) 3]);              % (height x width) x 3
+    kinectPoints_k = reshape(kinectPoints_k, [(width*height), 3]);             % (height x width) x 3
     kinectPoints_k = kinectPoints_k';                                          % 3 x (height x width)
     
     if mode == 0
@@ -38,7 +38,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
             vGround = round(vGround);
 
             % Basic error checking in case depth image is screwy
-            gotGoodGroundPoints = depth(vGround(1),uGround(1)) > 0 && depth(vGround(2),uGround(2)) > 0;
+            gotGoodGroundPoints = depth(vGround(1),uGround(1)) > 0 && depth(vGround(2),uGround(2)) > 0 ...
+                                && depth(vGround(1),uGround(1)) < intmax('uint16') && depth(vGround(2),uGround(2)) < intmax('uint16');
         end
 
         % Grab all points in the rectangle
@@ -53,7 +54,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
             disp('Defaulting to automatic fit.');
         end
         
-        groundPlanePoints = kinectPoints_k(:, depth(:) > 0);
+        groundPlanePoints = kinectPoints_k(:, depth(:) > 0 & depth(:) < intmax('uint16'));
     end
     
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.2);
@@ -138,10 +139,36 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
         end
     end
     fprintf('\n');
+    
+    % Parameters for getting depth of unknown points on the ground plane
+    T_kg_xy          = zeros(3,3);   
+    T_kg_xy(1:2,1:2) = T_kg(1:2,1:2);
+    T_kg_xy(1:2,3)   = T_kg(1:2,4) * 1000;
+    T_kg_xy(3,3)     = 1;
+
+    T_kg_z           = zeros(2,3);
+    T_kg_z(1,1:2)    = T_kg(3,1:2);
+    T_kg_z(1,3)      = T_kg(3,4) * 1000;
+    T_kg_z(2,3)      = 1;
+    
+    temp = T_kg_z / T_kg_xy;
+    m = temp(1,1);
+    n = temp(1,2);
+    p = temp(1,3);
+    % zReal_k = p ./ (1 - m*xProj_k - n*yProj_k)
+    % where xProj_k = xReal_k / zReal_k,
+    %       yProj_k = yReal_k / zReal_k,
+    %       zReal_g = 0
 
     % Package the assessed terrain into a handy structure 
     terrain.T_gk = T_gk;
     terrain.T_kg = T_kg;
+    terrain.groundA = groundA;
+    terrain.groundB = groundB;
+    terrain.groundC = groundC;
+    terrain.m = m;
+    terrain.n = n;
+    terrain.p = p;
     terrain.gridEdgesX = gridEdgesX;
     terrain.gridEdgesY = gridEdgesY;
     terrain.cellMiddlesX = terrain.gridEdgesX(1:end-1) + 0.5*(terrain.gridEdgesX(2:end) - terrain.gridEdgesX(1:end-1));

@@ -61,6 +61,7 @@ handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', hand
 handles.overSample_image = imshow(zeros(100,100,3,'uint8'), 'Parent', handles.overSample);
 
 set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates these again
+set(handles.kinectDepth, 'CLim', [0,intmax('uint16')]);
 
 % Initialize teleop radio button
 set(handles.radio_teleop,'Value',enableTeleopMode);
