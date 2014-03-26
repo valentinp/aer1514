@@ -1,4 +1,4 @@
 function [i,j] = getCellIndexFromCoords(x,y,terrain)
-    [temp,i] = min(abs(terrain.cellMiddlesY - y));
-    [temp,j] = min(abs(terrain.cellMiddlesX - x));
+    [~,i] = min(abs(terrain.cellMiddlesY - y));
+    [~,j] = min(abs(terrain.cellMiddlesX - x));
 end
