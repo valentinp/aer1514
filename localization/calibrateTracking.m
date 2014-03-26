@@ -35,16 +35,17 @@ disp('Select top left and bottom right corners of the red ball');
  blue_v = blue_v(:);
  red_v = red_v(:);
 
- sigma_const = 0.2;
+ sigma_const = 0.8;
+ sigma_const_min = 1;
  
  red_h_rng = [median(red_h)-sigma_const*std(red_h), median(red_h)+sigma_const*std(red_h)];
  blue_h_rng = [median(blue_h)-sigma_const*std(blue_h), median(blue_h)+sigma_const*std(blue_h)];
  
- blue_v_min = median(blue_v) - std(blue_v);
- red_v_min = median(red_v) - std(red_v);
+ blue_v_min = median(blue_v) - sigma_const_min*std(blue_v);
+ red_v_min = median(red_v) - sigma_const_min*std(red_v);
  
- blue_s_min = median(blue_s) - std(blue_s);
- red_s_min = median(red_s) - std(red_s);
+ blue_s_min = median(blue_s) - sigma_const_min*std(blue_s);
+ red_s_min = median(red_s) - sigma_const_min*std(red_s);
  
  
 calibStruct.red_h_rng = red_h_rng;
@@ -57,6 +58,7 @@ calibStruct.blue_s_min = blue_s_min;
 calibStruct.red_s_min = red_s_min;
 
 save('trackingCalibration.mat', 'calibStruct'); 
+
 close(f);
   
 end

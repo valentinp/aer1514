@@ -1,8 +1,6 @@
-function T_rg = localizeRover(context, rgb, depth, calibStruct, T_gk)
+function [bestRedCentroid, bestBlueCentroid, redVec_k, blueVec_k] = localizeRover(context, rgb, depth, calibStruct)
 
 % Constants
-ballDiameter = 0.05; % meters
-depthOffset = 2*ballDiameter; % Seems to work better with 2*ballDiamater than 1*
 
 red_h_rng = calibStruct.red_h_rng;
 blue_h_rng = calibStruct.blue_h_rng;
@@ -24,13 +22,19 @@ kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % hei
 
 
 if sum(red_region) < 5
+    bestRedCentroid = NaN;
+    bestBlueCentroid = NaN;
+    redVec_k = NaN;
+    blueVec_k = NaN;
     disp('WARNING: No red pixels found'); 
-    T_rg = NaN;
     return;
 end
 if sum(blue_region) < 5
+    bestRedCentroid = NaN;
+    bestBlueCentroid = NaN;
+    redVec_k = NaN;
+    blueVec_k = NaN;
     disp('WARNING: No blue pixels found'); 
-    T_rg = NaN;
     return;
 end
 
@@ -39,8 +43,9 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 50;
+K = 100;
 thresh = 10;       % inlier error threshold (radius meas. in pixels)
+maxSearchIterations = 100; % max amount of times to search for radii that are close together
 maxInliersB = 0;
 maxInliersR = 0;
 
@@ -48,14 +53,31 @@ bestBlueCentroid = [0,0]';
 bestRedCentroid = [0,0]';
 
     for k = 1:K
-        sampleIndB = randi(size(blue_r,1));
-        sampleIndR = randi(size(red_r,1));
-       
-
+        
         % Set centroid
+        
+        %Ensure centroids are within 40 cm of each other
+        sampleIndB = randi(size(blue_r,1));
         testBlueCentroid = [blue_c(sampleIndB); blue_r(sampleIndB)];
-        testRedCentroid = [red_c(sampleIndR); red_r(sampleIndR)];
 
+        for  search_i = 1:maxSearchIterations
+            sampleIndR = randi(size(red_r,1));
+            testRedCentroid = [red_c(sampleIndR); red_r(sampleIndR)];
+            redVec_k = kinectPoints_k(testRedCentroid(2), testRedCentroid(1), :);
+            blueVec_k = kinectPoints_k(testBlueCentroid(2), testBlueCentroid(1), :);
+
+            redVec_k = redVec_k(:);
+            blueVec_k = blueVec_k(:);
+
+            ball_sep = norm(redVec_k - blueVec_k)/1000;
+            %disp(ball_sep);
+            if  ball_sep < 0.4
+                break;
+            end
+        end
+        
+        
+        
         errB = (blue_c - testBlueCentroid(1)).^2 + (blue_r - testBlueCentroid(2)).^2;
         errR = (red_c - testRedCentroid(1)).^2 + (red_r - testRedCentroid(2)).^2;
         
@@ -66,6 +88,7 @@ bestRedCentroid = [0,0]';
         if numInliersB > maxInliersB
             maxInliersB = numInliersB;
             bestBlueCentroid = testBlueCentroid;
+            
         end
         if numInliersR > maxInliersR
             maxInliersR = numInliersR;
@@ -73,55 +96,8 @@ bestRedCentroid = [0,0]';
         end
     end
 
-    
-%scatter(red_c, red_r, 'r*');
-%scatter(blue_c, blue_r, 'b*');
-% if ishandle(scatterPointsR) 
-% delete(scatterPointsR);
-% delete(scatterPointsB);
-% end
-
-% scatterPointsR = scatter(bestRedCentroid(1), bestRedCentroid(2), 'y*');
-% scatterPointsB = scatter(bestBlueCentroid(1), bestBlueCentroid(2), 'y*');
-
 redVec_k = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
 blueVec_k = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
 
-redVec_k = redVec_k(:);
-blueVec_k = blueVec_k(:);
-
-redVec_k(3) = redVec_k(3) + depthOffset;
-blueVec_k(3) = blueVec_k(3) + depthOffset;
-
-redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
-blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
-
-lateralVec_g = blueVec_g - redVec_g;
-roverPos_g = 0.5*lateralVec_g + redVec_g; % point between the two balls
-
-lateralVec_g(3) = 0;
-roverPos_g(3) = 0;
-
-%Ensure that the distance between blue balls makes sense
-if norm(lateralVec_g) > 0.5
-    T_rg = NaN;
-    return;
-end
-
-rotLateralVec_g = rotzd(90)*lateralVec_g;
-R_gr = [ normalize(rotLateralVec_g), normalize(-1*lateralVec_g), [0;0;1] ]; % x is forward in rover frame
-R_rg = R_gr';
-T_rg = [R_rg -R_rg*roverPos_g;
-        0,0,0,1];
-
-% roverPos_k(1,2,:) = homo2cart(T_gk \ cart2homo(roverPos_g));
-% roverPos_k(1,1,:) = [0,0,0];
-% roverPos_k_projective = mxNiConvertRealWorldToProjective(context, roverPos_k*1000);
-% plot(roverPos_k_projective(1,:,1), roverPos_k_projective(1,:,2), 'r');
-
-% angle = acosd(dot(lateralVec_g,[1;0;0])/norm(lateralVec_g))
-    
-    % Clean up
-%     mxNiDeleteContext(context);
 end
 

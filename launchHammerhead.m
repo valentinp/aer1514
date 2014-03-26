@@ -123,12 +123,16 @@ while ishandle(h)
         
        % Localization etc.
         if isTrackingCalibrated
-            displayLocalization(gui_data.kinectRGB, rgb, calibStruct);
-
+            [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
+            if ~isnan(redCentroid)
+                displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
+            end
             if isfield(terrain,'T_gk');
-                T_rg_prev = T_rg;
-                T_rg = localizeRover(context, rgb, depth, calibStruct, terrain.T_gk);
-
+                
+                if ~isnan(redCentroid)
+                    T_rg_prev = T_rg;
+                    T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                end
                 % Path following
                 if ~atGoal
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);

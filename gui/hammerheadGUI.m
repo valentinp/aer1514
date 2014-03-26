@@ -210,7 +210,10 @@ global T_rg; global isTrackingCalibrated; global calibStruct;
 terrain = terrainAssessment(context,rgb,depth,1);
 
 if isTrackingCalibrated
-    T_rg = localizeRover(context, rgb, depth,calibStruct, terrain.T_gk);
+   [~, ~, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
+   if ~isnan(redVec_k)
+     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+   end
 end
 
 if ~isnan(T_rg)
