@@ -1,6 +1,6 @@
 % Top level script for setting up paths, setting constants,
 % launching GUI, etc.
-clear; close all;
+% clear all; close all;
 
 %% Open the model
 % Don't do this. Running the model on the robot after opening the GUI screws up the GUI.
@@ -25,6 +25,8 @@ global context; global option;
 global isContextDeleted;
 global width; global height;
 global rgb; global depth;
+global U; global V;
+global maxDepth;
 
 % Rover localization
 global T_rg;
@@ -52,6 +54,7 @@ isContextDeleted = true;
 width = 640;
 height = 480;
 [U,V] = meshgrid(1:width, 1:height);
+maxDepth = 10000; % mm
 
 % Rover Localization
 T_rg = NaN;
@@ -103,7 +106,7 @@ while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
 
     if isfield(terrain, 'T_kg')
-        depth = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain);
+        depth = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain.m, terrain.n, terrain.p);
     end
     
     set(gui_data.kinectRGB_image,'CData',rgb);
