@@ -30,8 +30,12 @@ mapFrame_k = mapFrame_k/1000;
 t_mk_k = mapFrame_k(:,1);
 
 vx = mapFrame_k(:,2) - mapFrame_k(:,1);
+vx_length = norm(vx);
+
 vx = normalize(vx);
 vy = mapFrame_k(:,3) - mapFrame_k(:,1);
+vy_length = norm(vy);
+
 vy = normalize(vy);
 vz = cross(vx,vy);
 vz = normalize(vz);

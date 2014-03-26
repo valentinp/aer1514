@@ -5,6 +5,6 @@ function [context, option] = createKinectContext()
     % Align Depth onto RGB
     option.adjust_view_point = true;
     
-    mxNiUpdateContext(context, option);
-
+    %mxNiUpdateContext(context);
+    
 end
