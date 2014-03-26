@@ -9,15 +9,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     global U; global V;         % pixels
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.50;     % meters
-    floorPlaneTol = 0.01;       % meters
-    minPointsToFitPlane = 30;   % # points
-    
-    % Set up U,V meshgrid for image
-    u = 1:width;  
-    v = 1:height; 
-    [U,V] = meshgrid(u,v);
-    U = U(:);
-    V = V(:);
+    floorPlaneTol = 0.002;      % meters
+    minPointsToFitPlane = 50;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
@@ -46,7 +39,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
         end
 
         % Grab all points in the rectangle
-        planeFitMask = U >= min(uGround) & U <= max(uGround) & V >= min(vGround) & V <= max(vGround);
+        planeFitMask = U(:) >= min(uGround) & U(:) <= max(uGround) & V(:) >= min(vGround) & V(:) <= max(vGround);
         groundPlanePoints = kinectPoints_k(:,planeFitMask);
         close(f);
         

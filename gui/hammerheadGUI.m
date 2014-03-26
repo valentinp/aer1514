@@ -206,7 +206,11 @@ function btn_terrainAssessment_automatic_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_terrainAssessment_automatic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global context; global rgb; global depth;
+global terrain; global context; global option
+
+% Don't use the backfilled depths for terrain assessment
+mxNiUpdateContext(context, option);
+[rgb,depth] = getKinectData(context, option);
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
@@ -538,7 +542,11 @@ function btn_terrainAssessment_manual_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_terrainAssessment_manual (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global terrain; global context; global rgb; global depth;
+global terrain; global context; global option;
+
+% Don't use the backfilled depths for terrain assessment
+mxNiUpdateContext(context, option);
+[rgb,depth] = getKinectData(context, option);
 
 terrain = terrainAssessment(context,rgb,depth,0);
 

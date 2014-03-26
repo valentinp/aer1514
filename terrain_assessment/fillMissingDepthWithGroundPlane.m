@@ -1,20 +1,15 @@
 function depth = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p)
 global height; global width;
 global maxDepth;
-
-%     realWorldCoords = mxNiConvertProjectiveToRealWorld(context, depth);
-%     realWorldX = realWorldCoords(:,:,1);
-%     realWorldY = realWorldCoords(:,:,2);
-    % NB: realWorldCoords(:,:,3) is just the original depth image
     depth = double(depth);
     xProj = zeros(size(depth));
     yProj = zeros(size(depth));
 
     badDepthMask = depth == 0;
     
-    f = 575.8; % px
-    cu = 314.5;
-    cv = 235.5;
+    f = 594.701671;     % px
+    cu = 325.334971;    % px
+    cv = 233.867764;    % px
 %     [~,cu] = ind2sub(size(realWorldX), find(realWorldX(~badDepthMask) == 0, 1));
 %     [cv,~] = ind2sub(size(realWorldY), find(realWorldY(~badDepthMask) == 0, 1));
 %     f = mxNiGetProperty(context, 'ZPD'); % 120 mm

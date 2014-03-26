@@ -1,7 +1,7 @@
 function [T_rg] = localizeInTerrain(redVec_k,blueVec_k, T_gk)
 
 ballDiameter = 0.05; % meters
-depthOffset = 2*ballDiameter; % Seems to work better with 2*ballDiamater than 1*
+depthOffset = 0; %2*ballDiameter;
 ballHeight = 0.3; % meters
 
 %Localize the rover in the terrain
