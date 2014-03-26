@@ -2,7 +2,6 @@ function newSamples = fetchSamples(context, depth)
     [x,y] = ginput;
     sampleCount = length(x);
     realWorldCoords = mxNiConvertProjectiveToRealWorld(context, depth);
-
     newSamples = zeros(3, sampleCount);
     
     for i = 1:sampleCount

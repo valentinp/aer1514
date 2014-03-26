@@ -20,6 +20,8 @@ hsv = rgb2hsv(rgb);
 
 kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
 
+%  kinectPoints_k = mxNiDepthRealWorld(context) / 1000;
+%  kinectPoints_k=permute(kinectPoints_k,[2 1 3]);
 
 if sum(red_region) < 5
     bestRedCentroid = NaN;
@@ -43,8 +45,8 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 100;
-thresh = 10;       % inlier error threshold (radius meas. in pixels)
+K = 50;
+thresh = 5;       % inlier error threshold (radius meas. in pixels)
 maxSearchIterations = 100; % max amount of times to search for radii that are close together
 maxInliersB = 0;
 maxInliersR = 0;

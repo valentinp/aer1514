@@ -8,9 +8,11 @@
 
 %% Paths
 addpath('gui');
-addpath('kinect');
-addpath('kinect/Mex');
-addpath('kinect/Config');
+KINECT_FOLDER = 'kinect';
+addpath(KINECT_FOLDER);
+addpath([KINECT_FOLDER '/Mex']);
+addpath([KINECT_FOLDER '/Config']);
+
 addpath('localization');
 addpath('path_following');
 addpath('rover_functions');
