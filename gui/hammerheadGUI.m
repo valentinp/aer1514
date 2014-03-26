@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 26-Mar-2014 14:12:05
+% Last Modified by GUIDE v2.5 26-Mar-2014 16:30:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -207,22 +207,8 @@ function btn_terrainAssessment_automatic_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated; global calibStruct;
 
 terrain = terrainAssessment(context,rgb,depth,1);
-
-if isTrackingCalibrated
-   [~, ~, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
-   if ~isnan(redVec_k)
-     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-   end
-end
-
-% if ~isnan(T_rg)
-%     terrain = markTerrainAroundRoverSafe(terrain,T_rg);
-% else
-%     disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
-% end
 
 patches = findall(allchild(handles.kinectRGB),'Type','patch');
 delete(patches);
@@ -553,16 +539,22 @@ function btn_terrainAssessment_manual_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
-global T_rg; global isTrackingCalibrated; global calibStruct;
 
 terrain = terrainAssessment(context,rgb,depth,0);
 
-if isTrackingCalibrated
-   [~, ~, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
-   if ~isnan(redVec_k)
-     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-   end
-end
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+delete(patches);
+btn_overlayTerrain_Callback(hObject, eventdata, handles);
+
+drawnow;
+
+
+% --- Executes on button press in btn_markRoverRegionSafe.
+function btn_markRoverRegionSafe_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_markRoverRegionSafe (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global terrain; global T_rg;
 
 if ~isnan(T_rg)
     terrain = markTerrainAroundRoverSafe(terrain,T_rg);

@@ -9,8 +9,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     global U; global V;         % pixels
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.50;     % meters
-    floorPlaneTol = 0.03;       % meters
-    minPointsToFitPlane = 20;   % # points
+    floorPlaneTol = 0.01;       % meters
+    minPointsToFitPlane = 30;   % # points
     
     % Set up U,V meshgrid for image
     u = 1:width;  
@@ -201,7 +201,7 @@ end
 
 function safeCells = findSafeCells(terrain)
     maxSlope = 15;      % degrees
-    markNeighboursOfUnsafeCellsAsUnsafe = true;
+    markNeighboursOfUnsafeCellsAsUnsafe = false;
     
     % Each column is the direction of a neighbouring cell
     neighbourDirs = [1 1 0 -1 -1 -1 0 1;
