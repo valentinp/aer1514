@@ -15,15 +15,15 @@ redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
 blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
 
 % Correction if we're in the part of the depth image that we're faking
-if(redVec_g(3) < 2*ballDiameter || blueVec_g(3) < 2*ballDiameter)
-    kinectVec_g = T_gk * [0;0;0;1];
-    
-    redVec_k(3) = redVec_k(3) * (1 - ballHeight/kinectVec_g(3));
-    blueVec_k(3) = blueVec_k(3) * (1 - ballHeight/kinectVec_g(3));
-    
-    redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
-    blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
-end
+% if(redVec_g(3) < 2*ballDiameter || blueVec_g(3) < 2*ballDiameter)
+%     kinectVec_g = T_gk * [0;0;0;1];
+%     
+%     redVec_k(3) = redVec_k(3) * (1 - ballHeight/kinectVec_g(3));
+%     blueVec_k(3) = blueVec_k(3) * (1 - ballHeight/kinectVec_g(3));
+%     
+%     redVec_g = homo2cart(T_gk*cart2homo(redVec_k));
+%     blueVec_g = homo2cart(T_gk*cart2homo(blueVec_k));
+% end
 
 lateralVec_g = blueVec_g - redVec_g;
 roverPos_g = 0.5*lateralVec_g + redVec_g; % point between the two balls

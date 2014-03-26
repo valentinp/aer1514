@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 26-Mar-2014 18:54:11
+% Last Modified by GUIDE v2.5 26-Mar-2014 19:51:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -609,3 +609,71 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String',get_param('robulink/sampleThresh','Value'));
+
+
+
+function edit_v_teleop_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_v_teleop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_v_teleop as text
+%        str2double(get(hObject,'String')) returns contents of edit_v_teleop as a double
+global v_teleop;
+
+newv = get(hObject,'String');
+if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a number
+    v_teleop = str2double(newv);
+end
+
+set(hObject,'String',num2str(v_teleop));
+drawnow;
+
+% --- Executes during object creation, after setting all properties.
+function edit_v_teleop_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_v_teleop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global v_teleop;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject, 'String', num2str(v_teleop));
+
+function edit_omega_teleop_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_omega_teleop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_omega_teleop as text
+%        str2double(get(hObject,'String')) returns contents of edit_omega_teleop as a double
+global omega_teleop;
+
+newomega = get(hObject,'String');
+if sum(~(isstrprop(newomega,'digit') | newomega == '.')) == 0 % i.e. if actually a number
+    omega_teleop = str2double(newomega);
+end
+
+set(hObject,'String',num2str(omega_teleop));
+drawnow;
+
+% --- Executes during object creation, after setting all properties.
+function edit_omega_teleop_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_omega_teleop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global omega_teleop;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject, 'String', num2str(omega_teleop));

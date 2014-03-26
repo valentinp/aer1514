@@ -1,22 +1,26 @@
 function brakeOnKeyRelease(src, event)
     global enableTeleopMode;
+    
     if enableTeleopMode
+        v = get_param('robulink/v','Value');
+        omega = get_param('robulink/omega', 'Value');
         switch(event.Key)
             case 'leftarrow'
-                brake;
+                omega = 0;
 %                 disp('left arrow released')
 
             case 'rightarrow'
-                brake;
+                omega = 0;
 %                 disp('right arrow released')
 
             case 'uparrow'
-                brake;
+                v = 0;
 %                 disp('up arrow released')
 
             case 'downarrow'
-                brake;
+                v = 0;
 %                 disp('down arrow released')
         end
+        drive(v,omega);
     end
 end
