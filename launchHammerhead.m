@@ -49,6 +49,7 @@ global enableTeleopMode;
 isContextDeleted = true;
 width = 640;
 height = 480;
+[U,V] = meshgrid(1:width, 1:height);
 
 % Rover Localization
 T_rg = NaN;
@@ -96,7 +97,13 @@ rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
 rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
 
 while ishandle(h)
+    mxNiUpdateContext(context, option);
     [rgb, depth] = getKinectData(context, option);
+
+    if isfield(terrain, 'T_kg')
+        depth = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain);
+    end
+    
     set(gui_data.kinectRGB_image,'CData',rgb);
     set(gui_data.kinectDepth_image,'CData',depth);
     
@@ -127,7 +134,8 @@ while ishandle(h)
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
             end
-            if isfield(terrain,'T_gk');
+            
+            if isfield(terrain, 'T_gk')
                 
                 if ~isnan(redCentroid)
                     T_rg_prev = T_rg;
