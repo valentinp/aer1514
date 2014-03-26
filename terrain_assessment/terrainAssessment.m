@@ -5,8 +5,11 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     % Constants
     global height;              % pixels
     global width;               % pixels
-    gridSpacing = 0.10;         % meters
-    floorPlaneTol = 0.50;       % meters
+    global maxDepth;            % pixels
+    global U; global V;         % pixels
+    gridSpacing = 0.15;         % meters
+    floorPointRange = 0.50;     % meters
+    floorPlaneTol = 0.03;       % meters
     minPointsToFitPlane = 20;   % # points
     
     % Set up U,V meshgrid for image
@@ -24,7 +27,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     
     if mode == 0
         % Manual ground region selection fot plane fitting        
-        h = figure;
+        f = figure;
         h = imagesc(zeros(height,width,'uint16'));
         displayKinectDepth(depth,h);
 
@@ -39,13 +42,13 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
 
             % Basic error checking in case depth image is screwy
             gotGoodGroundPoints = depth(vGround(1),uGround(1)) > 0 && depth(vGround(2),uGround(2)) > 0 ...
-                                && depth(vGround(1),uGround(1)) < intmax('uint16') && depth(vGround(2),uGround(2)) < intmax('uint16');
+                                && depth(vGround(1),uGround(1)) < maxDepth && depth(vGround(2),uGround(2)) < maxDepth;
         end
 
         % Grab all points in the rectangle
         planeFitMask = U >= min(uGround) & U <= max(uGround) & V >= min(vGround) & V <= max(vGround);
         groundPlanePoints = kinectPoints_k(:,planeFitMask);
-        close(h);
+        close(f);
         
     else
         % Automatic plane fit using RANSAC
@@ -54,7 +57,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
             disp('Defaulting to automatic fit.');
         end
         
-        groundPlanePoints = kinectPoints_k(:, depth(:) > 0 & depth(:) < intmax('uint16'));
+        groundPlanePoints = kinectPoints_k(:, depth(:) > 0 & depth(:) < maxDepth);
     end
     
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.2);
@@ -73,18 +76,47 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     vec1_k = vec1_k / norm(vec1_k);
     vec2_k = vec2_k / norm(vec2_k);    
     % Ground plane to Kinect rotation
-    R_kg = [vec1_k, vec2_k, cross(vec1_k,vec2_k)];
+    R_kg = [vec1_k, vec2_k, -cross(vec1_k,vec2_k)];
     t_gk_k = groundPoints_k(:,3);
     T_gk = [R_kg'       ,   -R_kg' * t_gk_k;
             zeros(1,3)  ,   1               ];
     T_kg = inv(T_gk);
 
+    % Backfill unknown depths with our ground plane
+    T_kg_xy          = zeros(3,3);   
+    T_kg_xy(1:2,1:2) = T_kg(1:2,1:2);
+    T_kg_xy(1:2,3)   = T_kg(1:2,4) * 1000;
+    T_kg_xy(3,3)     = 1;
+
+    T_kg_z           = zeros(2,3);
+    T_kg_z(1,1:2)    = T_kg(3,1:2);
+    T_kg_z(1,3)      = T_kg(3,4) * 1000;
+    T_kg_z(2,3)      = 1;
+    
+    temp = T_kg_z / T_kg_xy;
+    m = temp(1,1);
+    n = temp(1,2);
+    p = temp(1,3);
+    % zReal_k = p ./ (1 - m*xProj_k - n*yProj_k)
+    % where xProj_k = xReal_k / zReal_k,
+    %       yProj_k = yReal_k / zReal_k,
+    %       zReal_g = 0
+    depth = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p);
+    
+    kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
+    kinectPoints_k = reshape(kinectPoints_k, [(width*height), 3]);             % (height x width) x 3
+    kinectPoints_k = kinectPoints_k';                                          % 3 x (height x width)
+   
+    
     % Change basis of Kinect point cloud
     kinectPoints_k = cart2homo(kinectPoints_k);    
     kinectPoints_g = T_gk * kinectPoints_k;
     kinectPoints_g = homo2cart(kinectPoints_g);
 
-    floorPoints_g = kinectPoints_g(:,abs(kinectPoints_g(3,:)) < floorPlaneTol);
+    floorPoints_g = kinectPoints_g(:,abs(kinectPoints_g(3,:)) < floorPointRange);
+    
+    % Smooth things out a bit
+    floorPoints_g(3,floorPoints_g(3,:) < floorPlaneTol) = 0;
 
 %     h = figure;
 %     h = imagesc(zeros(height,width,3,'uint8'));
@@ -113,6 +145,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     percentDoneDisplay = 0;
     fprintf('Fitting planes: ');
     tic;
+    
     for i = 1:gridSize(1)-1
         for j = 1:gridSize(2)-1
             % Grab all points within the current grid cell
@@ -139,26 +172,6 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
         end
     end
     fprintf('\n');
-    
-    % Parameters for getting depth of unknown points on the ground plane
-    T_kg_xy          = zeros(3,3);   
-    T_kg_xy(1:2,1:2) = T_kg(1:2,1:2);
-    T_kg_xy(1:2,3)   = T_kg(1:2,4) * 1000;
-    T_kg_xy(3,3)     = 1;
-
-    T_kg_z           = zeros(2,3);
-    T_kg_z(1,1:2)    = T_kg(3,1:2);
-    T_kg_z(1,3)      = T_kg(3,4) * 1000;
-    T_kg_z(2,3)      = 1;
-    
-    temp = T_kg_z / T_kg_xy;
-    m = temp(1,1);
-    n = temp(1,2);
-    p = temp(1,3);
-    % zReal_k = p ./ (1 - m*xProj_k - n*yProj_k)
-    % where xProj_k = xReal_k / zReal_k,
-    %       yProj_k = yReal_k / zReal_k,
-    %       zReal_g = 0
 
     % Package the assessed terrain into a handy structure 
     terrain.T_gk = T_gk;
@@ -187,8 +200,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
 end
 
 function safeCells = findSafeCells(terrain)
-    maxSlope = 20;      % degrees
-    markNeighboursOfUnsafeCellsAsUnsafe = false;
+    maxSlope = 15;      % degrees
+    markNeighboursOfUnsafeCellsAsUnsafe = true;
     
     % Each column is the direction of a neighbouring cell
     neighbourDirs = [1 1 0 -1 -1 -1 0 1;

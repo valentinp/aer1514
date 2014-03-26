@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 25-Mar-2014 12:40:42
+% Last Modified by GUIDE v2.5 26-Mar-2014 14:12:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,6 +53,7 @@ function hammerheadGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to hammerheadGUI (see VARARGIN)
 global height; global width; global isTrackingCalibrated;
 global enableTeleopMode; global calibStruct; global sampleList_k;
+global maxDepth;
 
 % Initialize kinect images in gui
 handles.kinectRGB_image = imshow(zeros(height,width,3,'uint8'), 'Parent', handles.kinectRGB);
@@ -61,7 +62,7 @@ handles.kinectDepth_image = imagesc(zeros(height,width,'uint16'), 'Parent', hand
 handles.overSample_image = imshow(zeros(100,100,3,'uint8'), 'Parent', handles.overSample);
 
 set(handles.kinectDepth, 'XTick',[],'YTick',[]); % Apparently imagesc creates these again
-set(handles.kinectDepth, 'CLim', [0,intmax('uint16')]);
+set(handles.kinectDepth, 'CLim', [0,maxDepth]);
 
 % Initialize teleop radio button
 set(handles.radio_teleop,'Value',enableTeleopMode);
@@ -200,9 +201,9 @@ else
 end
 drawnow;
 
-% --- Executes on button press in btn_terrainAssessment.
-function btn_terrainAssessment_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_terrainAssessment (see GCBO)
+% --- Executes on button press in btn_terrainAssessment_automatic.
+function btn_terrainAssessment_automatic_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_terrainAssessment_automatic (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global terrain; global context; global rgb; global depth;
@@ -217,11 +218,14 @@ if isTrackingCalibrated
    end
 end
 
-if ~isnan(T_rg)
-    terrain = markTerrainAroundRoverSafe(terrain,T_rg);
-else
-    disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
-end
+% if ~isnan(T_rg)
+%     terrain = markTerrainAroundRoverSafe(terrain,T_rg);
+% else
+%     disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
+% end
+
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+delete(patches);
 btn_overlayTerrain_Callback(hObject, eventdata, handles);
 drawnow;
 
@@ -541,3 +545,33 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String',num2str(k2));
+
+
+% --- Executes on button press in btn_terrainAssessment_manual.
+function btn_terrainAssessment_manual_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_terrainAssessment_manual (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global terrain; global context; global rgb; global depth;
+global T_rg; global isTrackingCalibrated; global calibStruct;
+
+terrain = terrainAssessment(context,rgb,depth,0);
+
+if isTrackingCalibrated
+   [~, ~, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
+   if ~isnan(redVec_k)
+     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+   end
+end
+
+if ~isnan(T_rg)
+    terrain = markTerrainAroundRoverSafe(terrain,T_rg);
+else
+    disp('Warning: Rover has not been localized. Can''t mark terrain around rover as safe.');
+end
+
+patches = findall(allchild(handles.kinectRGB),'Type','patch');
+delete(patches);
+btn_overlayTerrain_Callback(hObject, eventdata, handles);
+
+drawnow;
