@@ -47,6 +47,7 @@ global terrain;
 
 % Teleop mode settings
 global enableTeleopMode;
+global v_teleop; global omega_teleop;
 
 %% Constants and initializations
 % Kinect stuff
@@ -80,6 +81,8 @@ distTraveled = 0;   % meters
 
 % Teleop mode setting
 enableTeleopMode = false;
+v_teleop = 0.5;
+omega_teleop = 4;
 
 % Sample found colours
 [X, map] = imread('NO.bmp');
@@ -157,10 +160,11 @@ while ishandle(h)
             end 
         end
     else
-        disp('Warning: In teleop mode. Tracking disabled.');
+%         disp('Warning: In teleop mode. Tracking disabled.');
         atGoal = true;
     end
     
+    drawnow;
     pause(0.001);
 end
 

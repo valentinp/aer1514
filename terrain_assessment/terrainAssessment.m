@@ -10,7 +10,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.50;     % meters
     floorPlaneTol = 0.002;      % meters
-    minPointsToFitPlane = 50;   % # points
+    minPointsToFitPlane = 10;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
@@ -193,7 +193,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
 end
 
 function safeCells = findSafeCells(terrain)
-    maxSlope = 15;      % degrees
+    maxSlope = 10;      % degrees
     markNeighboursOfUnsafeCellsAsUnsafe = false;
     
     % Each column is the direction of a neighbouring cell

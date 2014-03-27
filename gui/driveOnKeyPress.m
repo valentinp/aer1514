@@ -1,22 +1,27 @@
 function driveOnKeyPress(src, event)
     global enableTeleopMode;
+    global v_teleop; global omega_teleop;
+    
     if enableTeleopMode
+        v = get_param('robulink/v','Value');
+        omega = get_param('robulink/omega', 'Value');
         switch(event.Key)
             case 'leftarrow'
-                drive(0,3);
+                omega = omega_teleop;
 %                 disp('left arrow pressed')
 
             case 'rightarrow'
-                drive(0,-3);
+                omega = -omega_teleop;
 %                 disp('right arrow pressed')
 
             case 'uparrow'
-                drive(0.3,0);
+                v = v_teleop;
 %                 disp('up arrow pressed')
 
             case 'downarrow'
-                drive(-0.3,0);
+                v = -v_teleop;
 %                 disp('down arrow pressed')
         end
+        drive(v,omega)
     end
 end
