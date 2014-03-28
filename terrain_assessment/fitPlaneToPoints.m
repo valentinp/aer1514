@@ -25,6 +25,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
 
     maxInliers = 0;
 
+    A = zeros(N,3);
     for k = 1:K
         sampleInd = randi(size(x,1),[1,N]);
 
