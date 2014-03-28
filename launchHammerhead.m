@@ -65,6 +65,8 @@ width = 640;
 height = 480;
 [U,V] = meshgrid(1:width, 1:height);
 maxDepth = 10000; % mm
+lostKinectTrackingCount = 0;
+lostKinectTracking  = false;
 
 % Rover Localization
 T_rg = NaN;
@@ -79,6 +81,7 @@ if exist('trackingCalibration.mat', 'file')% == 2
 else
     isTrackingCalibrated = false;
 end
+
 
 % Path planning and following
 atGoal = true;
@@ -154,6 +157,9 @@ while ishandle(h)
         set(gui_data.txt_clearance, 'String', num2str(rto_clearance.OutputPort(1).Data));
     end
     
+%                         set_param('robulink/resetFlag','Value', '0');
+%                         disp(rto_odometryState.OutputPort(1).Data);
+
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
     % so just disable it if we're teleopping since we don't need it anyway
     if ~enableTeleopMode
@@ -164,18 +170,27 @@ while ishandle(h)
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                 lastPixVec = redCentroid - blueCentroid;
-            else
-                disp('Kinect localization failed.');
             end
             
             if isfield(terrain, 'T_gk')
                 
                 if ~isnan(redCentroid)
-                    T_rg_prev = T_rg;
-                    T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-                    set_param('robulink/resetFlag','Value', '1');
+                    if lostKinectTracking && lostKinectTrackingCount < 5 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
+                        lostKinectTrackingCount = lostKinectTrackingCount + 1;
+                        T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                        disp(['Regaining Kinect tracking. Frame ' num2str(lostKinectTrackingCount) '/5']);    
+                    else
+                        T_rg_prev = T_rg;
+                        T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                        set_param('robulink/resetFlag','Value', '1');
+                        lostKinectTracking = false;
+                        lostKinectTrackingCount = 0;
+                    end
                 else
+                    lostKinectTracking = true;
+                    lostKinectTrackingCount = 0;
                     set_param('robulink/resetFlag','Value', '0');
+                    disp('Lost Kinect tracking.');
                     T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
                 end
                 % Path following
