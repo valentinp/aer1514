@@ -88,10 +88,13 @@ end
 % Path planning and following
 atGoal = true;
 v = 0.5;
-k1 = 1.5;           % lateral
-k2 = 1.5;           % heading
-goalThresh = 0.05;  % meters
-maxPathLengthMultiple = 1.1;
+% k1 = 1.5;           % lateral
+% k2 = 1.5;           % heading
+k1 = 2; %lateral
+k2 = 1.2; %heading
+
+goalThresh = 0.3;  % meters
+maxPathLengthMultiple = 1.02;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
@@ -175,7 +178,7 @@ while ishandle(h)
             if isfield(terrain, 'T_gk')
                 
                 T_rg_prev = T_rg;
-                if ~isnan(redCentroid)
+                if ~isnan(redCentroid) 
                     if lostKinectTracking && lostKinectTrackingCount < 5 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
                         lostKinectTrackingCount = lostKinectTrackingCount + 1;
                         T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
@@ -188,7 +191,7 @@ while ishandle(h)
                         lostKinectTrackingCount = 0;
                         T_1s = NaN;
                     end
-                else
+                elseif isnan(redCentroid) && ~isempty(rto_odometryState)
                     lostKinectTracking = true;
                     lostKinectTrackingCount = 0;
                     if isnan(T_1s)

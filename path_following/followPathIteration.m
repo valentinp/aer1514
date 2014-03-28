@@ -40,7 +40,7 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
                     phi = -phi;
                 end
                 
-                omega = -5*sind(phi)*cosd(phi) - 1*phi;              
+                omega = -min(abs(phi), 2)*sign(phi);              
                 drive(v,omega);
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
