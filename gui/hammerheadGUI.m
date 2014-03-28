@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 14:55:22
+% Last Modified by GUIDE v2.5 28-Mar-2014 17:07:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -99,21 +99,23 @@ function varargout = hammerheadGUI_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in btn_addSample.
-function btn_addSample_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_addSample (see GCBO)
+% --- Executes on button press in btn_addSampleRaw.
+function btn_addSampleRaw_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addSampleRaw (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global context; global depth; global sampleList_k;
-newSamples = fetchSamples(context, depth);
+global context; global option; global sampleList_k;
+mxNiUpdateContext(context, option);
+[~,rawDepth] = getKinectData(context, option);
+newSamples = fetchSamples(context, rawDepth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
 drawnow;
 
 
-% --- Executes on button press in btn_clearSamples.
-function btn_clearSamples_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_clearSamples (see GCBO)
+% --- Executes on button press in btn_clearAllSamples.
+function btn_clearAllSamples_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_clearAllSamples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global sampleList_k;
@@ -783,3 +785,56 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject, 'String', num2str(omegaAbsMax));
+
+
+% --- Executes on button press in btn_addSampleOnGround.
+function btn_addSampleOnGround_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addSampleOnGround (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global context; global depth; global terrain; 
+global U; global V;
+global sampleList_k;
+
+if isfield(terrain,'m')
+    groundDepth = zeros(size(depth));
+    [groundDepth,~] = fillMissingDepthWithGroundPlane(context, groundDepth, U, V, terrain.m, terrain.n, terrain.p);
+    newSamples = fetchSamples(context, groundDepth);
+    sampleList_k = [sampleList_k newSamples];
+    set(handles.table_samples, 'Data', sampleList_k);
+else
+    disp('Can''t add sample on ground until terrain assessment has been run.');
+end
+drawnow;
+
+% --- Executes on button press in btn_addSampleAtRover.
+function btn_addSampleAtRover_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addSampleAtRover (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global T_rg; global terrain; global sampleList_k;
+
+if ~isnan(T_rg)
+    % T_kg * T_gr * [0;0;0;1]
+    newSamples = homo2cart(terrain.T_kg * (T_rg \ [0;0;0;1]));
+    sampleList_k = [sampleList_k newSamples];
+    set(handles.table_samples, 'Data', sampleList_k);
+else
+    disp('Rover is not localized. Can''t add sample at rover.');
+end
+drawnow;
+
+% --- Executes on button press in btn_clearLastSample.
+function btn_clearLastSample_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_clearLastSample (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global sampleList_k;
+
+if ~isempty(sampleList_k)
+    sampleList_k = sampleList_k(:,1:end-1);
+    set(handles.table_samples, 'Data', sampleList_k);
+else
+    disp('Can''t delete last sample since sample list is already empty.');
+end
+drawnow;

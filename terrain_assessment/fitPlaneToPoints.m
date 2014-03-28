@@ -47,11 +47,11 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     
     if ~ exist('bestParams','var');
         % fall back to least squares fit
-        A = zeros(size(y),3);
+        A = zeros(size(x,1),3);
         A(:,3) = y;
         A(:,2) = x;
         A(:,1) = ones(size(x));
-        bestParams = A \ z(sampleInd);        
+        bestParams = A \ z;        
     end
     
     a = bestParams(1);

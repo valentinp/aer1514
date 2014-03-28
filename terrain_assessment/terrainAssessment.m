@@ -9,8 +9,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     global U; global V;         % pixels
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.50;     % meters
-    floorPlaneTol = 0.002;      % meters
-    minPointsToFitPlane = 3;   % # points
+    floorPlaneTol = 0.000;      % meters
+    minPointsToFitPlane = 10;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
