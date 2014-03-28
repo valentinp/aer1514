@@ -1,6 +1,6 @@
 function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGoal, terrain)
 % xStart, yStart, xGoal, yGoal, and waypoints in ground frame
-      
+
     % Initialize cell states and costs for search
     cellStates = zeros(terrain.gridSize); % 0 = unvisited, 1 = dead, 2 = alive, 3 = ignore    
     cellStates(~terrain.safeCells) = 3;   % Ignore unsafe cells
@@ -112,16 +112,16 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         pathLength = getPathLength(waypoints);
         
         for n = 1:numWaypoints
-            cellStates(waypoints_ij(n,1),waypoints_ij(n,2)) = -1;
+            cellStates(waypoints_ij(n,1),waypoints_ij(n,2)) = 4;
         end
     else
         disp('Pathfinding FAILURE');
         waypoints = [];
         pathLength = 0;
     end
-    cellStates(iStart,jStart) = -4;
-    cellStates(iGoal,jGoal) = 4;
-    imagesc(cellStates, 'Parent', h);
+    cellStates(iStart,jStart) = -5;
+    cellStates(iGoal,jGoal) = 5;
+    imagesc(cellStates, 'Parent', h)
     set(h, 'XTick',[],'YTick',[],'XDir','Normal','YDir','Normal');
 end
 

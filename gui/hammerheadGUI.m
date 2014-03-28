@@ -214,6 +214,9 @@ mxNiUpdateContext(context, option);
 
 terrain = terrainAssessment(context,rgb,depth,1);
 
+imagesc(terrain.safeCells, 'Parent', handles.kinectOverlays);
+set(handles.kinectOverlays, 'XTick',[],'YTick',[],'XDir','Normal','YDir','Normal');
+
 patches = findall(allchild(handles.kinectRGB),'Type','patch');
 delete(patches);
 btn_overlayTerrain_Callback(hObject, eventdata, handles);
@@ -340,9 +343,12 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 global context; global option;
 global isContextDeleted;
+global maxDepth;
 
 if isContextDeleted
     [context,option] = createKinectContext();
+    mxNiSetProperty(context,'MaxDepthValue',maxDepth);
+    mxNiSetProperty(context,'WhiteBalancedEnabled',0);
     isContextDeleted = false;
 end
 

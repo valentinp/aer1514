@@ -56,7 +56,7 @@ isContextDeleted = true;
 width = 640;
 height = 480;
 [U,V] = meshgrid(1:width, 1:height);
-maxDepth = 30000; % mm
+maxDepth = 10000; % mm
 
 % Rover Localization
 T_rg = NaN;
@@ -111,7 +111,7 @@ while ishandle(h)
     [rgb, depth] = getKinectData(context, option);
 
     if isfield(terrain, 'T_kg')
-        depth = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain.m, terrain.n, terrain.p);
+        [depth,~] = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain.m, terrain.n, terrain.p);
     end
     
     set(gui_data.kinectRGB_image,'CData',rgb);

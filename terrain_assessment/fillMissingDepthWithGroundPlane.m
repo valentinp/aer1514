@@ -10,7 +10,7 @@ global maxDepth;
     f = 594.701671;         % px
     cu = 325.334971;        % px
     cv = 233.867764;        % px
-    kinectMaxDepth = 3000;  % mm
+%     kinectMaxDepth = 3000;  % mm
 %     [~,cu] = ind2sub(size(realWorldX), find(realWorldX(~badDepthMask) == 0, 1));
 %     [cv,~] = ind2sub(size(realWorldY), find(realWorldY(~badDepthMask) == 0, 1));
 %     f = mxNiGetProperty(context, 'ZPD'); % 120 mm
@@ -21,6 +21,6 @@ global maxDepth;
     
     depth(badDepthMask) = p ./ (1 - m*xProj(badDepthMask) - n*yProj(badDepthMask));
     depth(depth > maxDepth | depth < 0) = maxDepth;
-    depth(badDepthMask & depth < kinectMaxDepth) = 0;
+%     depth(badDepthMask & depth < kinectMaxDepth) = 0;
     depth = uint16(depth);
 end
