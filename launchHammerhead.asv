@@ -20,6 +20,10 @@ addpath('terrain_assessment');
 addpath('utils');
 
 %% Global Variables
+% Safety
+global vMax;
+global omegaAbsMax;
+
 % Kinect stuff
 global context; global option;
 global isContextDeleted;
@@ -51,12 +55,18 @@ global enableTeleopMode;
 global v_teleop; global omega_teleop;
 
 %% Constants and initializations
+% Safety
+vMax = 0.6;
+omegaAbsMax = 4;
+
 % Kinect stuff
 isContextDeleted = true;
 width = 640;
 height = 480;
 [U,V] = meshgrid(1:width, 1:height);
 maxDepth = 10000; % mm
+lostKinectTrackingCount = 0;
+lostKinectTracking  = false;
 
 % Rover Localization
 T_rg = NaN;
@@ -72,9 +82,10 @@ else
     isTrackingCalibrated = false;
 end
 
+
 % Path planning and following
 atGoal = true;
-v = 0.4;
+v = 0.5;
 k1 = 1.5;           % lateral
 k2 = 1.5;           % heading
 goalThresh = 0.05;  % meters
@@ -106,7 +117,7 @@ rto_lightSensor = get_param('robulink/Light Sensor','RunTimeObject');
 rto_batteryLevel = get_param('robulink/Battery','RunTimeObject');
 rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
 rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
-
+rto_odometryState = get_param('robulink/Display State','RunTimeObject');
 while ishandle(h)
     mxNiUpdateContext(context, option);
     [rgb, depth] = getKinectData(context, option);
@@ -122,7 +133,7 @@ while ishandle(h)
     if ~isempty(rto_lightSensor)
          set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
     else
-                 set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
+         set(gui_data.txt_sampleDetection, 'String', 'n/a');
     end
     
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
@@ -146,6 +157,9 @@ while ishandle(h)
         set(gui_data.txt_clearance, 'String', num2str(rto_clearance.OutputPort(1).Data));
     end
     
+%                         set_param('robulink/resetFlag','Value', '0');
+%                         disp(rto_odometryState.OutputPort(1).Data);
+
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
     % so just disable it if we're teleopping since we don't need it anyway
     if ~enableTeleopMode
@@ -157,16 +171,28 @@ while ishandle(h)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                 lastPixVec = redCentroid - blueCentroid;
             else
-                
+                disp('Kinect localization failed.');
             end
             
             if isfield(terrain, 'T_gk')
                 
                 if ~isnan(redCentroid)
-                    T_rg_prev = T_rg;
-                    T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                    if lostKinectTracking && lostKinectTrackingCount < 10 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
+                        lostKinectTrackingCount = lostKinectTrackingCount + 1;
+                        T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                        disp(['Regaining kinect tracking. Frame ' num2str);    
+                    else
+                        T_rg_prev = T_rg;
+                        T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                        set_param('robulink/resetFlag','Value', '1');
+                        lostKinectTracking = false;
+                        lostKinectTrackingCount = 0;
+                    end
                 else
-                    T_rg = NaN;
+                    lostKinectTracking = true;
+                    lostKinectTrackingCount = 0;
+                    set_param('robulink/resetFlag','Value', '0');
+                    T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
                 end
                 % Path following
                 if ~atGoal
