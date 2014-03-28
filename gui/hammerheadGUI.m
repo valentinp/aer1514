@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 17:07:27
+% Last Modified by GUIDE v2.5 28-Mar-2014 18:52:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -99,14 +99,15 @@ function varargout = hammerheadGUI_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in btn_addSampleRaw.
-function btn_addSampleRaw_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_addSampleRaw (see GCBO)
+% --- Executes on button press in btn_addSample.
+function btn_addSample_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addSample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global context; global option; global sampleList_k;
-mxNiUpdateContext(context, option);
-[~,rawDepth] = getKinectData(context, option);
+global context; global option; 
+global depth;
+global sampleList_k;
+
 newSamples = fetchSamples(context, rawDepth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
@@ -787,25 +788,25 @@ end
 set(hObject, 'String', num2str(omegaAbsMax));
 
 
-% --- Executes on button press in btn_addSampleOnGround.
-function btn_addSampleOnGround_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_addSampleOnGround (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global context; global depth; global terrain; 
-global U; global V;
-global sampleList_k;
-
-if isfield(terrain,'m')
-    groundDepth = zeros(size(depth));
-    [groundDepth,~] = fillMissingDepthWithGroundPlane(context, groundDepth, U, V, terrain.m, terrain.n, terrain.p);
-    newSamples = fetchSamples(context, groundDepth);
-    sampleList_k = [sampleList_k newSamples];
-    set(handles.table_samples, 'Data', sampleList_k);
-else
-    disp('Can''t add sample on ground until terrain assessment has been run.');
-end
-drawnow;
+% % --- Executes on button press in btn_addSampleOnGround.
+% function btn_addSampleOnGround_Callback(hObject, eventdata, handles)
+% % hObject    handle to btn_addSampleOnGround (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% global context; global depth; global terrain; 
+% global U; global V;
+% global sampleList_k;
+% 
+% if isfield(terrain,'m')
+%     groundDepth = zeros(size(depth));
+%     [groundDepth,~] = fillMissingDepthWithGroundPlane(context, groundDepth, U, V, terrain.m, terrain.n, terrain.p);
+%     newSamples = fetchSamples(context, groundDepth);
+%     sampleList_k = [sampleList_k newSamples];
+%     set(handles.table_samples, 'Data', sampleList_k);
+% else
+%     disp('Can''t add sample on ground until terrain assessment has been run.');
+% end
+% drawnow;
 
 % --- Executes on button press in btn_addSampleAtRover.
 function btn_addSampleAtRover_Callback(hObject, eventdata, handles)

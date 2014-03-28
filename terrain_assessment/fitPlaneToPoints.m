@@ -21,7 +21,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     % RANSAC
     K = ceil(log(1-successProb) / log(1-inlierProb^3));     % iterations
     N = 3;                                                  % sample size
-    thresh = 0.002^2;                                       % inlier error threshold (meters^2)
+    thresh = 0.0005^2;                                       % inlier error threshold (meters^2)
 
     maxInliers = 0;
 
