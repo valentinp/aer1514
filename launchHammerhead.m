@@ -165,8 +165,9 @@ while ishandle(h)
                 if ~isnan(redCentroid)
                     T_rg_prev = T_rg;
                     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                    set_param('robulink/resetFlag','Value', '1');
                 else
-                    set_param('robulink/resetFlag','Value',0);
+                    set_param('robulink/resetFlag','Value', '0');
                     T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
                 end
                 % Path following
