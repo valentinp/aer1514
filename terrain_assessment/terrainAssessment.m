@@ -10,7 +10,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.50;     % meters
     floorPlaneTol = 0.002;      % meters
-    minPointsToFitPlane = 3;    % # points
+    minPointsToFitPlane = 3;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
@@ -94,7 +94,8 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     % where xProj_k = xReal_k / zReal_k,
     %       yProj_k = yReal_k / zReal_k,
     %       zReal_g = 0
-    depth = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p);
+    [depth, badDepthMask] = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p);
+    badDepthMask = badDepthMask(:)';
     
     kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
     kinectPoints_k = reshape(kinectPoints_k, [(width*height), 3]);             % (height x width) x 3
@@ -107,6 +108,7 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     kinectPoints_g = homo2cart(kinectPoints_g);
 
     floorPoints_g = kinectPoints_g(:,abs(kinectPoints_g(3,:)) < floorPointRange);
+    badFloorDepthMask = badDepthMask(abs(kinectPoints_g(3,:)) < floorPointRange);
     
     % Smooth things out a bit
     floorPoints_g(3,floorPoints_g(3,:) < floorPlaneTol) = 0;
@@ -145,16 +147,25 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
             planeMask = floorPoints_g(1,:) >= gridEdgesX(j) & floorPoints_g(1,:) <= gridEdgesX(j+1) ...
                         & floorPoints_g(2,:) >= gridEdgesY(i) & floorPoints_g(2,:) <= gridEdgesY(i+1);                    
 
-            % sum(planeMask)
-            % is the number of "floor" points within the current cell
-            if sum(planeMask) >= minPointsToFitPlane
-                planePoints = floorPoints_g(:,planeMask);
-
-                % Get fitted plane parameters
-                [gridPlanesA(i,j), gridPlanesB(i,j), gridPlanesC(i,j)] = fitPlaneToPoints(planePoints(1,:)', planePoints(2,:)', planePoints(3,:)');
-                planeMaxSlope(i,j) = acosd(1/(gridPlanesB(i,j)^2 + gridPlanesC(i,j)^2 + 1));
+            % Don't bother fitting to back-filled points since we already
+            % know what they should be!            
+            if sum(planeMask & badFloorDepthMask) ~= 0
+                gridPlanesA(i,j) = 0;
+                gridPlanesB(i,j) = 0;
+                gridPlanesC(i,j) = 0;
+                planeMaxSlope(i,j) = 0;
             else
-                planeMaxSlope(i,j) = 90;
+                % sum(planeMask)
+                % is the number of "floor" points within the current cell
+                if sum(planeMask) >= minPointsToFitPlane
+                    planePoints = floorPoints_g(:,planeMask);
+
+                    % Get fitted plane parameters
+                    [gridPlanesA(i,j), gridPlanesB(i,j), gridPlanesC(i,j)] = fitPlaneToPoints(planePoints(1,:)', planePoints(2,:)', planePoints(3,:)');
+                    planeMaxSlope(i,j) = acosd(1/(gridPlanesB(i,j)^2 + gridPlanesC(i,j)^2 + 1));
+                else
+                    planeMaxSlope(i,j) = 90;
+                end
             end
             
             percentDoneThisIter = round(100 * ( (i-1)*(gridSize(2)-1) + j ) / totalIter);

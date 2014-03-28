@@ -8,7 +8,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     else
         % default values
         successProb = 0.9999;
-        inlierProb = 0.5;
+        inlierProb = 0.6;
     end
 
     warning('off','MATLAB:singularMatrix');
@@ -46,6 +46,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     
     if ~ exist('bestParams','var');
         % fall back to least squares fit
+        A = zeros(size(y),3);
         A(:,3) = y;
         A(:,2) = x;
         A(:,1) = ones(size(x));
