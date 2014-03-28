@@ -1,6 +1,5 @@
 function drive( v, omega )
-   vMax = 0.6;
-   omegaAbsMax = 4;
+   global vMax; global omegaAbsMax;
 
    % Safety first!
    v = min(v,vMax);

@@ -2,8 +2,8 @@ function brakeOnKeyRelease(src, event)
     global enableTeleopMode;
     
     if enableTeleopMode
-        v = get_param('robulink/v','Value');
-        omega = get_param('robulink/omega', 'Value');
+        v = str2double(get_param('robulink/v','Value'));
+        omega = str2double(get_param('robulink/omega', 'Value'));
         switch(event.Key)
             case 'leftarrow'
                 omega = 0;
