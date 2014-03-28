@@ -4,7 +4,7 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
     % Check that we can localize
     if isnan(T_rg)
-        disp('Could not localize rover! Switch to teleop.');
+        disp('Could not localize rover! Aborting path tracking!');
 %         drive(0.5*v, 0);
         atGoal = true;
         return;
@@ -22,9 +22,30 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
             if (w0Idx == 0)
 %                 drive(v*0.5,0);
-                disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
-                atGoal = true;
-                return;
+%                 disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
+%                 atGoal = true;
+%                 return;
+
+                % If we're behind the path, drive in a straight line
+                % in the direction of the second waypoint until the path
+                % tracker takes over
+                R_gr = T_rg(1:3,1:3)';
+                p_fwd_i = R_gr(1:3,1);           % forward direction
+                p_cg_i = [waypoints_r(:,2);0];   % vector from current position to goal position
+
+                phi = acosd(dot(p_fwd_i/norm(p_fwd_i), p_cg_i/norm(p_cg_i)));
+            
+                crossProd = cross(p_fwd_i,p_cg_i);
+                if(crossProd(3) > 0)
+                    phi = -phi;
+                end
+
+%                 v = k1 * r * cosd(phi);
+                omega = -k1*sind(phi)*cosd(phi) - k2*phi;
+
+%                 v = min(v,0.5);
+                
+                drive(v,omega);
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
                 currPos_p = homo2cart(T_pr * [0;0;0;1]);
