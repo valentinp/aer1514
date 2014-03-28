@@ -30,7 +30,14 @@ scatterPointsB = [];
 
 [context,option] = createKinectContext();
 
+if exist('trackingCalibration.mat', 'file')% == 2
+    S = load('trackingCalibration.mat');
+    calibStruct = S.calibStruct;
+else
+
 [rgb,depth] = getKinectData(context);
+G = fspecial('gaussian',[3 3],1);
+rgb = imfilter(rgb,G,'same');
  displayKinectRGB(rgb,h); 
  disp('Select top left and bottom right corners of the blue ball');  
  [x_blue,y_blue] = ginput(2);
@@ -59,13 +66,14 @@ scatterPointsB = [];
 
 
  
- sigma_const = 0.6;
- sigma_const_min = 1;
+ sigma_const = 0.3;
+ sigma_const_min = 0.8;
+ 
  
  red_h_rng = [median(red_h)-sigma_const*std(red_h), median(red_h)+sigma_const*std(red_h)];
  blue_h_rng = [median(blue_h)-sigma_const*std(blue_h), median(blue_h)+sigma_const*std(blue_h)];
  
- blue_v_min = median(blue_v) - sigma_const_min*std(blue_v);
+ blue_v_min = median(blue_v) - 1.5*sigma_const_min*std(blue_v);
  red_v_min = median(red_v) - sigma_const_min*std(red_v);
  
  blue_s_min = median(blue_s) - sigma_const_min*std(blue_s);
@@ -80,6 +88,11 @@ calibStruct.red_v_min = red_v_min;
 calibStruct.blue_s_min = blue_s_min;
 calibStruct.red_s_min = red_s_min;
 
+save('trackingCalibration.mat', 'calibStruct'); 
+
+end
+
+
 hsv = rgb2hsv(rgb);
 
  red_region = hsv(:,:,1) >= red_h_rng(1) & hsv(:,:,1) <= red_h_rng(2) & hsv(:,:,2) > red_s_min & hsv(:,:,3) > red_v_min;
@@ -87,12 +100,12 @@ hsv = rgb2hsv(rgb);
 
 figure(10); 
 [r,c] = size(red_region);                           %# Get the matrix size
-imagesc((1:c)+0.5,(1:r)+0.5,red_region);            %# Plot the image
+hrr = imagesc((1:c)+0.5,(1:r)+0.5,red_region);            %# Plot the image
 colormap(gray); 
 
 figure(12); 
 [r,c] = size(blue_region);                           %# Get the matrix size
-imagesc((1:c)+0.5,(1:r)+0.5,blue_region);            %# Plot the image
+hrb = imagesc((1:c)+0.5,(1:r)+0.5,blue_region);            %# Plot the image
 colormap(gray); 
 
  
@@ -111,8 +124,15 @@ if ishandle(scatterPointsR)
 delete(scatterPointsR);
 delete(scatterPointsB);
 end
-
 set(h, 'CData', rgb);
+
+%hsv = rgb2hsv(rgb);
+% red_region = hsv(:,:,1) >= red_h_rng(1) & hsv(:,:,1) <= red_h_rng(2) & hsv(:,:,2) > red_s_min & hsv(:,:,3) > red_v_min;
+% blue_region = hsv(:,:,1) >= blue_h_rng(1) & hsv(:,:,1) <= blue_h_rng(2)& hsv(:,:,2) > blue_s_min & hsv(:,:,3) > blue_v_min;
+
+%set(hrr, 'CData', red_region);
+%set(hrb, 'CData', blue_region);
+
 
 %hold(fig, 'on');
 hold(axesHandles, 'on');
