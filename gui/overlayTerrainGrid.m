@@ -1,7 +1,7 @@
 function overlayTerrainGrid(h, terrain, context)
     global height;
     global width;
-    maxSlopeToDisplay = 80;     % degrees
+    maxSlopeToDisplay = 60;     % degrees
     
     % Unpack some stuff for convenience
     planeMaxSlope = terrain.planeMaxSlope;

@@ -56,7 +56,7 @@ isContextDeleted = true;
 width = 640;
 height = 480;
 [U,V] = meshgrid(1:width, 1:height);
-maxDepth = 10000; % mm
+maxDepth = 30000; % mm
 
 % Rover Localization
 T_rg = NaN;
@@ -83,8 +83,8 @@ distTraveled = 0;   % meters
 
 % Teleop mode setting
 enableTeleopMode = false;
-v_teleop = 0.6;
-omega_teleop = 3;
+v_teleop = 0.5;
+omega_teleop = 4;
 
 % Sample found colours
 [X, map] = imread('NO.bmp');

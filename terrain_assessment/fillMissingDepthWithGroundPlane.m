@@ -1,4 +1,4 @@
-function depth = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p)
+function [depth, badDepthMask] = fillMissingDepthWithGroundPlane(context, depth, U, V, m, n, p)
 global height; global width;
 global maxDepth;
     depth = double(depth);
