@@ -21,7 +21,7 @@ addpath('utils');
 
 %% Global Variables
 % Safety
-global vMax;
+global vAbsMax;
 global omegaAbsMax;
 
 % Kinect stuff

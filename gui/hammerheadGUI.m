@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 13:26:09
+% Last Modified by GUIDE v2.5 28-Mar-2014 14:55:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -715,3 +715,71 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String',get_param('robulink/armPower','Value'));
+
+
+
+function edit_vAbsMax_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_vAbsMax (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_vAbsMax as text
+%        str2double(get(hObject,'String')) returns contents of edit_vAbsMax as a double
+global vMax;
+
+newv = get(hObject,'String');
+if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a number
+    vMax = str2double(newv);
+end
+
+set(hObject,'String',num2str(vMax));
+drawnow;
+
+% --- Executes during object creation, after setting all properties.
+function edit_vAbsMax_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_vAbsMax (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global vMax;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject, 'String', num2str(vMax));
+
+function edit_omegaAbsMax_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_omegaAbsMax (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_omegaAbsMax as text
+%        str2double(get(hObject,'String')) returns contents of edit_omegaAbsMax as a double
+global omegaAbsMax;
+
+newomega = get(hObject,'String');
+if sum(~(isstrprop(newomega,'digit') | newomega == '.')) == 0 % i.e. if actually a number
+    omegaAbsMax = str2double(newomega);
+end
+
+set(hObject,'String',num2str(omegaAbsMax));
+drawnow;
+
+% --- Executes during object creation, after setting all properties.
+function edit_omegaAbsMax_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_omegaAbsMax (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+global omegaAbsMax;
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject, 'String', num2str(omegaAbsMax));
