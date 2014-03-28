@@ -56,7 +56,7 @@ global v_teleop; global omega_teleop;
 
 %% Constants and initializations
 % Safety
-vMax = 0.6;
+vAbsMax = 0.6;
 omegaAbsMax = 4;
 
 % Kinect stuff
