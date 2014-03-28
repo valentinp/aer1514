@@ -21,7 +21,7 @@ addpath('utils');
 
 %% Global Variables
 % Safety
-global vMax;
+global vAbsMax;
 global omegaAbsMax;
 
 % Kinect stuff
@@ -56,7 +56,7 @@ global v_teleop; global omega_teleop;
 
 %% Constants and initializations
 % Safety
-vMax = 0.6;
+vAbsMax = 0.6;
 omegaAbsMax = 4;
 
 % Kinect stuff
@@ -157,9 +157,7 @@ while ishandle(h)
         set(gui_data.txt_clearance, 'String', num2str(rto_clearance.OutputPort(1).Data));
     end
     
-%                         set_param('robulink/resetFlag','Value', '0');
-%                         disp(rto_odometryState.OutputPort(1).Data);
-
+    
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
     % so just disable it if we're teleopping since we don't need it anyway
     if ~enableTeleopMode
@@ -170,37 +168,43 @@ while ishandle(h)
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                 lastPixVec = redCentroid - blueCentroid;
-            else
-                disp('Kinect localization failed.');
             end
             
             if isfield(terrain, 'T_gk')
                 
                 if ~isnan(redCentroid)
-                    if lostKinectTracking && lostKinectTrackingCount < 10 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
+                    if lostKinectTracking && lostKinectTrackingCount < 5 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
                         lostKinectTrackingCount = lostKinectTrackingCount + 1;
-                        T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-                        disp(['Regaining kinect tracking. Frame ' num2str);    
+                        T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                        T_rg = T_2s*inv(T_1s);
+                        disp(['Regaining Kinect tracking. Frame ' num2str(lostKinectTrackingCount) '/5']);    
                     else
                         T_rg_prev = T_rg;
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-                        set_param('robulink/resetFlag','Value', '1');
                         lostKinectTracking = false;
                         lostKinectTrackingCount = 0;
                     end
                 else
                     lostKinectTracking = true;
                     lostKinectTrackingCount = 0;
-                    set_param('robulink/resetFlag','Value', '0');
-                    T_rg = localizeWithWheelOdom(T_rg_prev, rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                    T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+
+                    T_1s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                    T_rg = T_2s*inv(T_1s);
+                    disp('Lost Kinect tracking.');
                 end
+                                
                 % Path following
                 if ~atGoal
+                    set_param('robulink/resetFlag','Value', '0');
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
+                    disp(['Distance Traveled: ' num2str(distTraveled)]);
                     atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
                 else
                     brake();
                     distTraveled = 0;
+                    set_param('robulink/resetFlag','Value', '1');
+
                 end
             end 
         end

@@ -11,7 +11,7 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
     else
         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
 
-        if ds < 0.1
+        if ds < 0.5
             distTraveled = distTraveled + ds;
 
             waypoints_g = [waypoints_g; zeros(1, size(waypoints_g,2))];
