@@ -81,8 +81,8 @@ distTraveled = 0;   % meters
 
 % Teleop mode setting
 enableTeleopMode = false;
-v_teleop = 0.5;
-omega_teleop = 4;
+v_teleop = 0.6;
+omega_teleop = 3;
 
 % Sample found colours
 [X, map] = imread('NO.bmp');

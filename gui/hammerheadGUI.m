@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 26-Mar-2014 19:51:21
+% Last Modified by GUIDE v2.5 27-Mar-2014 17:45:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -677,3 +677,35 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject, 'String', num2str(omega_teleop));
+
+
+
+function edit_armPower_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_armPower (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_armPower as text
+%        str2double(get(hObject,'String')) returns contents of edit_armPower as a double
+oldpower = get_param('robulink/armPower','Value');
+newpower = get(hObject,'String');
+if sum(~(isstrprop(newpower,'digit') | newpower == '.')) == 0 % i.e. if actually a number
+    set_param('robulink/armPower','Value',newpower);
+else
+    set(hObject,'String',num2str(oldpower));
+end
+drawnow;
+
+% --- Executes during object creation, after setting all properties.
+function edit_armPower_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_armPower (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+set(hObject,'String',get_param('robulink/armPower','Value'));

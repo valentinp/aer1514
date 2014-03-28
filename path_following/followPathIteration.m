@@ -4,9 +4,10 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
     % Check that we can localize
     if isnan(T_rg)
-        disp('Could not localize rover! Driving blind and trying again...');
-        drive(0.5*v, 0);
-        
+        disp('Could not localize rover! Switch to teleop.');
+%         drive(0.5*v, 0);
+        atGoal = true;
+        return;
     else
         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
 
