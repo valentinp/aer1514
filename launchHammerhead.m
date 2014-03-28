@@ -102,6 +102,7 @@ set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
 
 %% Main loop
 rto_detectSample = get_param('robulink/Detect Sample Filter','RunTimeObject');
+rto_lightSensor = get_param('robulink/Light Sensor','RunTimeObject');
 rto_batteryLevel = get_param('robulink/Battery','RunTimeObject');
 rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
 rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
@@ -120,9 +121,12 @@ while ishandle(h)
     % Detect the samples
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
          set(gui_data.overSample_image, 'CData', foundSampleCData);
+        set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
     else
          set(gui_data.overSample_image, 'CData', noSampleCData);
+         set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
     end
+    
     
     %Health and safety
     if ~isempty(rto_batteryLevel)
@@ -132,6 +136,10 @@ while ishandle(h)
     if ~isempty(rto_odometry)
         set(gui_data.txt_velocity, 'String', [num2str(norm([rto_odometry.OutputPort(1).Data, rto_odometry.OutputPort(2).Data]),2) ' m/s']);
         set(gui_data.txt_omega, 'String', [num2str(rto_odometry.OutputPort(3).Data,2) ' deg/s']);
+    end
+    
+    if ~isempty(rto_clearance)
+        set(gui_data.txt_clearance, 'String', num2str(rto_clearance.OutputPort(1).Data));
     end
     
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
@@ -144,6 +152,8 @@ while ishandle(h)
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                 lastPixVec = redCentroid - blueCentroid;
+            else
+                
             end
             
             if isfield(terrain, 'T_gk')
@@ -151,6 +161,8 @@ while ishandle(h)
                 if ~isnan(redCentroid)
                     T_rg_prev = T_rg;
                     T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                else
+                    T_rg = NaN;
                 end
                 % Path following
                 if ~atGoal

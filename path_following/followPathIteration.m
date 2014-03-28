@@ -30,8 +30,8 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
                 % in the direction of the second waypoint until the path
                 % tracker takes over
                 R_gr = T_rg(1:3,1:3)';
-                p_fwd_i = R_gr(1:3,1);           % forward direction
-                p_cg_i = [waypoints_r(:,2);0];   % vector from current position to goal position
+                p_fwd_i = R_gr(:,1);           % forward direction
+                p_cg_i = waypoints_r(:,end);   % vector from current position to goal position
 
                 phi = acosd(dot(p_fwd_i/norm(p_fwd_i), p_cg_i/norm(p_cg_i)));
             
@@ -42,7 +42,8 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
 %                 v = k1 * r * cosd(phi);
                 omega = -k1*sind(phi)*cosd(phi) - k2*phi;
-
+                omega = sign(omega) * min(abs(omega),4);
+                
 %                 v = min(v,0.5);
                 
                 drive(v,omega);
