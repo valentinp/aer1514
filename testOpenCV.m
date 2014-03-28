@@ -74,6 +74,7 @@ if ~(isempty(descriptors_blue) || isempty(descriptors_red))
     disp(length(matches_blue));
     kpt_idx = [kpt_red_idx kpt_blue_idx];
     im_keypoints = cv.drawKeypoints(im,keypoints(kpt_idx));
+    %set(im_handle, 'CData', im_keypoints);
     set(im_handle, 'CData', im_keypoints);
     %imshow(im_keypoints);
     pause(0.03);

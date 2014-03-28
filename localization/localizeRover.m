@@ -1,9 +1,14 @@
-function [bestRedCentroid, bestBlueCentroid, bestRedVec_k, bestBlueVec_k] = localizeRover(context, rgb, depth, calibStruct)
+function [bestRedCentroid, bestBlueCentroid, bestRedVec_k, bestBlueVec_k] = localizeRover(context, rgb, depth, calibStruct, prevPixVec)
 
-    bestRedCentroid = NaN;
-    bestBlueCentroid = NaN;
-    bestRedVec_k = NaN;
-    bestBlueVec_k = NaN;
+%Gaussian smooth the RGB input
+%# Filter it
+G = fspecial('gaussian',[5 5],2);
+rgb = imfilter(rgb,G,'same');
+
+bestRedCentroid = NaN;
+bestBlueCentroid = NaN;
+bestRedVec_k = NaN;
+bestBlueVec_k = NaN;
 
 red_h_rng = calibStruct.red_h_rng;
 blue_h_rng = calibStruct.blue_h_rng;
@@ -40,52 +45,37 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 50;
-thresh = 5;       % inlier error threshold (radius meas. in pixels)
-maxSearchIterations = 50; % max amount of times to search for radii that are close together
+K = 200;
+thresh = 10;       % inlier error threshold (radius meas. in pixels)
+%maxSearchIterations = 30; % max amount of times to search for radii that are close together
 maxInliersB = 0;
 maxInliersR = 0;
 
-
-
     for k = 1:K
-        
         % Set centroid
         
         %Ensure centroids are within 40 cm of each other
         sampleIndB = randi(size(blue_r,1));
         testBlueCentroid = [blue_c(sampleIndB); blue_r(sampleIndB)];
-
-        for  search_i = 1:maxSearchIterations
-            sampleIndR = randi(size(red_r,1));
-            testRedCentroid = [red_c(sampleIndR); red_r(sampleIndR)];
-            redVec_k = kinectPoints_k(testRedCentroid(2), testRedCentroid(1), :);
-            blueVec_k = kinectPoints_k(testBlueCentroid(2), testBlueCentroid(1), :);
-
-            redVec_k = redVec_k(:);
-            blueVec_k = blueVec_k(:);
-
-            lateral_vec = redVec_k - blueVec_k;
-            ball_sep = norm(lateral_vec);
-            
-            %disp(ball_sep);
-            if  ball_sep < 0.4 && ball_sep > 0.25
-%                 if ball_sep < 0.01
-%                   fprintf('Ball SeP: %f \n', ball_sep);
-%                 end
-                break;
+        sampleIndR = randi(size(red_r,1));
+        testRedCentroid = [red_c(sampleIndR); red_r(sampleIndR)];
+        redVec_k = kinectPoints_k(testRedCentroid(2), testRedCentroid(1), :);
+        blueVec_k = kinectPoints_k(testBlueCentroid(2), testBlueCentroid(1), :);
+        redVec_k = redVec_k(:);
+        blueVec_k = blueVec_k(:);
+        lateral_vec = redVec_k - blueVec_k;
+        ball_sep = norm(lateral_vec);
+        
+             if ~isnan(prevPixVec)
+                cosChange = normalize(prevPixVec)'*normalize(testRedCentroid - testBlueCentroid);
+            else
+                cosChange = 1;
             end
-        end
-
-        %disp(search_i);
-
-        if search_i == maxSearchIterations
-            continue;
-        end
         
-
-        
-        
+            if  ball_sep < 0.7 && ball_sep > 0.45 && norm(testRedCentroid - testBlueCentroid) < 375  && cosChange > 0.866 %Less than 30 degree change
+                continue;
+            end
+            
         errB = (blue_c - testBlueCentroid(1)).^2 + (blue_r - testBlueCentroid(2)).^2;
         errR = (red_c - testRedCentroid(1)).^2 + (red_r - testRedCentroid(2)).^2;
         
@@ -107,6 +97,8 @@ maxInliersR = 0;
 if ~isnan(bestRedCentroid(1)) && ~isnan(bestBlueCentroid(1))
 bestRedVec_k = kinectPoints_k(bestRedCentroid(2), bestRedCentroid(1), :);
 bestBlueVec_k = kinectPoints_k(bestBlueCentroid(2), bestBlueCentroid(1), :);
+bestRedVec_k = reshape(bestRedVec_k, [3 1]);
+bestBlueVec_k = reshape(bestBlueVec_k, [3 1]);
 % else
 %     disp('WARNING: Could not find a small enough ball separation.'); 
 end
