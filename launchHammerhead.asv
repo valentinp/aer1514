@@ -74,7 +74,7 @@ end
 
 % Path planning and following
 atGoal = true;
-v = 0.5;
+v = 0.4;
 k1 = 1.5;           % lateral
 k2 = 1.5;           % heading
 goalThresh = 0.05;  % meters
@@ -122,7 +122,7 @@ while ishandle(h)
     if ~isempty(rto_lightSensor)
          set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
     else
-         set(gui_data.txt_sampleDetection, 'String', 'n/a');
+                 set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
     end
     
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
