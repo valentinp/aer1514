@@ -20,6 +20,10 @@ addpath('terrain_assessment');
 addpath('utils');
 
 %% Global Variables
+% Safety
+global vMax;
+global omegaAbsMax;
+
 % Kinect stuff
 global context; global option;
 global isContextDeleted;
@@ -51,6 +55,10 @@ global enableTeleopMode;
 global v_teleop; global omega_teleop;
 
 %% Constants and initializations
+% Safety
+vMax = 0.6;
+omegaAbsMax = 4;
+
 % Kinect stuff
 isContextDeleted = true;
 width = 640;
