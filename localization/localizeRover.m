@@ -2,7 +2,7 @@ function [bestRedCentroid, bestBlueCentroid, bestRedVec_k, bestBlueVec_k] = loca
 
 %Gaussian smooth the RGB input
 %# Filter it
-G = fspecial('gaussian',[5 5],2);
+G = fspecial('gaussian',[3 3],1);
 rgb = imfilter(rgb,G,'same');
 
 bestRedCentroid = NaN;
@@ -31,11 +31,11 @@ kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % hei
 %  kinectPoints_k = mxNiDepthRealWorld(context) / 1000;
 %  kinectPoints_k=permute(kinectPoints_k,[2 1 3]);
 
-if sum(red_region) < 5
+if sum(red_region) < 2
    disp('WARNING: No red pixels found'); 
     return;
 end
-if sum(blue_region) < 5
+if sum(blue_region) < 2
     disp('WARNING: No blue pixels found'); 
     return;
 end
@@ -45,8 +45,8 @@ end
 
 
 % Use RANSAC to find the best centroid for the red and blue spheres
-K = 200;
-thresh = 10;       % inlier error threshold (radius meas. in pixels)
+K = 100;
+thresh = 5;       % inlier error threshold (radius meas. in pixels)
 %maxSearchIterations = 30; % max amount of times to search for radii that are close together
 maxInliersB = 0;
 maxInliersR = 0;
@@ -72,10 +72,9 @@ maxInliersR = 0;
                 cosChange = 1;
             end
         
-            if  ball_sep < 0.7 && ball_sep > 0.45 && norm(testRedCentroid - testBlueCentroid) < 375  && cosChange > 0.866 %Less than 30 degree change
+            if  norm(testRedCentroid - testBlueCentroid) > 350  %&& cosChange > 0.866 %Less than 30 degree change
                 continue;
             end
-            
         errB = (blue_c - testBlueCentroid(1)).^2 + (blue_r - testBlueCentroid(2)).^2;
         errR = (red_c - testRedCentroid(1)).^2 + (red_r - testRedCentroid(2)).^2;
         
