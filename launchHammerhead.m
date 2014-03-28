@@ -34,6 +34,7 @@ global T_mk;
 global calibStruct;
 global isTrackingCalibrated;
 global sampleList_k;
+global lastPixVec;
 
 % Path planning and following
 global waypoints_g; global pathLength;
@@ -61,6 +62,7 @@ maxDepth = 10000; % mm
 T_rg = NaN;
 T_rg_prev = NaN;
 T_mk = NaN;
+lastPixVec = NaN;
 
 if exist('trackingCalibration.mat', 'file')% == 2
     S = load('trackingCalibration.mat');
@@ -138,9 +140,10 @@ while ishandle(h)
         
        % Localization etc.
         if isTrackingCalibrated
-            [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct);
+            [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct, lastPixVec);
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
+                lastPixVec = redCentroid - blueCentroid;
             end
             
             if isfield(terrain, 'T_gk')
