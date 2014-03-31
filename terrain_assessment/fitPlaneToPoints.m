@@ -8,7 +8,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     else
         % default values
         successProb = 0.9999;
-        inlierProb = 0.6;
+        inlierProb = 0.3;
     end
 
     warning('off','MATLAB:singularMatrix');
@@ -21,7 +21,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
     % RANSAC
     K = ceil(log(1-successProb) / log(1-inlierProb^3));     % iterations
     N = 3;                                                  % sample size
-    thresh = 0.002^2;                                       % inlier error threshold (meters^2)
+    thresh = 0.0001^2;                                      % inlier error threshold (meters^2)
 
     maxInliers = 0;
 
@@ -45,7 +45,7 @@ function [a,b,c] = fitPlaneToPoints(x,y,z, varargin)
         end
     end
     
-    if ~ exist('bestParams','var');
+    if ~exist('bestParams','var');
         % fall back to least squares fit
         A = zeros(size(x,1),3);
         A(:,3) = y;

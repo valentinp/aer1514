@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 17:07:27
+% Last Modified by GUIDE v2.5 28-Mar-2014 18:52:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -99,15 +99,16 @@ function varargout = hammerheadGUI_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in btn_addSampleRaw.
-function btn_addSampleRaw_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_addSampleRaw (see GCBO)
+% --- Executes on button press in btn_addSample.
+function btn_addSample_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addSample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global context; global option; global sampleList_k;
-mxNiUpdateContext(context, option);
-[~,rawDepth] = getKinectData(context, option);
-newSamples = fetchSamples(context, rawDepth);
+global context; global option; 
+global depth;
+global sampleList_k;
+
+newSamples = fetchSamples(context, depth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
 drawnow;
@@ -727,14 +728,14 @@ function edit_vAbsMax_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_vAbsMax as text
 %        str2double(get(hObject,'String')) returns contents of edit_vAbsMax as a double
-global vMax;
+global vAbsMax;
 
 newv = get(hObject,'String');
 if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a number
-    vMax = str2double(newv);
+    vAbsMax = str2double(newv);
 end
 
-set(hObject,'String',num2str(vMax));
+set(hObject,'String',num2str(vAbsMax));
 drawnow;
 
 % --- Executes during object creation, after setting all properties.
@@ -745,13 +746,13 @@ function edit_vAbsMax_CreateFcn(hObject, eventdata, handles)
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-global vMax;
+global vAbsMax;
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', num2str(vMax));
+set(hObject, 'String', num2str(vAbsMax));
 
 function edit_omegaAbsMax_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_omegaAbsMax (see GCBO)
@@ -787,25 +788,25 @@ end
 set(hObject, 'String', num2str(omegaAbsMax));
 
 
-% --- Executes on button press in btn_addSampleOnGround.
-function btn_addSampleOnGround_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_addSampleOnGround (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global context; global depth; global terrain; 
-global U; global V;
-global sampleList_k;
-
-if isfield(terrain,'m')
-    groundDepth = zeros(size(depth));
-    [groundDepth,~] = fillMissingDepthWithGroundPlane(context, groundDepth, U, V, terrain.m, terrain.n, terrain.p);
-    newSamples = fetchSamples(context, groundDepth);
-    sampleList_k = [sampleList_k newSamples];
-    set(handles.table_samples, 'Data', sampleList_k);
-else
-    disp('Can''t add sample on ground until terrain assessment has been run.');
-end
-drawnow;
+% % --- Executes on button press in btn_addSampleOnGround.
+% function btn_addSampleOnGround_Callback(hObject, eventdata, handles)
+% % hObject    handle to btn_addSampleOnGround (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% global context; global depth; global terrain; 
+% global U; global V;
+% global sampleList_k;
+% 
+% if isfield(terrain,'m')
+%     groundDepth = zeros(size(depth));
+%     [groundDepth,~] = fillMissingDepthWithGroundPlane(context, groundDepth, U, V, terrain.m, terrain.n, terrain.p);
+%     newSamples = fetchSamples(context, groundDepth);
+%     sampleList_k = [sampleList_k newSamples];
+%     set(handles.table_samples, 'Data', sampleList_k);
+% else
+%     disp('Can''t add sample on ground until terrain assessment has been run.');
+% end
+% drawnow;
 
 % --- Executes on button press in btn_addSampleAtRover.
 function btn_addSampleAtRover_Callback(hObject, eventdata, handles)

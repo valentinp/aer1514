@@ -2,13 +2,15 @@ function T_mk = selectFrame(context)
 
 global height;
 global width;
+global rgb; global depth;
+global terrain;
 
 %Set up GUI
 f = figure();
 imgHandle = imshow(zeros(height,width,3,'uint8'));
 hold on;
 
-[rgb,depth] = getKinectData(context);
+% [rgb,depth] = getKinectData(context);
 displayKinectRGB(rgb,imgHandle); 
 realWorldCoords = mxNiConvertProjectiveToRealWorld(context, depth);
 
@@ -30,17 +32,25 @@ mapFrame_k = mapFrame_k/1000;
 t_mk_k = mapFrame_k(:,1);
 
 vx = mapFrame_k(:,2) - mapFrame_k(:,1);
-vx_length = norm(vx);
+vy = mapFrame_k(:,3) - mapFrame_k(:,1);
+
+% Refine the frame by projecting onto the ground plane axes
+if isfield(terrain,'T_kg')
+    surfNorm = terrain.T_kg(1:3,3);
+    
+    vx = vx - (dot(vx,surfNorm) / (norm(surfNorm)^2)) * surfNorm;
+    vy = vy - (dot(vy,surfNorm) / (norm(surfNorm)^2)) * surfNorm;
+end
+
+vz = cross(vx,vy);
 
 vx = normalize(vx);
-vy = mapFrame_k(:,3) - mapFrame_k(:,1);
-vy_length = norm(vy);
-
-vy = normalize(vy);
-vz = cross(vx,vy);
+vy = normalize(vy);  
 vz = normalize(vz);
-R_mk = [vx,vy,vz]';    
 
+R_mk = [vx,vy,vz]';  
+
+% Plotting stuff
 realWorldPoints = zeros(1,3,3);
 for i=1:3
     realWorldPoints(1,i,:) = mapFrame_k(:,i)*1000;
