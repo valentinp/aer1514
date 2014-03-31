@@ -124,7 +124,7 @@ rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
 rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
 rto_odometryState = get_param('robulink/Display State','RunTimeObject');
 while ishandle(h)
-% tic
+tic
     % Kinect data streams
     [rgb, depth] = getKinectData(context, option);
 
@@ -134,7 +134,7 @@ while ishandle(h)
 
     set(gui_data.kinectRGB_image,'CData',rgb);
     set(gui_data.kinectDepth_image,'CData',depth);
- 
+    
     % Detect the samples
     if ~isempty(rto_lightSensor)
          set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
@@ -163,6 +163,7 @@ while ishandle(h)
         set(gui_data.txt_clearance, 'String', num2str(rto_clearance.OutputPort(1).Data));
     end
     
+    
     % Note: teleop doesn't operate smoothly if all this stuff is going on,
     % so just disable it if we're teleopping since we don't need it anyway
     if ~enableTeleopMode
@@ -171,12 +172,12 @@ while ishandle(h)
         if isTrackingCalibrated
 
             [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct, lastPixVec);
-
+            
             if ~isnan(redCentroid)
                 displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                 lastPixVec = redCentroid - blueCentroid;
             end
-
+            
             if isfield(terrain, 'T_gk')
                 
                 T_rg_prev = T_rg;
@@ -207,7 +208,7 @@ while ishandle(h)
                          T_rg = T_21*T_rg_lost;
                     end
                 end
-
+                        
                                 
                 % Path following
                 if ~atGoal
@@ -220,7 +221,6 @@ while ishandle(h)
                     distTraveled = 0;
                     set_param('robulink/resetFlag','Value', '1');
                 end
-                
             end 
         end
     else
@@ -230,5 +230,4 @@ while ishandle(h)
     
     drawnow;
     pause(0.001);
-%     toc
 end

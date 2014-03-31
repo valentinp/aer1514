@@ -26,7 +26,7 @@ function KeyPressFcn(src, event)
     else
         switch(event.Key)
             case 'e'
-                hammerheadGUI('btn_EmergStop_Callback'l);
+                hammerheadGUI('btn_EmergStop_Callback');
         end
     end
 end

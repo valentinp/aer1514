@@ -40,7 +40,7 @@ end
 
 % Use RANSAC to find the best centroid for the red and blue spheres
 K = 200;
-thresh = 5;       % inlier error threshold (radius meas. in pixels)
+thresh = 10;       % inlier error threshold (radius meas. in pixels)
 %maxSearchIterations = 30; % max amount of times to search for radii that are close together
 maxInliersB = 0;
 maxInliersR = 0;
@@ -57,7 +57,7 @@ maxInliersR = 0;
 %                 cosChange = 1;
 %             end
 %         
-            if  norm(testRedCentroid - testBlueCentroid) > 350  %Less than 30 degree change
+            if  norm(testRedCentroid - testBlueCentroid) > 400 
                 continue;
             end
         errB = (blue_c - testBlueCentroid(1)).^2 + (blue_r - testBlueCentroid(2)).^2;
@@ -85,7 +85,7 @@ if ~isnan(bestRedCentroid(1)) && ~isnan(bestBlueCentroid(1))
     bestRedVec_k = reshape(bestRedVec_k, [3 1]);
     bestBlueVec_k = reshape(bestBlueVec_k, [3 1]);
     ballSep = norm(bestRedVec_k - bestBlueVec_k);
-    if ballSep < 0.25 || ballSep > 0.7
+    if ballSep < 0.2 || ballSep > 0.8
         bestRedCentroid = NaN;
         bestBlueCentroid = NaN;
         bestRedVec_k = NaN;

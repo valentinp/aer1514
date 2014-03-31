@@ -351,7 +351,7 @@ global maxDepth;
 if isContextDeleted
     [context,option] = createKinectContext();
     mxNiSetProperty(context,'MaxDepthValue',maxDepth);
-    mxNiSetProperty(context,'WhiteBalancedEnabled',0);
+%     mxNiSetProperty(context,'WhiteBalancedEnabled',0);
     isContextDeleted = false;
 end
 

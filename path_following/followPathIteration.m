@@ -22,30 +22,31 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
             if (w0Idx == 0)
 %                 drive(v*0.5,0);
-%                 disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
-%                 atGoal = true;
-%                 return;
+                disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
+                atGoal = true;
+                return;
 
                 % If we're behind the path, drive in a straight line
                 % in the direction of the second waypoint until the path
                 % tracker takes over
-                R_gr = T_rg(1:3,1:3)';
-                p_fwd_i = R_gr(:,1);           % forward direction
-                p_cg_i = waypoints_r(:,end);   % vector from current position to goal position
-
-                phi = acosd(dot(p_fwd_i/norm(p_fwd_i), p_cg_i/norm(p_cg_i)));
-            
-                crossProd = cross(p_fwd_i,p_cg_i);
-                if(crossProd(3) > 0)
-                    phi = -phi;
-                end
-                
-                omega = -min(abs(phi), 2)*sign(phi);              
-                drive(v,omega);
+%                 R_gr = T_rg(1:3,1:3)';
+%                 p_fwd_i = R_gr(:,1);           % forward direction
+%                 p_cg_i = waypoints_r(:,end);   % vector from current position to goal position
+% 
+%                 phi = acosd(dot(p_fwd_i/norm(p_fwd_i), p_cg_i/norm(p_cg_i)));
+%             
+%                 crossProd = cross(p_fwd_i,p_cg_i);
+%                 if(crossProd(3) > 0)
+%                     phi = -phi;
+%                 end
+%                 
+%                 omega = -min(abs(phi), 2)*sign(phi);              
+%                 drive(v,omega);
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
                 currPos_p = homo2cart(T_pr * [0;0;0;1]);
                 lateralErr = -1*currPos_p(2);
+%                 lateralErr = currPos_p(2);
                 currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
 
                 lambda = currPos_p(1)/norm(currSeg); % lambda is how far along in current path segment
@@ -69,6 +70,7 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
                         currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
                         currPos_p = homo2cart(T_pr * [0;0;0;1]);
                         lateralErr = -1*currPos_p(2);   
+%                         lateralErr = currPos_p(2); 
                     end                
                 end
 
