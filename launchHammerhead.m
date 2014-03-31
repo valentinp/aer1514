@@ -1,6 +1,6 @@
 % Top level script for setting up paths, setting constants,
 % launching GUI, etc.
-% clear all; close all;
+clear all; close all;
 
 %% Open the model
 % Don't do this. Running the model on the robot after opening the GUI screws up the GUI.
@@ -113,8 +113,8 @@ foundSampleCData = ind2rgb(X,map);
 h = hammerheadGUI;
 gui_data = guidata(h);
 
-% Teleop functions
-set(h,'KeyPressFcn',@driveOnKeyPress,'KeyReleaseFcn',@brakeOnKeyRelease);
+% Keyboard control
+set(h,'KeyPressFcn',@KeyPressFcn,'KeyReleaseFcn',@KeyReleaseFcn);
 
 %% Main loop
 rto_detectSample = get_param('robulink/Detect Sample Filter','RunTimeObject');
@@ -228,6 +228,3 @@ while ishandle(h)
     drawnow;
     pause(0.001);
 end
-
-
-
