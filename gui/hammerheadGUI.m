@@ -108,7 +108,7 @@ global context; global option;
 global depth;
 global sampleList_k;
 
-newSamples = fetchSamples(context, rawDepth);
+newSamples = fetchSamples(context, depth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
 drawnow;
@@ -728,14 +728,14 @@ function edit_vAbsMax_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_vAbsMax as text
 %        str2double(get(hObject,'String')) returns contents of edit_vAbsMax as a double
-global vMax;
+global vAbsMax;
 
 newv = get(hObject,'String');
 if sum(~(isstrprop(newv,'digit') | newv == '.')) == 0 % i.e. if actually a number
-    vMax = str2double(newv);
+    vAbsMax = str2double(newv);
 end
 
-set(hObject,'String',num2str(vMax));
+set(hObject,'String',num2str(vAbsMax));
 drawnow;
 
 % --- Executes during object creation, after setting all properties.
@@ -746,13 +746,13 @@ function edit_vAbsMax_CreateFcn(hObject, eventdata, handles)
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-global vMax;
+global vAbsMax;
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', num2str(vMax));
+set(hObject, 'String', num2str(vAbsMax));
 
 function edit_omegaAbsMax_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_omegaAbsMax (see GCBO)

@@ -8,9 +8,9 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
     global maxDepth;            % pixels
     global U; global V;         % pixels
     gridSpacing = 0.15;         % meters
-    floorPointRange = 0.50;     % meters
-    floorPlaneTol = 0.010;      % meters
-    minPointsToFitPlane = 10;   % # points
+    floorPointRange = 0.5;     % meters
+    floorPlaneTol = 0.01;      % meters
+    minPointsToFitPlane = 3;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
@@ -50,10 +50,10 @@ function terrain = terrainAssessment(context, rgb, depth, mode)
             disp('Defaulting to automatic fit.');
         end
         
-        groundPlanePoints = kinectPoints_k(:, depth(:) > 0 & depth(:) < maxDepth);
+        groundPlanePoints = kinectPoints_k(:, depth(:) > 0);
     end
     
-    [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.1);
+    [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.3);
 
     % Some points in the plane (columns of this matrix)
     groundPoints_k = [1,                  0,                  0;
