@@ -2,8 +2,8 @@ function [bestRedCentroid, bestBlueCentroid, bestRedVec_k, bestBlueVec_k] = loca
 
 %Gaussian smooth the RGB input
 %# Filter it
-G = fspecial('gaussian',[3 3],1);
-rgb = imfilter(rgb,G,'same');
+%G = fspecial('gaussian',[3 3],1);
+%rgb = imfilter(rgb,G,'same');
 
 bestRedCentroid = NaN;
 bestBlueCentroid = NaN;
@@ -85,7 +85,7 @@ if ~isnan(bestRedCentroid(1)) && ~isnan(bestBlueCentroid(1))
     bestRedVec_k = reshape(bestRedVec_k, [3 1]);
     bestBlueVec_k = reshape(bestBlueVec_k, [3 1]);
     ballSep = norm(bestRedVec_k - bestBlueVec_k);
-    if ballSep < 0.3 || ballSep > 0.6
+    if ballSep < 0.25 || ballSep > 0.7
         bestRedCentroid = NaN;
         bestBlueCentroid = NaN;
         bestRedVec_k = NaN;
