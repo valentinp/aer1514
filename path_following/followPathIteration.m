@@ -49,30 +49,30 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 %                 lateralErr = currPos_p(2);
                 currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
 
-                lambda = currPos_p(1)/norm(currSeg); % lambda is how far along in current path segment
-                if(lambda < -0.05 || lambda > 1)
-                    %brake;
-                    %error(['Invalid lambda: ',num2str(lambda)]);
-                    disp(['Warning: Lambda value out of range: ' num2str(lambda)])
-                end
-
-                if lambda > 1                
-                    if w2Idx > size(waypoints_r,2)
-                        disp('Already on final path segment. Stopping.');
-                        atGoal = true;
-                    else
-                        disp('Switching to next path segment');
-                        w0Idx = w0Idx + 1;
-                        w1Idx = w1Idx + 1;
-                        w2Idx = w2Idx + 1;
-
-                        T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
-                        currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
-                        currPos_p = homo2cart(T_pr * [0;0;0;1]);
-                        lateralErr = -1*currPos_p(2);   
-%                         lateralErr = currPos_p(2); 
-                    end                
-                end
+%                 lambda = currPos_p(1)/norm(currSeg); % lambda is how far along in current path segment
+%                 if(lambda < -0.05 || lambda > 1)
+%                     %brake;
+%                     %error(['Invalid lambda: ',num2str(lambda)]);
+%                     disp(['Warning: Lambda value out of range: ' num2str(lambda)])
+%                 end
+% 
+%                 if lambda > 1                
+%                     if w2Idx > size(waypoints_r,2)
+%                         disp('Already on final path segment. Stopping.');
+%                         atGoal = true;
+%                     else
+%                         disp('Switching to next path segment');
+%                         w0Idx = w0Idx + 1;
+%                         w1Idx = w1Idx + 1;
+%                         w2Idx = w2Idx + 1;
+% 
+%                         T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
+%                         currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
+%                         currPos_p = homo2cart(T_pr * [0;0;0;1]);
+%                         lateralErr = -1*currPos_p(2);   
+% %                         lateralErr = currPos_p(2); 
+%                     end                
+%                 end
 
                 currHeadingErr = getHeadingErr(currSeg);
 
@@ -81,7 +81,8 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
                     nextSeg = waypoints_r(:,w2Idx) - waypoints_r(:,w1Idx);
                     nextHeadingErr = getHeadingErr(nextSeg);
 
-                    headingErr = (1-lambda)*currHeadingErr + lambda*nextHeadingErr;
+%                     headingErr = (1-lambda)*currHeadingErr + lambda*nextHeadingErr;
+                      headingErr = currHeadingErr;
                 else
                     headingErr = currHeadingErr;
                 end

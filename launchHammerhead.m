@@ -181,31 +181,33 @@ while ishandle(h)
                 
                 T_rg_prev = T_rg;
                 if ~isnan(redCentroid) 
-                    if lostKinectTracking && lostKinectTrackingCount < 3 %Ensure that we have tracking for at least 10 frames before reverting back to Kinect tracking
+                    if lostKinectTracking && lostKinectTrackingCount < 3 %Ensure that we have tracking for at least 3 frames before reverting back to Kinect tracking
                         lostKinectTrackingCount = lostKinectTrackingCount + 1;
-                        T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-                        T_21 = T_2s*inv(T_1s);
-                        T_rg = T_21*T_rg_lost;
+%                         T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+                        T_rg = localizeWithWheelOdom(rto_odometry.OutputPort(1).Data,rto_odometry.OutputPort(2).Data,rto_odometry.OutputPort(3).Data, T_rg);
+%                         T_21 = T_2s*inv(T_1s);
+%                         T_rg = T_21*T_rg_lost;
                         disp(['Regaining Kinect tracking. Frame ' num2str(lostKinectTrackingCount) '/3']);    
                     else
 %                          disp('Kinect tracking acquired.');
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
                         lostKinectTracking = false;
                         lostKinectTrackingCount = 0;
-                        T_1s = NaN;
+%                         T_1s = NaN;
                     end
                 elseif isnan(redCentroid) && ~isempty(rto_odometryState)
                     lostKinectTracking = true;
                     lostKinectTrackingCount = 0;
-                    if isnan(T_1s)
-                        T_1s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-                        T_rg_lost = T_rg;
-                        disp('Lost Kinect tracking.');
-                    else
-                         T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-                         T_21 = T_2s*inv(T_1s);
-                         T_rg = T_21*T_rg_lost;
-                    end
+                    T_rg = localizeWithWheelOdom(rto_odometry.OutputPort(1).Data,rto_odometry.OutputPort(2).Data,rto_odometry.OutputPort(3).Data, T_rg);
+%                     if isnan(T_1s)
+% %                         T_1s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+% %                         T_rg_lost = T_rg;
+%                         disp('Lost Kinect tracking.');
+%                     else
+% %                          T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
+% %                          T_21 = T_2s*inv(T_1s);
+% %                          T_rg = T_21*T_rg_lost;
+%                     end
                 end
 
                                 
