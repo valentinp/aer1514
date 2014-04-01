@@ -213,9 +213,9 @@ global terrain; global context; global option
 
 % Don't use the backfilled depths for terrain assessment
 mxNiUpdateContext(context, option);
-[rgb,depth] = getKinectData(context, option);
+[~,depth] = getKinectData(context, option);
 
-terrain = terrainAssessment(context,rgb,depth,1);
+terrain = terrainAssessment(context,depth,1);
 
 imagesc(terrain.safeCells, 'Parent', handles.kinectOverlays);
 set(handles.kinectOverlays, 'XTick',[],'YTick',[],'XDir','Normal','YDir','Normal');
@@ -555,9 +555,9 @@ global terrain; global context; global option;
 
 % Don't use the backfilled depths for terrain assessment
 mxNiUpdateContext(context, option);
-[rgb,depth] = getKinectData(context, option);
+[~,depth] = getKinectData(context, option);
 
-terrain = terrainAssessment(context,rgb,depth,0);
+terrain = terrainAssessment(context,depth,0);
 
 patches = findall(allchild(handles.kinectRGB),'Type','patch');
 delete(patches);
