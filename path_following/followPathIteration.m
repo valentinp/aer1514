@@ -12,16 +12,19 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
 
         if true%ds < 0.5
-            distTraveled = distTraveled + ds;
-
+            if ds > 0.03
+                distTraveled = distTraveled + ds
+            end
+            
             waypoints_g = [waypoints_g; zeros(1, size(waypoints_g,2))];
             waypoints_g = cart2homo(waypoints_g);
             waypoints_r = homo2cart(T_rg * waypoints_g);    
 
             [w0Idx, w1Idx, w2Idx] = getClosestWaypointIndices(waypoints_r);
 
+
             if (w0Idx == 0)
-                %drive(0.3,0);
+                drive(0.3,0);
                 disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
                 %atGoal = true;
                 return;
@@ -44,55 +47,55 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 %                 drive(v,omega);
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
-                currPos_p = homo2cart(T_pr * [0;0;0;1])
-%                 lateralErr = -1*currPos_p(2);
-                 lateralErr = currPos_p(2);
+                currPos_p = homo2cart(T_pr * [0;0;0;1]);
+                 lateralErr = -1*currPos_p(2);
                 currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
 
-                lambda = currPos_p(1)/norm(currSeg); % lambda is how far along in current path segment
-                if(lambda < -0.05 || lambda > 1)
-                    %brake;
-                    %error(['Invalid lambda: ',num2str(lambda)]);
-                    disp(['Warning: Lambda value out of range: ' num2str(lambda)])
-                end
+                %lambda = currPos_p(1)/norm(currSeg); % lambda is how far along in current path segment
+               
+                
+%                 if(lambda < -0.05 || lambda > 1)
+%                     %brake;
+%                     %error(['Invalid lambda: ',num2str(lambda)]);
+%                     disp(['Warning: Lambda value out of range: ' num2str(lambda)])
+%                 end
 
-                if lambda > 1                
-                    if w2Idx > size(waypoints_r,2)
-                        disp('Already on final path segment. Stopping.');
-                        atGoal = true;
-                    else
-                        disp('Switching to next path segment');
-                        w0Idx = w0Idx + 1;
-                        w1Idx = w1Idx + 1;
-                        w2Idx = w2Idx + 1;
-
-                        T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
-                        currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
-                        currPos_p = homo2cart(T_pr * [0;0;0;1]);
+%                 if lambda > 1                
+%                     if w2Idx > size(waypoints_r,2)
+%                         disp('Already on final path segment. Stopping.');
+%                         atGoal = true;
+%                     else
+%                         disp('Switching to next path segment');
+%                         w0Idx = w0Idx + 1;
+%                         w1Idx = w1Idx + 1;
+%                         w2Idx = w2Idx + 1;
+% 
+%                         T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
+%                         currSeg = waypoints_r(:,w1Idx) - waypoints_r(:,w0Idx);
+%                         currPos_p = homo2cart(T_pr * [0;0;0;1]);
 %                         lateralErr = -1*currPos_p(2);   
-                         lateralErr = currPos_p(2); 
-                    end                
-                end
+% %                          lateralErr = currPos_p(2); 
+%                     end                
+%                 end
 
-                currHeadingErr = getHeadingErr(currSeg)
+                currHeadingErr = getHeadingErr(currSeg);
+                headingErr = currHeadingErr;
 
-                if w2Idx <= size(waypoints_r,2)
+%                 if w2Idx <= size(waypoints_r,2)
+% 
+%                     nextSeg = waypoints_r(:,w2Idx) - waypoints_r(:,w1Idx);
+%                     nextHeadingErr = getHeadingErr(nextSeg);
+%                     headingErr = (1-lambda)*currHeadingErr + lambda*nextHeadingErr;
+% %                       headingErr = currHeadingErr;
+%                 else
+%                     headingErr = currHeadingErr;
+%                 end
 
-                    nextSeg = waypoints_r(:,w2Idx) - waypoints_r(:,w1Idx);
-                    nextHeadingErr = getHeadingErr(nextSeg)
-                    lambda
-
-                     headingErr = (1-lambda)*currHeadingErr + lambda*nextHeadingErr;
-%                       headingErr = currHeadingErr;
-                else
-                    headingErr = currHeadingErr;
-                end
-
-                omega = (-k1*lateralErr -k2*v*sin(headingErr))/(v*cos(headingErr));
-                %drive(v,omega);
-                disp(['Heading Error: ' num2str(headingErr*180/pi)])
-                disp(['Omega: ' num2str(omega)]);
-                disp(['Lateral Error: ' num2str(lateralErr)]);
+                omega = (-k1*lateralErr - k2*v*sin(headingErr))/(v*cos(headingErr));
+                drive(v,omega);
+                %disp(['Heading Error: ' num2str(headingErr*180/pi)])
+                %disp(['Omega: ' num2str(omega)]);
+                %disp(['Lateral Error: ' num2str(lateralErr)]);
 
                 % " atGoal || " handles the case when atGoal is set to true
                 % when lambda > 1 and we're at the end of the path

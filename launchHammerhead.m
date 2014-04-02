@@ -75,6 +75,7 @@ T_rg = NaN;
 T_rg_prev = NaN;
 T_rg_history = zeros(4,4);
 T_rg_kinect_flag = false;
+T_rg_start_flag = false;
 T_mk = NaN;
 lastPixVec = NaN;
 
@@ -90,13 +91,12 @@ end
 % Path planning and following
 atGoal = true;
 v = 0.5;
-% k1 = 1.5;           % lateral
-% k2 = 1.5;           % heading
-k1 = 2; %lateral
-k2 = 1.2; %heading
+k1 = 1.5;           % lateral
+k2 = 1.5;           % heading
+
 
 goalThresh = 0.3;  % meters
-maxPathLengthMultiple = 1.02;
+maxPathLengthMultiple = 1.2;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
@@ -213,14 +213,12 @@ while ishandle(h)
 % % %                          T_rg = T_21*T_rg_lost;
 % %                     end
 %                 end
-                    if ~T_rg_kinect_flag && ~isnan(redCentroid(1))
+                    if ~isnan(redCentroid(1)) %~T_rg_kinect_flag && ~isnan(redCentroid(1))
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
                         T_rg_kinect_flag = true;
-                        tic();
                     else
-                        dt = toc();
-                        T_rg = localizeWithWheelOdom(rto_odometry.OutputPort(1).Data,rto_odometry.OutputPort(2).Data,rto_odometry.OutputPort(3).Data, T_rg, dt);
-                        tic();
+                        T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg);
+
                         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
                         if ~exist('checkDist', 'var')
                             checkDist = 0;
@@ -230,15 +228,18 @@ while ishandle(h)
                                 
                 % Path following
                 if ~atGoal
-
+                    
+                    if ~T_rg_start_flag && ~isnan(redCentroid(1))
+                        T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
+                        T_rg_start_flag = true;
+                    end
                     
                     set_param('robulink/resetFlag','Value', '0');
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
-                    disp(['Distance Traveled: ' num2str(distTraveled) ' / ' num2str(pathLength)]);
+                    %disp(['Distance Traveled: ' num2str(distTraveled) ' / ' num2str(pathLength)]);
                     atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
                     T_rg_history(:,:,end+1) = T_rg;
                     rovPos = T_rg \ [0 0 0 1]';
-                    disp(rovPos(1:2));
 
                     if atGoal
                         disp('SUCCESS: Path completed.');

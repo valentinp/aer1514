@@ -30,11 +30,6 @@ scatterPointsB = [];
 
 [context,option] = createKinectContext();
 
-if exist('trackingCalibration.mat', 'file')% == 2
-    S = load('trackingCalibration.mat');
-    calibStruct = S.calibStruct;
-else
-
 [rgb,depth] = getKinectData(context);
 G = fspecial('gaussian',[3 3],1);
 rgb = imfilter(rgb,G,'same');
@@ -66,8 +61,8 @@ rgb = imfilter(rgb,G,'same');
 
 
  
- sigma_const = 0.3;
- sigma_const_min = 0.8;
+ sigma_const = 0.5;
+ sigma_const_min = 1.5;
  
  
  red_h_rng = [median(red_h)-sigma_const*std(red_h), median(red_h)+sigma_const*std(red_h)];
@@ -88,9 +83,8 @@ calibStruct.red_v_min = red_v_min;
 calibStruct.blue_s_min = blue_s_min;
 calibStruct.red_s_min = red_s_min;
 
-save('trackingCalibration.mat', 'calibStruct'); 
 
-end
+
 
 
 hsv = rgb2hsv(rgb);
