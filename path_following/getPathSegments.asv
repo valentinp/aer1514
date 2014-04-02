@@ -36,7 +36,7 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         else            
         % Fall back to A* search if there isn't a straight line path
         
-            % Initialize costs and cell states
+            % Initialize costs
             costToCome = Inf(terrain.gridSize);
             eucDist = Inf(terrain.gridSize);
             totalCost = Inf(terrain.gridSize);

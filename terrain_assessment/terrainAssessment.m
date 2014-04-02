@@ -164,6 +164,12 @@ function terrain = terrainAssessment(context, depth, mode)
                     [gridPlanesA(i,j), gridPlanesB(i,j), gridPlanesC(i,j)] = fitPlaneToPoints(planePoints(1,:)', planePoints(2,:)', planePoints(3,:)');
                     planeMaxSlope(i,j) = acosd(1/(gridPlanesB(i,j)^2 + gridPlanesC(i,j)^2 + 1));
                 else
+                    % If we don't have enough information to fit a plane,
+                    % just assume it's safe. 
+                    gridPlanesA(i,j) = 0;
+                    gridPlanesB(i,j) = 0;
+                    gridPlanesC(i,j) = 0;
+                    planeMaxSlope(i,j) = 0;
                     planeMaxSlope(i,j) = 90;
                 end
             end
