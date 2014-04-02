@@ -10,9 +10,9 @@ imgHandle = imshow(zeros(height,width,3,'uint8'));
 [rgb,~] = getKinectData(context);
 displayKinectRGB(rgb,imgHandle); 
  
-disp('Select top left and bottom right corners of the blue ball');  
+disp('Select top left and bottom right corners of the BLUE ball');  
 [x_blue,y_blue] = ginput(2);
-disp('Select top left and bottom right corners of the red ball');  
+disp('Select top left and bottom right corners of the RED ball');  
 [x_red,y_red] = ginput(2);
 
  

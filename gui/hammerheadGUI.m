@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 18:52:31
+% Last Modified by GUIDE v2.5 02-Apr-2014 14:04:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -335,6 +335,9 @@ function btn_trainBallDetector_Callback(hObject, eventdata, handles)
 global calibStruct;
 global context;
 global isTrackingCalibrated;
+global rgbObjectMask;
+
+rgbObjectMask = false(size(rgbObjectMask));
 calibStruct = calibrateTracking(context);
 isTrackingCalibrated = true;
 drawnow;
@@ -839,3 +842,23 @@ else
     disp('Can''t delete last sample since sample list is already empty.');
 end
 drawnow;
+
+
+% --- Executes on button press in btn_addObjectMask.
+function btn_addObjectMask_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_addObjectMask (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global context;
+global rgbObjectMask;
+
+rgbObjectMask = addPolygonMask(context, rgbObjectMask);
+
+% --- Executes on button press in btn_localizeManual.
+function btn_localizeManual_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_localizeManual (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global localizeManuallyThisIter;
+
+localizeManuallyThisIter = true;
