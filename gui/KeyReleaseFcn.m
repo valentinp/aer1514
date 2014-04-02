@@ -23,4 +23,5 @@ function KeyReleaseFcn(src, event)
         end
         drive(v,omega);
     end
+    drawnow;
 end

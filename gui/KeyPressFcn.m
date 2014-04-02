@@ -29,4 +29,5 @@ function KeyPressFcn(src, event)
                 hammerheadGUI('btn_EmergStop_Callback');
         end
     end
+    drawnow;
 end

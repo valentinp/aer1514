@@ -10,7 +10,7 @@ function terrain = terrainAssessment(context, depth, mode)
     gridSpacing = 0.15;         % meters
     floorPointRange = 0.5;     % meters
     floorPlaneTol = 0.01;      % meters
-    minPointsToFitPlane = 3;   % # points
+    minPointsToFitPlane = 50;   % # points
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
@@ -169,7 +169,6 @@ function terrain = terrainAssessment(context, depth, mode)
                     gridPlanesA(i,j) = 0;
                     gridPlanesB(i,j) = 0;
                     gridPlanesC(i,j) = 0;
-                    planeMaxSlope(i,j) = 0;
                     planeMaxSlope(i,j) = 90;
                 end
             end
