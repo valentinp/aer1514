@@ -174,6 +174,11 @@ function terrain = terrainAssessment(context, depth, mode)
                     planeCorners_g(2,:) = [gridEdgesY(i), gridEdgesY(i+1), gridEdgesY(i+1), gridEdgesY(i)];
                     planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
                     
+                    planeCorners_k = homo2cart(T_kg * cart2homo(planeCorners_g));
+                    planeCorners_k = reshape(planeCorners_k', [1 4 3]);
+                    planeCorners_k_projective = mxNiConvertRealWorldToProjective(context, planeCorners_k*1000); % needs it in mm
+                    planeCorners_k_projective = reshape(planeCorners_k_projective, [4 3]);
+                    
                     if sum(~(planeCorners_k_projective(:,1) < width & planeCorners_k_projective(:,2) < height)) == 0
                         planeMaxSlope(i,j) = 0;
                     else
