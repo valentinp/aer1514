@@ -28,8 +28,8 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         n = 1;
         foundPath = true;
         while n <= straightPathNumPoints && foundPath
-            [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain)
-            terrain.safeCells(iPoint,jPoint)
+            [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain);
+            terrain.safeCells(iPoint,jPoint);
             foundPath = foundPath && terrain.safeCells(iPoint, jPoint);
             n = n+1;
         end
