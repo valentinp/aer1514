@@ -106,7 +106,7 @@ k2 = 1.5;           % heading
 
 
 goalThresh = 0.3;  % meters
-maxPathLengthMultiple = 1.05;
+maxPathLengthMultiple = 10;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
@@ -197,78 +197,26 @@ while ishandle(h)
             end
 
             if isfield(terrain, 'T_gk')
-%                 if ~isnan(redCentroid) 
-%                     if lostKinectTracking && lostKinectTrackingCount < 1 %Ensure that we have tracking for at least 3 frames before reverting back to Kinect tracking
-%                         lostKinectTrackingCount = lostKinectTrackingCount + 1;
-% %                         T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-%                         T_rg = localizeWithWheelOdom(rto_odometry.OutputPort(1).Data,rto_odometry.OutputPort(2).Data,rto_odometry.OutputPort(3).Data, T_rg);
-% %                         T_21 = T_2s*inv(T_1s);
-% %                         T_rg = T_21*T_rg_lost;
-%                         disp(['Regaining Kinect tracking. Frame ' num2str(lostKinectTrackingCount) '/1']);    
-%                     else
-% %                          disp('Kinect tracking acquired.');
-%                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-%                         lostKinectTracking = false;
-%                         lostKinectTrackingCount = 0;
-% %                         T_1s = NaN;
-%                     end
-%                 elseif isnan(redCentroid) && ~isempty(rto_odometryState)
-%                     lostKinectTracking = true;
-%                     lostKinectTrackingCount = 0;
-%                     T_rg = localizeWithWheelOdom(rto_odometry.OutputPort(1).Data,rto_odometry.OutputPort(2).Data,rto_odometry.OutputPort(3).Data, T_rg);
-% %                     if isnan(T_1s)
-% % %                         T_1s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-% % %                         T_rg_lost = T_rg;
-% %                         disp('Lost Kinect tracking.');
-% %                     else
-% % %                          T_2s = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data);
-% % %                          T_21 = T_2s*inv(T_1s);
-% % %                          T_rg = T_21*T_rg_lost;
-% %                     end
-%                 end
+
                     T_rg_prev = T_rg;
-                    if ~isnan(redCentroid(1)) %~T_rg_kinect_flag && ~isnan(redCentroid(1))
+                    if ~isnan(redCentroid(1)) 
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
                         T_rg_last_kinect = T_rg; %Used for keeping track of the last T_rg that came from the kinect 
                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
                     else
                         T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg_last_kinect);
-%                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
-%                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
-                        ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
-                        disp(['ds: ' num2str(ds)]);
                     end
                     
-%                     if sum(T_rg_filter(:)) == 0
-%                         T_rg_filter = repmat(T_rg, [1 1 FILTER_SIZE]);
-%                     else
-%                         T_rg_filter = T_rg_filter(:,:,2:end);
-%                         T_rg_filter(:,:,end+1) = T_rg;
-%                     end
-%                     
-%                     T_rg = mean(T_rg_filter, 3);
-                    
-                    T_rg_history(:,:,end+1) = inv(T_rg);
-
-                                
                 % Path following
                 if ~atGoal && ~overSample
                     
-                    % T_rg mean filter
-%                     if sum(T_rg_filter(:)) == 0
-%                         T_rg_filter = repmat(T_rg, [1 1 FILTER_SIZE]);
-%                     else
-%                         T_rg_filter = T_rg_filter(:,:,2:end);
-%                         T_rg_filter(:,:,end+1) = T_rg;
-%                     end
-%                     
-%                     T_rg = mean(T_rg_filter, 3);
+
                     
                     set_param('robulink/resetFlag','Value', '0');
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
-                    %disp(['Distance Traveled: ' num2str(distTraveled) ' / ' num2str(pathLength)]);
-                    atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
+                    disp(['Distance Traveled: ' num2str(distTraveled) ' / ' num2str(pathLength)]);
+                    %atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
                     rovPos = T_rg \ [0 0 0 1]';
 
                     if atGoal
@@ -288,11 +236,9 @@ while ishandle(h)
             end 
         end
     else
-%         disp('Warning: In teleop mode. Tracking disabled.');
         atGoal = true;
     end
     
     drawnow;
     pause(0.001);
-%     toc
 end
