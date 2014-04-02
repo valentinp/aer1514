@@ -27,6 +27,7 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         while n <= straightPathNumPoints && foundPath
             [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain);
             foundPath = foundPath && terrain.safeCells(iPoint, jPoint);
+            n = n+1;
         end
 
         % If there were no obstacles, return start and goal as the only
