@@ -77,6 +77,7 @@ T_rg = NaN;
 T_rg_prev = NaN;
 T_rg_last_kinect = NaN;
 T_rg_history = zeros(4,4);
+lostKinectCount = 0;
 rgbObjectMask = repmat(false(height,width), [1,1,3]);
 localizeManuallyThisIter = false;
 
@@ -101,8 +102,8 @@ end
 % Path planning and following
 atGoal = true;
 v = 0.5;
-k1 = 0.2;           % lateral
-k2 = 1.5;           % heading
+k1 = 0.5;           % lateral
+k2 = 2;           % heading
 
 
 goalThresh = 0.3;  % meters
@@ -204,10 +205,23 @@ while ishandle(h)
                         T_rg_last_kinect = T_rg; %Used for keeping track of the last T_rg that came from the kinect 
                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
+                        lostKinectCount = 0;
                     else
-                        T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg_last_kinect);
+                        dx = rto_odometryState.OutputPort(1).Data;
+                        dy = rto_odometryState.OutputPort(2).Data;
+                        dtheta = rto_odometryState.OutputPort(3).Data;
+                        dstate = [dx dy dtheta]';
+                        if sum(dstate) > 0
+                            disp(dstate);
+                        end
+                        lostKinectCount =lostKinectCount+1;
+                        %Do not consider the first iteration where kinect
+                        %data is lost
+                        if lostKinectCount > 2
+                            T_rg = localizeWithWheelOdom(dx,dy,dtheta, T_rg_last_kinect);
+                        end
                     end
-                    
+               T_rg_history(:,:,end+1) = inv(T_rg);     
                 % Path following
                 if ~atGoal && ~overSample
                     
