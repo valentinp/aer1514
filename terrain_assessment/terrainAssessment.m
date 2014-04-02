@@ -14,7 +14,7 @@ function terrain = terrainAssessment(context, depth, mode)
     
 %     [context, option] = createKinectContext(true);
 %     [rgb,depth] = getKinectData(context, option);
-    kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth(depth > 0)) / 1000;  % height x width x 3 (meters)
+    kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;  % height x width x 3 (meters)
     kinectPoints_k = reshape(kinectPoints_k, [(width*height), 3]);             % (height x width) x 3
     kinectPoints_k = kinectPoints_k';                                          % 3 x (height x width)
     
@@ -50,7 +50,7 @@ function terrain = terrainAssessment(context, depth, mode)
             disp('Defaulting to automatic fit.');
         end
         
-%         groundPlanePoints = kinectPoints_k(:, depth(:) > 0);
+        groundPlanePoints = kinectPoints_k(:, kinectPoints_k(:,3) > 0);
     end
     
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.3);
