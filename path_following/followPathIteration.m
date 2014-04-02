@@ -13,7 +13,7 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
         if true%ds < 0.5
             if ds > 0.03
-                distTraveled = distTraveled + ds
+                distTraveled = distTraveled + ds;
             end
             
             waypoints_g = [waypoints_g; zeros(1, size(waypoints_g,2))];
@@ -24,10 +24,10 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 
 
             if (w0Idx == 0)
-                drive(0.3,0);
+                %drive(0.3,0);
                 disp('WARNING: Start rover position is behind the current path. Teleop to better position.');
                 %atGoal = true;
-                return;
+                %return;
 
                 % If we're behind the path, drive in a straight line
                 % in the direction of the second waypoint until the path
@@ -43,8 +43,8 @@ function [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints
 %                     phi = -phi;
 %                 end
 %                 
-%                 omega = -min(abs(phi), 2)*sign(phi);              
-%                 drive(v,omega);
+%                 omega = -min(abs(phi), 1)*sign(phi)
+%                 drive(0.2,omega);
             else
                 T_pr = getPathTransformation(waypoints_r, w0Idx, w1Idx);
                 currPos_p = homo2cart(T_pr * [0;0;0;1]);

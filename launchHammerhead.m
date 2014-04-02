@@ -73,6 +73,7 @@ T_1s = NaN;
 % Rover Localization
 T_rg = NaN;
 T_rg_prev = NaN;
+T_rg_last_kinect = NaN;
 T_rg_history = zeros(4,4);
 
 %Rolling average filter for the Transformation
@@ -96,12 +97,12 @@ end
 % Path planning and following
 atGoal = true;
 v = 0.5;
-k1 = 1.5;           % lateral
+k1 = 0.2;           % lateral
 k2 = 1.5;           % heading
 
 
 goalThresh = 0.3;  % meters
-maxPathLengthMultiple = 1.5;
+maxPathLengthMultiple = 1.05;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
@@ -151,7 +152,9 @@ while ishandle(h)
     
     if ~isempty(rto_detectSample) && rto_detectSample.OutputPort(1).Data
         set(gui_data.overSample_image, 'CData', foundSampleCData);
+        overSample = true;
     else
+        overSample = false;
          set(gui_data.overSample_image, 'CData', noSampleCData);
     end
     
@@ -185,10 +188,6 @@ while ishandle(h)
             end
 
             if isfield(terrain, 'T_gk')
-                
-                T_rg_prev = T_rg;
-                
-                
 %                 if ~isnan(redCentroid) 
 %                     if lostKinectTracking && lostKinectTrackingCount < 1 %Ensure that we have tracking for at least 3 frames before reverting back to Kinect tracking
 %                         lostKinectTrackingCount = lostKinectTrackingCount + 1;
@@ -218,47 +217,63 @@ while ishandle(h)
 % % %                          T_rg = T_21*T_rg_lost;
 % %                     end
 %                 end
+                    T_rg_prev = T_rg;
                     if ~isnan(redCentroid(1)) %~T_rg_kinect_flag && ~isnan(redCentroid(1))
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-                        T_rg_kinect_flag = true;
-                        set_param('robulink/resetFlag','Value', '1');
+                        T_rg_last_kinect = T_rg; %Used for keeping track of the last T_rg that came from the kinect 
+                        resetFlag = str2num(get_param('robulink/resetFlag','Value'));
+                        set_param('robulink/resetFlag','Value', num2str(~resetFlag));
                     else
-                        set_param('robulink/resetFlag','Value', '0');
-                        T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg);
+                        T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg_last_kinect);
+%                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
+%                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
                         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
-                        if ~exist('checkDist', 'var')
-                            checkDist = 0;
-                        end
-                         checkDist = checkDist + ds;
+                        disp(['ds: ' num2str(ds)]);
                     end
+                    
+%                     if sum(T_rg_filter(:)) == 0
+%                         T_rg_filter = repmat(T_rg, [1 1 FILTER_SIZE]);
+%                     else
+%                         T_rg_filter = T_rg_filter(:,:,2:end);
+%                         T_rg_filter(:,:,end+1) = T_rg;
+%                     end
+%                     
+%                     T_rg = mean(T_rg_filter, 3);
+                    
+                    T_rg_history(:,:,end+1) = inv(T_rg);
+
                                 
                 % Path following
-                if ~atGoal
+                if ~atGoal && ~overSample
                     
                     % T_rg mean filter
-                    if sum(T_rg_filter(:)) == 0
-                        T_rg_filter = repmat(T_rg, [1 1 FILTER_SIZE]);
-                    else
-                        T_rg_filter = T_rg_filter(:,:,2:end);
-                        T_rg_filter(:,:,end+1) = T_rg;
-                    end
-                    
-                    T_rg = mean(T_rg_filter, 3);
+%                     if sum(T_rg_filter(:)) == 0
+%                         T_rg_filter = repmat(T_rg, [1 1 FILTER_SIZE]);
+%                     else
+%                         T_rg_filter = T_rg_filter(:,:,2:end);
+%                         T_rg_filter(:,:,end+1) = T_rg;
+%                     end
+%                     
+%                     T_rg = mean(T_rg_filter, 3);
                     
                     set_param('robulink/resetFlag','Value', '0');
                     [atGoal, distTraveled] = followPathIteration(T_rg, T_rg_prev, waypoints_g, atGoal, distTraveled);
                     %disp(['Distance Traveled: ' num2str(distTraveled) ' / ' num2str(pathLength)]);
                     atGoal = atGoal || distTraveled >= maxPathLengthMultiple * pathLength;
-                    T_rg_history(:,:,end+1) = T_rg;
                     rovPos = T_rg \ [0 0 0 1]';
 
                     if atGoal
+                        distTraveled
                         disp('SUCCESS: Path completed.');
                         brake();
                     end
+                elseif overSample
+                     brake();
+                     atGoal = true;
+                     disp('SUCCESS: Path completed.');
+                     disp('FOUND SAMPLE!');
                 else
                     distTraveled = 0;
-                    set_param('robulink/resetFlag','Value', '1');
                 end
                 
             end 
