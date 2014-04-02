@@ -39,6 +39,8 @@ global calibStruct;
 global isTrackingCalibrated;
 global sampleList_k;
 global lastPixVec;
+global rgbObjectMask;
+global localizeManuallyThisIter;
 
 % Path planning and following
 global waypoints_g; global pathLength;
@@ -75,6 +77,8 @@ T_rg = NaN;
 T_rg_prev = NaN;
 T_rg_last_kinect = NaN;
 T_rg_history = zeros(4,4);
+rgbObjectMask = repmat(false(height,width), [1,1,3]);
+localizeManuallyThisIter = false;
 
 %Rolling average filter for the Transformation
 FILTER_SIZE = 3;
@@ -135,7 +139,7 @@ while ishandle(h)
 % tic
     % Kinect data streams
     [rgb, depth] = getKinectData(context, option);
-
+    
     if isfield(terrain, 'T_kg')
         [depth,~] = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain.m, terrain.n, terrain.p);
     end
@@ -180,8 +184,13 @@ while ishandle(h)
        % Localization etc.
         if isTrackingCalibrated
 
-            [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct, lastPixVec);
-
+            if localizeManuallyThisIter
+                [redCentroid, blueCentroid, redVec_k, blueVec_k] = localizeManually(context, rgb, depth);
+                localizeManuallyThisIter = false;
+            else
+                [redCentroid, blueCentroid, redVec_k,blueVec_k] = localizeRover(context, rgb, depth, calibStruct, lastPixVec);
+            end
+                
             if ~isnan(redCentroid)
                displayLocalization(gui_data.kinectRGB, redCentroid, blueCentroid);
                lastPixVec = redCentroid - blueCentroid;
