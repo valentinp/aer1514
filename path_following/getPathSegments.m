@@ -10,7 +10,7 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
     [iStart, jStart] = getCellIndexFromCoords(xStart,yStart,terrain);
     [iGoal, jGoal] = getCellIndexFromCoords(xGoal,yGoal,terrain);     
     
-    %Intial value
+    % Intial value
     foundPath = false;
     
     % No point path planning at all if start and end points are invalid
@@ -19,16 +19,17 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         % First, see if we can just drive in a straight line to the goal
         straightPathVec = [xGoal - xStart; yGoal - yStart];
         straightPathLength = norm(straightPathVec);
-        straightPathNumPoints = ceil(straightPathLength / 0.01);
+        straightPathNumPoints = ceil(straightPathLength / 0.05);
         straightPathPoints = repmat([xStart;yStart], [1,straightPathNumPoints]) ...
             + repmat(linspace(0,straightPathLength,straightPathNumPoints), [2,1]) ...
-            .* repmat(0.01*normalize(straightPathVec), [1,straightPathNumPoints]);
+            .* repmat(straightPathVec, [1,straightPathNumPoints]);
 
         % Check if all the cells we intersect are safe
         n = 1;
         foundPath = true;
         while n <= straightPathNumPoints && foundPath
-            [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain);
+            [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain)
+            terrain.safeCells(iPoint,jPoint)
             foundPath = foundPath && terrain.safeCells(iPoint, jPoint);
             n = n+1;
         end
