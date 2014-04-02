@@ -165,11 +165,20 @@ function terrain = terrainAssessment(context, depth, mode)
                     planeMaxSlope(i,j) = acosd(1/(gridPlanesB(i,j)^2 + gridPlanesC(i,j)^2 + 1));
                 else
                     % If we don't have enough information to fit a plane,
-                    % just assume it's safe. 
+                    % just assume it's safe, unless it's out of frame. 
                     gridPlanesA(i,j) = 0;
                     gridPlanesB(i,j) = 0;
                     gridPlanesC(i,j) = 0;
-                    planeMaxSlope(i,j) = 90;
+                    
+                    planeCorners_g(1,:) = [gridEdgesX(j), gridEdgesX(j), gridEdgesX(j+1), gridEdgesX(j+1)];
+                    planeCorners_g(2,:) = [gridEdgesY(i), gridEdgesY(i+1), gridEdgesY(i+1), gridEdgesY(i)];
+                    planeCorners_g(3,:) = gridPlanesA(i,j) + gridPlanesB(i,j)*planeCorners_g(1,:) + gridPlanesC(i,j)*planeCorners_g(2,:);
+                    
+                    if sum(~(planeCorners_k_projective(:,1) < width & planeCorners_k_projective(:,2) < height)) == 0
+                        planeMaxSlope(i,j) = 0;
+                    else
+                        planeMaxSlope(i,j) = 90;
+                    end
                 end
             end
             
