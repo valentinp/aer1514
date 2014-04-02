@@ -50,7 +50,7 @@ function terrain = terrainAssessment(context, depth, mode)
             disp('Defaulting to automatic fit.');
         end
         
-        groundPlanePoints = kinectPoints_k(:, kinectPoints_k(:,3) > 0);
+        groundPlanePoints = kinectPoints_k(:, kinectPoints_k(3,:) > 0);
     end
     
     [groundA, groundB, groundC] = fitPlaneToPoints(groundPlanePoints(1,:), groundPlanePoints(2,:), groundPlanePoints(3,:), 0.9999, 0.3);
