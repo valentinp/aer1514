@@ -120,8 +120,9 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         pathLength = 0;
     end
     
-    waypoints = simplifyPath(waypoints);
-    
+    if ~isempty(waypoints)
+        waypoints = simplifyPath(waypoints);
+    end
     cellStates(iStart,jStart) = -5;
     cellStates(iGoal,jGoal) = 5;
     imagesc(cellStates, 'Parent', h)
