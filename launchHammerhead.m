@@ -101,7 +101,7 @@ k2 = 1.5;           % heading
 
 
 goalThresh = 0.3;  % meters
-maxPathLengthMultiple = 1.2;
+maxPathLengthMultiple = 1.5;
 distTraveled = 0;   % meters
 
 % Teleop mode setting
@@ -221,7 +221,9 @@ while ishandle(h)
                     if ~isnan(redCentroid(1)) %~T_rg_kinect_flag && ~isnan(redCentroid(1))
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
                         T_rg_kinect_flag = true;
+                        set_param('robulink/resetFlag','Value', '1');
                     else
+                        set_param('robulink/resetFlag','Value', '0');
                         T_rg = localizeWithWheelOdom(rto_odometryState.OutputPort(1).Data,rto_odometryState.OutputPort(2).Data,rto_odometryState.OutputPort(3).Data, T_rg);
                         ds = norm(homo2cart(T_rg\[0;0;0;1]) - homo2cart(T_rg_prev\[0;0;0;1]));
                         if ~exist('checkDist', 'var')
