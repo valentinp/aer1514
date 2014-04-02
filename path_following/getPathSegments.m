@@ -24,7 +24,7 @@ function [waypoints, pathLength] = getPathSegments(h, xStart, yStart, xGoal, yGo
         % Check if all the cells we intersect are safe
         n = 1;
         foundPath = true;
-        while n < straightPathNumPoints && foundPath
+        while n <= straightPathNumPoints && foundPath
             [iPoint, jPoint] = getCellIndexFromCoords(straightPathPoints(1,n), straightPathPoints(2,n), terrain);
             foundPath = foundPath && terrain.safeCells(iPoint, jPoint);
         end
