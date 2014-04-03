@@ -22,7 +22,7 @@ function varargout = hammerheadGUI(varargin)
 
 % Edit the above text to modify the response to help hammerheadGUI
 
-% Last Modified by GUIDE v2.5 02-Apr-2014 14:04:41
+% Last Modified by GUIDE v2.5 02-Apr-2014 20:36:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,6 +67,14 @@ set(handles.kinectDepth, 'CLim', [0,maxDepth]);
 % Initialize teleop radio button
 set(handles.radio_teleop,'Value',enableTeleopMode);
 set(handles.radio_auto,'Value',~enableTeleopMode);
+
+if str2num(get_param('robulink/armPower','Value')) > 0
+    set(handles.checkbox_armSwing,'Value', 1);
+else
+    set(handles.checkbox_armSwing,'Value', 0);
+end
+
+
 if enableTeleopMode
     set_param('robulink/teleop','Value','true');
 else
@@ -862,3 +870,18 @@ function btn_localizeManual_Callback(hObject, eventdata, handles)
 global localizeManuallyThisIter;
 
 localizeManuallyThisIter = true;
+
+
+% --- Executes on button press in checkbox_armSwing.
+function checkbox_armSwing_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_armSwing (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_armSwing
+if get(hObject,'Value') % i.e. if actually a number
+    set_param('robulink/armPower','Value', '25');
+else
+    set_param('robulink/armPower','Value', '0');
+end
+drawnow;

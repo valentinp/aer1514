@@ -136,6 +136,14 @@ rto_batteryLevel = get_param('robulink/Battery','RunTimeObject');
 rto_clearance = get_param('robulink/Ultrasonic Sensor','RunTimeObject');
 rto_odometry = get_param('robulink/Wheel Odometry','RunTimeObject');
 rto_odometryState = get_param('robulink/Display State','RunTimeObject');
+
+%Reset the co-ordinate frame
+resetFlag = str2num(get_param('robulink/resetFlag','Value'));
+set_param('robulink/resetFlag','Value', num2str(~resetFlag));
+
+%Debug
+dstate_list = [];
+
 while ishandle(h)
 % tic
     % Kinect data streams
@@ -147,7 +155,9 @@ while ishandle(h)
 
     set(gui_data.kinectRGB_image,'CData',rgb);
     set(gui_data.kinectDepth_image,'CData',depth);
- 
+    
+
+
     % Detect the samples
     if ~isempty(rto_lightSensor)
          set(gui_data.txt_sampleDetection, 'String', num2str(rto_lightSensor.OutputPort(1).Data));
@@ -202,10 +212,10 @@ while ishandle(h)
                     T_rg_prev = T_rg;
                     if ~isnan(redCentroid(1)) 
                         T_rg = localizeInTerrain(redVec_k,blueVec_k, terrain.T_gk);
-                        T_rg_last_kinect = T_rg; %Used for keeping track of the last T_rg that came from the kinect 
+                        T_rg_last_kinect = T_rg; %Used for keeping track of the last T_rg that came from the kinect
+                        lostKinectCount = 0;
                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
-                        lostKinectCount = 0;
                     else
                         dx = rto_odometryState.OutputPort(1).Data;
                         dy = rto_odometryState.OutputPort(2).Data;
@@ -217,11 +227,11 @@ while ishandle(h)
                         lostKinectCount =lostKinectCount+1;
                         %Do not consider the first iteration where kinect
                         %data is lost
-                        if lostKinectCount > 2
-                            T_rg = localizeWithWheelOdom(dx,dy,dtheta, T_rg_last_kinect);
+                        if lostKinectCount > 3
+                        T_rg = localizeWithWheelOdom(dx,dy,dtheta, T_rg_last_kinect);
                         end
                     end
-               T_rg_history(:,:,end+1) = inv(T_rg);     
+                 %T_rg_history(:,:,end+1) = inv(T_rg);     
                 % Path following
                 if ~atGoal && ~overSample
                     
