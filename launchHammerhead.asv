@@ -153,13 +153,7 @@ while ishandle(h)
     if isfield(terrain, 'T_kg')
         [depth,~] = fillMissingDepthWithGroundPlane(context, depth, U, V, terrain.m, terrain.n, terrain.p);
         if ~savedMapImages
-            mappingData.rgb = rgb;
-            mappingData.depth = depth;
-            mappingData.context = context;
-            mappingData.option = option;
-            save('mappingData.mat','mappingData');
             
-            savedMapImages = true;
         end
     end
 

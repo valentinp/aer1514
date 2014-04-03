@@ -1,4 +1,4 @@
-function newSamples = fetchSamples(context, depth)    
+function newSamples = fetchSamples(context, rgb, depth)    
     f = figure;
     imgHandle = imshow(zeros(height,width,3,'uint8'));
     hold on;

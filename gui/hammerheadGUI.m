@@ -113,10 +113,10 @@ function btn_addSample_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global context; global option; 
-global depth;
+global depth; global rgb;
 global sampleList_k;
 
-newSamples = fetchSamples(context, depth);
+newSamples = fetchSamples(context, rgb, depth);
 sampleList_k = [sampleList_k newSamples];
 set(handles.table_samples, 'Data', sampleList_k);
 drawnow;
