@@ -423,8 +423,9 @@ function btn_selectFrame_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_selectFrame (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global T_mk; global context;
-T_mk = selectFrame(context);
+global framePoints_k; global context;
+global rgb; global depth;
+framePoints_k = selectFrame(context, rgb, depth);
 drawnow;
 
 
@@ -433,13 +434,18 @@ function btn_exportMap_Callback(hObject, eventdata, handles)
 % hObject    handle to btn_exportMap (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global T_mk;global context; global sampleList_k;
-if ~isnan(T_mk) 
-    exportMap(sampleList_k, T_mk);
-else
-    T_mk = selectFrame(context);
-    exportMap(sampleList_k, T_mk);
-end
+global context; 
+global sampleList_k;
+global framePoints_k;
+
+exportMap(sampleList_k, framePoints_k);
+
+% if ~isnan(T_mk) 
+%     exportMap(sampleList_k);
+% else
+%     T_mk = selectFrame(context);
+%     exportMap(sampleList_k);
+% end
 drawnow;
 
 

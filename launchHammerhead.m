@@ -34,7 +34,7 @@ global maxDepth;
 
 % Rover localization
 global T_rg;
-global T_mk;
+global framePoints_k;
 global calibStruct;
 global isTrackingCalibrated;
 global sampleList_k;

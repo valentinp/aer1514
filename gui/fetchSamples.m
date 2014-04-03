@@ -1,4 +1,9 @@
 function newSamples = fetchSamples(context, depth)    
+    f = figure;
+    imgHandle = imshow(zeros(height,width,3,'uint8'));
+    hold on;
+    displayKinectRGB(rgb,imgHandle); 
+    
     [x,y] = ginput;
     sampleCount = length(x);
     realWorldCoords = mxNiConvertProjectiveToRealWorld(context, depth);
@@ -10,5 +15,8 @@ function newSamples = fetchSamples(context, depth)
     end
     %Convert to m
     newSamples = newSamples/1000;
+    
+    pause();
+    close(f);
 end
 
