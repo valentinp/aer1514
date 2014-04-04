@@ -11,7 +11,7 @@ hold on;
 
 % [rgb,depth] = getKinectData(context);
 displayKinectRGB(rgb,imgHandle); 
-kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth);
+kinectPoints_k = mxNiConvertProjectiveToRealWorld(context, depth) / 1000;
 
 %  realWorldCoords = mxNiDepthRealWorld(context);
 %  realWorldCoords=permute(realWorldCoords,[2 1 3]);
@@ -75,9 +75,9 @@ disp('Select 3 world frame points and press enter');
 [uWorld_k, vWorld_k] = ginput(3);
 
 % Frame points are columns of this matrix
-framePoints_k(:,3) = reshape(kinectPoints_k(round(vWorld_k(3)), round(uWorld_k(3))), [3,1]);
-framePoints_k(:,2) = reshape(kinectPoints_k(round(vWorld_k(2)), round(uWorld_k(2))), [3,1]);
-framePoints_k(:,1) = reshape(kinectPoints_k(round(vWorld_k(1)), round(uWorld_k(1))), [3,1]);
+framePoints_k(:,3) = reshape(kinectPoints_k(round(vWorld_k(3)), round(uWorld_k(3)), :), [3,1]);
+framePoints_k(:,2) = reshape(kinectPoints_k(round(vWorld_k(2)), round(uWorld_k(2)), :), [3,1]);
+framePoints_k(:,1) = reshape(kinectPoints_k(round(vWorld_k(1)), round(uWorld_k(1)), :), [3,1]);
 
 pause();
 close(f);

@@ -155,8 +155,7 @@ while ishandle(h)
         if ~savedMapImages
             mappingData.rgb = rgb;
             mappingData.depth = depth;
-            mappingData.context = context;
-            mappingData.option = option;
+            mappingData.realWorldCoords_k = mxNiConvertProjectiveToRealWorld(context, depth)/1000;
             save('mappingData.mat','mappingData');
             
             savedMapImages = true;
@@ -226,7 +225,8 @@ while ishandle(h)
                         lostKinectCount = 0;
                         resetFlag = str2num(get_param('robulink/resetFlag','Value'));
                         set_param('robulink/resetFlag','Value', num2str(~resetFlag));
-                    else
+                        
+                    elseif ~isempty(rto_odometryState)
                         dx = rto_odometryState.OutputPort(1).Data;
                         dy = rto_odometryState.OutputPort(2).Data;
                         dtheta = rto_odometryState.OutputPort(3).Data;
@@ -238,8 +238,11 @@ while ishandle(h)
                         %Do not consider the first iteration where kinect
                         %data is lost
                         if lostKinectCount > 3
-                        T_rg = localizeWithWheelOdom(dx,dy,dtheta, T_rg_last_kinect);
+                            T_rg = localizeWithWheelOdom(dx,dy,dtheta, T_rg_last_kinect);
                         end
+                        
+                    else
+                        T_rg = NaN;
                     end
                  %T_rg_history(:,:,end+1) = inv(T_rg);     
                 % Path following

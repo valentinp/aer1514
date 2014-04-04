@@ -28,5 +28,5 @@ function [T_ba, error] = scalarWeightedPointCloudAlignment(pts_a, pts_b)
     
     pts_b_estimated = homo2cart(T_ba*cart2homo(pts_a));
     diff = pts_b_estimated - pts_b;
-    error = mean(norm(diff, 1));
+    error = mean(sqrt(sum(diff.^2, 1)));
 end

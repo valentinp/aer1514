@@ -85,7 +85,7 @@ if ~isnan(bestRedCentroid(1)) && ~isnan(bestBlueCentroid(1))
     bestRedVec_k = reshape(bestRedVec_k, [3 1]);
     bestBlueVec_k = reshape(bestBlueVec_k, [3 1]);
     ballSep = norm(bestRedVec_k - bestBlueVec_k);
-    if ballSep < 0.2 || ballSep > 0.8
+    if ballSep < 0.15 || ballSep > 0.5
         bestRedCentroid = NaN;
         bestBlueCentroid = NaN;
         bestRedVec_k = NaN;

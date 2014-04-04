@@ -886,7 +886,7 @@ function checkbox_armSwing_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_armSwing
 if get(hObject,'Value') % i.e. if actually a number
-    set_param('robulink/armPower','Value', '25');
+    set_param('robulink/armPower','Value', '20');
 else
     set_param('robulink/armPower','Value', '0');
 end
