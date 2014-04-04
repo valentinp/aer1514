@@ -19,4 +19,4 @@ framePoints_w = [   0.46, 0.3, 0;
 disp(['Mean transformation error: ' num2str(error)]);
 sampleList_w = homo2cart(T_wk * cart2homo(sampleList_k));
 
-csvwrite('nyquist-mission-test.txt',sampleList_w');
+csvwrite('nyquist-mission-test.txt',sampleList_w(1:2,:)');
