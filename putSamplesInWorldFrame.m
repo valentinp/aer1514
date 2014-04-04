@@ -11,7 +11,8 @@ framePoints_w = [-0.745, -2.558, 0.456;
 
 % framePoints_w = [0,1,0; 5,1,0; 0,5,0]'; % test case
 
-T_wk = scalarWeightedPointCloudAlignment(framePoints_k, framePoints_w);
+[T_wk, error] = scalarWeightedPointCloudAlignment(framePoints_k, framePoints_w);
+disp(['Mean transformation error: ' num2str(error)]);
 sampleList_w = T_wk * sampleList_k;
 
 csvwrite('nyquist-mission-test.txt',sampleList_w');
